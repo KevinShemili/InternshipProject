@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Common;
 
 namespace Domain.Entities {
-    public class CompanyProfile {
+    public class CompanyProfile : BaseEntity {
         public Guid ProfileId { get; set; }
         public string Country { get; set; } = null!;
         public string Currency { get; set; } = null!;
@@ -19,5 +15,6 @@ namespace Domain.Entities {
         public string WebUrl { get; set; } = null!;
         public string Logo { get; set; } = null!;
         public string FinnhubIndustry { get; set; } = null!;
+        public virtual Borrower Borrower { get; set; } = null!;
     }
 }

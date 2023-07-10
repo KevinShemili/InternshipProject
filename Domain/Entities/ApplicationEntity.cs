@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Common;
 
 namespace Domain.Entities {
-    public class Application {
+    public class ApplicationEntity : BaseEntity {
         public Guid ApplicationId { get; set; }
         public string ApplicationName { get; set; } = null!;
         public int RequestedAmount { get; set; }
@@ -14,5 +10,10 @@ namespace Domain.Entities {
         public string ApplicationStatus { get; set; } = null!;
         public Guid BorrowerId { get; set; }
         public Guid FileId { get; set; }
+        public Guid ProductId { get; set; }
+        public virtual Borrower Borrower { get; set; } = null!;
+        public virtual ProductMatrix? ProductMatrix { get; set; }
+        public virtual Product Product { get; set; } = null!;
+        public virtual Loan Loan { get; set; } = null!;
     }
 }
