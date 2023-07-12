@@ -2,8 +2,10 @@
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.Authentication.Common;
 using Application.UseCases.Authentication.Queries;
+using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternshipProject.Controllers {
@@ -12,39 +14,31 @@ namespace InternshipProject.Controllers {
     public class AuthController : ControllerBase {
 
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public AuthController(IMediator mediator) {
+        public AuthController(IMediator mediator, IMapper mapper) {
             _mediator = mediator;
+            _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest) {
-            // map registerRequest to registerCommand... (automap)
-            var command = new RegisterCommand {
-                FirstName = registerRequest.FirstName,
-                LastName = registerRequest.LastName,
-                Email = registerRequest.Email,
-                Phone = registerRequest.Phone,
-                Password = registerRequest.Password,
-                Prefix = registerRequest.Prefix,
-                Username = registerRequest.Username
-            };
 
-            var result = await _mediator.Send(command);
+            var registerCommand = _mapper.Map<RegisterCommand>(registerRequest);
+
+            var result = await _mediator.Send(registerCommand);
 
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> LogIn([FromBody] LogInRequest logInRequest) {
-            // map (automap)
 
-            var query = new LoginQuery {
-                Username = logInRequest.Username,
-                Password = logInRequest.Password
-            };
+            var loginQuery = _mapper.Map<LoginQuery>(logInRequest);
 
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(loginQuery);
             return Ok(result);
         }
     }

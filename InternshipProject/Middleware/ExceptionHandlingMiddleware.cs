@@ -14,13 +14,16 @@ namespace InternshipProject.Middleware {
             try {
                 await _next(context);
             }
-            catch(NoSuchUserExistsException ex) {
+            catch (NoSuchUserExistsException ex) {
                 await HandleExceptionAsync(context, ex);
             }
-            catch(ValidationException ex) {
+            catch (ValidationException ex) {
                 await HandleExceptionAsync(context, ex);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { 
+                await HandleExceptionAsync(context, ex);
+            }
+
         }
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex) {

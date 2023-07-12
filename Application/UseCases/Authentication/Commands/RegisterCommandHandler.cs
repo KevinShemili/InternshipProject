@@ -1,5 +1,6 @@
 ﻿using Application.Persistance;
 using Application.UseCases.Authentication.Common;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
@@ -7,23 +8,16 @@ namespace Application.UseCases.Authentication.Commands {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResult> {
 
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public RegisterCommandHandler(IUserRepository userRepository) {
+        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper) {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
-            var user = new User {
-                Id = Guid.NewGuid(),
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                PasswordHash = request.Password,
-                PasswordSalt = request.Password,
-                Username = request.Username,
-                Prefix = request.Prefix,
-                PhoneNumber = request.Phone,
-            };
+            
+            var user = _mapper.Map<User>(request);
 
             _userRepository.Create(user);
 

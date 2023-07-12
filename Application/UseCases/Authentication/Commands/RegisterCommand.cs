@@ -1,11 +1,5 @@
 ﻿using Application.UseCases.Authentication.Common;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.UseCases.Authentication.Commands {
     public class RegisterCommand : IRequest<RegisterResult> {
