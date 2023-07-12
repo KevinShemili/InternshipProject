@@ -17,7 +17,10 @@ namespace InternshipProject.Middleware {
             catch(NoSuchUserExistsException ex) {
                 await HandleExceptionAsync(context, ex);
             }
-            catch(Exception ex) { }
+            catch(ValidationException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (Exception ex) { }
         }
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex) {
@@ -37,6 +40,16 @@ namespace InternshipProject.Middleware {
                         detail = noSuchUserExistsException.message
                     });
                     return context.Response.WriteAsync(result);
+                case ValidationException validationException:
+                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/422",
+                        title = "Unprocessable Entity",
+                        status = (int)HttpStatusCode.UnprocessableEntity,
+                        details = GetErrors(ex)
+                    });
+                    return context.Response.WriteAsync(result);
                 default:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/problem+json";
@@ -48,6 +61,15 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
             }
+        }
+
+        private static IReadOnlyDictionary<string, string[]> GetErrors(Exception exception) {
+            IReadOnlyDictionary<string, string[]> errors = null;
+
+            if (exception is ValidationException validationException) {
+                errors = validationException.ErrorsDictionary;
+            }
+            return errors;
         }
     }
 }

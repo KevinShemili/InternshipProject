@@ -1,5 +1,8 @@
 ﻿using Application.UseCases.Authentication;
 using Application.UseCases.Authentication.Commands;
+using Application.Validator;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,6 +19,7 @@ namespace Application
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services) {
             AddScopes(services);
             AddMediatR(services);
+            AddFluentValidation(services);
             return services;
         } 
 
@@ -25,6 +29,11 @@ namespace Application
 
         private static void AddMediatR(IServiceCollection services) {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        }
+
+        private static void AddFluentValidation(IServiceCollection services) {
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

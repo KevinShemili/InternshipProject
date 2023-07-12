@@ -1,11 +1,6 @@
-﻿using Application.Persistance;
+﻿using Application.Persistance.Common;
 using Domain.Common;
 using Infrastructure.Persistence.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.Repositories {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity {

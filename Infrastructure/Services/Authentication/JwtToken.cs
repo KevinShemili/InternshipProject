@@ -1,5 +1,5 @@
 ﻿using Application.Interfaces.Authentication;
-using Application.Interfaces.Common;
+using Application.UseCases.Authentication.Common;
 using Domain.Exceptions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +17,7 @@ namespace Infrastructure.Services.Authentication
             _jwtSettings = jwtOptions.Value;
         }
 
-        public string GenerateToken(TokenDto tokenDto) {
+        public string GenerateToken(TokenRequest tokenRequest) {
 
             var flag = true;
             if (flag)
@@ -27,8 +27,8 @@ namespace Infrastructure.Services.Authentication
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, tokenDto.Id.ToString()),
-                new Claim("Username", tokenDto.Username)
+                new Claim(JwtRegisteredClaimNames.Sub, tokenRequest.Id.ToString()),
+                new Claim("Username", tokenRequest.Username)
              };
 
             var credentials = new SigningCredentials(

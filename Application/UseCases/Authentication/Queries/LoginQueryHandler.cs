@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces.Authentication;
-using Application.Interfaces.Common;
 using Application.Persistance;
 using Application.UseCases.Authentication.Common;
 using Domain.Exceptions;
@@ -24,7 +23,7 @@ namespace Application.UseCases.Authentication.Queries {
                 throw new NoSuchUserExistsException("Username doesn't exist");
             }
 
-            var tokenRequest = new TokenDto {
+            var tokenRequest = new TokenRequest {
                 Id = user.Id,
                 Username = user.Username
             };

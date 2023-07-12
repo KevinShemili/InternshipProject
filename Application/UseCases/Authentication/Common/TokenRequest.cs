@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.Common
+namespace Application.UseCases.Authentication.Common
 {
-    public class TokenDto
-    {
-        public Guid Id { get; set; } 
+    public class TokenRequest {
+        public Guid Id { get; set; }
         public string Username { get; set; } = null!;
     }
 }

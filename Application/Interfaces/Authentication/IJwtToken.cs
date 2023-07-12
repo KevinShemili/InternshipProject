@@ -1,15 +1,8 @@
-﻿using Application.Interfaces.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.UseCases.Authentication.Common;
 
-namespace Application.Interfaces.Authentication
-{
+namespace Application.Interfaces.Authentication {
     public interface IJwtToken
     {
-        public string GenerateToken(TokenDto tokenDto);
+        public string GenerateToken(TokenRequest tokenRequest);
     }
 }
