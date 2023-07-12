@@ -1,10 +1,13 @@
 using Application;
 using Infrastructure;
+using InternshipProject.Middleware;
 
 var builder = WebApplication.CreateBuilder(args); 
 
 // Services Scope
 {
+    builder.Services.AddProblemDetails();
+
     builder.Services
         .AddApplicationLayer()
         .AddInfrastructureLayer(builder.Configuration);
@@ -23,6 +26,8 @@ var app = builder.Build();
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     app.UseHttpsRedirection();
 

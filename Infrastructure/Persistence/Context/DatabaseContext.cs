@@ -34,6 +34,8 @@ namespace Infrastructure.Persistence.Context {
             LoanConfigurations(modelBuilder);
             ProductMatricesConfigurations(modelBuilder);
             ProductsConfigurations(modelBuilder);
+
+            PermissionsSeed(modelBuilder);
         }
         
         private void UserConfigurations(ModelBuilder builder) {
@@ -217,6 +219,15 @@ namespace Infrastructure.Persistence.Context {
                 .WithOne(p => p.RolesPermissions)
                 .HasForeignKey<Roles_Permission>(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void PermissionsSeed(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<Permission>().HasData(
+                new Permission { PermissionId = Guid.NewGuid(), Name = "Write" },
+                new Permission { PermissionId = Guid.NewGuid(), Name = "Read" },
+                new Permission { PermissionId = Guid.NewGuid(), Name = "Edit" },
+                new Permission { PermissionId = Guid.NewGuid(), Name = "Delete" }
+            );
         }
     }
 }
