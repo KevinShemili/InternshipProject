@@ -39,6 +39,7 @@ namespace InternshipProject.Controllers {
             var loginQuery = _mapper.Map<LoginQuery>(logInRequest);
 
             var result = await _mediator.Send(loginQuery);
+
             return Ok(result);
         }
     }

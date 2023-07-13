@@ -9,7 +9,6 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.PasswordSalt, opt => opt.MapFrom(src => src.Password))
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
-                .ForMember(dest => dest.RolesPermissions, opt => opt.Ignore())
                 .ForMember(dest => dest.Borrowers, opt => opt.Ignore())
                 .ReverseMap();
 

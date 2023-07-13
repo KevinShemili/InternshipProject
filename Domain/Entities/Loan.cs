@@ -9,7 +9,6 @@ namespace Domain.Entities {
         public int Tenor { get; set; }
         public string Status { get; set; } = null!;
         public Guid LenderId { get; set; }
-        public Guid ApplicationId { get; set; }
         public virtual ApplicationEntity Application { get; set; } = null!;
         public virtual Lender Lender { get; set; } = null!;
     }

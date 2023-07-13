@@ -11,7 +11,7 @@ namespace Domain.Entities {
         public string Prefix { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public string PasswordSalt { get; set; } = null!;
-        public virtual Roles_Permission RolesPermissions { get; set; } = null!;
+        public virtual ICollection<Role> Roles { get; set; } = null!;
         public virtual ICollection<Borrower>? Borrowers { get; set; }
     }
 }

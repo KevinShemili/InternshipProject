@@ -8,9 +8,8 @@ namespace Domain.Entities {
         public int RequestedTenor { get; set; }
         public string FinancePurposeDefinition { get; set; } = null!;
         public string ApplicationStatus { get; set; } = null!;
-        public Guid BorrowerId { get; set; }
-        public Guid FileId { get; set; }
         public Guid ProductId { get; set; }
+        public Guid LoanId { get; set; }
         public virtual Borrower Borrower { get; set; } = null!;
         public virtual ProductMatrix? ProductMatrix { get; set; }
         public virtual Product Product { get; set; } = null!;

@@ -36,15 +36,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("BorrowerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("FinancePurposeDefinition")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("LoanId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -57,10 +54,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("ApplicationId");
 
-                    b.HasIndex("BorrowerId")
-                        .IsUnique();
-
-                    b.HasIndex("FileId")
+                    b.HasIndex("LoanId")
                         .IsUnique();
 
                     b.HasIndex("ProductId")
@@ -75,18 +69,15 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CompanyTypeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("FiscalCode")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -96,10 +87,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("BorrowedId");
 
-                    b.HasIndex("CompanyTypeId")
-                        .IsUnique();
-
-                    b.HasIndex("ProfileId")
+                    b.HasIndex("ApplicationId")
                         .IsUnique();
 
                     b.HasIndex("UserId");
@@ -111,6 +99,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<Guid>("ProfileId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BorrowerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
@@ -161,6 +152,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("ProfileId");
 
+                    b.HasIndex("BorrowerId")
+                        .IsUnique();
+
                     b.ToTable("CompanyProfiles", (string)null);
                 });
 
@@ -168,6 +162,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<Guid>("CompanyTypeId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BorrowerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
@@ -179,6 +176,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CompanyTypeId");
+
+                    b.HasIndex("BorrowerId")
+                        .IsUnique();
 
                     b.ToTable("CompanyTypes", (string)null);
                 });
@@ -214,9 +214,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ApplicationId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("InterestRate")
                         .HasColumnType("decimal(18,2)");
 
@@ -238,9 +235,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("LoanId");
 
-                    b.HasIndex("ApplicationId")
-                        .IsUnique();
-
                     b.HasIndex("LenderId");
 
                     b.ToTable("Loans", (string)null);
@@ -253,39 +247,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PermissionId");
 
                     b.ToTable("Permissions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            PermissionId = new Guid("f6d80c94-df40-403b-a622-16b46576996e"),
-                            Name = "Write"
-                        },
-                        new
-                        {
-                            PermissionId = new Guid("8adf553d-91dd-45b3-9239-c7660f584b13"),
-                            Name = "Read"
-                        },
-                        new
-                        {
-                            PermissionId = new Guid("7a7a0afb-d09e-42ae-9e6b-211dad68ec5a"),
-                            Name = "Edit"
-                        },
-                        new
-                        {
-                            PermissionId = new Guid("a73eb1ab-23ba-48ef-80f0-1c633dbe4903"),
-                            Name = "Delete"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -322,11 +292,17 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FileId");
+
+                    b.HasIndex("ApplicationId")
+                        .IsUnique();
 
                     b.ToTable("ProductMatrices", (string)null);
                 });
@@ -339,37 +315,26 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("RoleName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Roles_Permission", b =>
+            modelBuilder.Entity("Domain.Entities.Role_Permission", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("PermissionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("RoleId", "PermissionId");
 
-                    b.HasIndex("PermissionId")
-                        .IsUnique();
+                    b.HasIndex("PermissionId");
 
-                    b.HasIndex("RoleId")
-                        .IsUnique();
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Roles_Permissions", (string)null);
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -423,15 +388,26 @@ namespace Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.User_Role", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoles");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationEntity", b =>
                 {
-                    b.HasOne("Domain.Entities.Borrower", "Borrower")
+                    b.HasOne("Domain.Entities.Loan", "Loan")
                         .WithOne("Application")
-                        .HasForeignKey("Domain.Entities.ApplicationEntity", "BorrowerId");
-
-                    b.HasOne("Domain.Entities.ProductMatrix", "ProductMatrix")
-                        .WithOne("Application")
-                        .HasForeignKey("Domain.Entities.ApplicationEntity", "FileId");
+                        .HasForeignKey("Domain.Entities.ApplicationEntity", "LoanId");
 
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithOne("Application")
@@ -439,26 +415,16 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Borrower");
+                    b.Navigation("Loan");
 
                     b.Navigation("Product");
-
-                    b.Navigation("ProductMatrix");
                 });
 
             modelBuilder.Entity("Domain.Entities.Borrower", b =>
                 {
-                    b.HasOne("Domain.Entities.CompanyType", "CompanyType")
+                    b.HasOne("Domain.Entities.ApplicationEntity", "Application")
                         .WithOne("Borrower")
-                        .HasForeignKey("Domain.Entities.Borrower", "CompanyTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.CompanyProfile", "CompanyProfile")
-                        .WithOne("Borrower")
-                        .HasForeignKey("Domain.Entities.Borrower", "ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Domain.Entities.Borrower", "ApplicationId");
 
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Borrowers")
@@ -466,79 +432,97 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CompanyProfile");
-
-                    b.Navigation("CompanyType");
+                    b.Navigation("Application");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Loan", b =>
+            modelBuilder.Entity("Domain.Entities.CompanyProfile", b =>
                 {
-                    b.HasOne("Domain.Entities.ApplicationEntity", "Application")
-                        .WithOne("Loan")
-                        .HasForeignKey("Domain.Entities.Loan", "ApplicationId")
+                    b.HasOne("Domain.Entities.Borrower", "Borrower")
+                        .WithOne("CompanyProfile")
+                        .HasForeignKey("Domain.Entities.CompanyProfile", "BorrowerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Borrower");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CompanyType", b =>
+                {
+                    b.HasOne("Domain.Entities.Borrower", "Borrower")
+                        .WithOne("CompanyType")
+                        .HasForeignKey("Domain.Entities.CompanyType", "BorrowerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Borrower");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Loan", b =>
+                {
                     b.HasOne("Domain.Entities.Lender", "Lender")
                         .WithMany("Loans")
                         .HasForeignKey("LenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Application");
-
                     b.Navigation("Lender");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Roles_Permission", b =>
+            modelBuilder.Entity("Domain.Entities.ProductMatrix", b =>
                 {
-                    b.HasOne("Domain.Entities.Permission", "Permission")
-                        .WithOne("RolesPermissions")
-                        .HasForeignKey("Domain.Entities.Roles_Permission", "PermissionId")
+                    b.HasOne("Domain.Entities.ApplicationEntity", "Application")
+                        .WithOne("ProductMatrix")
+                        .HasForeignKey("Domain.Entities.ProductMatrix", "ApplicationId");
+
+                    b.Navigation("Application");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Role_Permission", b =>
+                {
+                    b.HasOne("Domain.Entities.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Role", "Role")
-                        .WithOne("RolesPermissions")
-                        .HasForeignKey("Domain.Entities.Roles_Permission", "RoleId")
+                    b.HasOne("Domain.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.User_Role", b =>
+                {
+                    b.HasOne("Domain.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithOne("RolesPermissions")
-                        .HasForeignKey("Domain.Entities.Roles_Permission", "UserId")
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationEntity", b =>
                 {
-                    b.Navigation("Loan")
+                    b.Navigation("Borrower")
                         .IsRequired();
+
+                    b.Navigation("ProductMatrix");
                 });
 
             modelBuilder.Entity("Domain.Entities.Borrower", b =>
                 {
-                    b.Navigation("Application");
-                });
-
-            modelBuilder.Entity("Domain.Entities.CompanyProfile", b =>
-                {
-                    b.Navigation("Borrower")
+                    b.Navigation("CompanyProfile")
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Domain.Entities.CompanyType", b =>
-                {
-                    b.Navigation("Borrower")
+                    b.Navigation("CompanyType")
                         .IsRequired();
                 });
 
@@ -547,9 +531,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("Loans");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
+            modelBuilder.Entity("Domain.Entities.Loan", b =>
                 {
-                    b.Navigation("RolesPermissions")
+                    b.Navigation("Application")
                         .IsRequired();
                 });
 
@@ -559,24 +543,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductMatrix", b =>
-                {
-                    b.Navigation("Application")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Role", b =>
-                {
-                    b.Navigation("RolesPermissions")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Navigation("Borrowers");
-
-                    b.Navigation("RolesPermissions")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

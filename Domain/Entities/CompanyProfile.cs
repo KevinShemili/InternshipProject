@@ -15,6 +15,7 @@ namespace Domain.Entities {
         public string WebUrl { get; set; } = null!;
         public string Logo { get; set; } = null!;
         public string FinnhubIndustry { get; set; } = null!;
+        public Guid BorrowerId { get; set; }
         public virtual Borrower Borrower { get; set; } = null!;
     }
 }

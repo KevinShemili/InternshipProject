@@ -5,7 +5,6 @@ namespace Domain.Entities {
         public Guid PermissionId { get; set; }    
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
-        public virtual Roles_Permission RolesPermissions { get; set; } = null!;
-
+        public virtual ICollection<Role> Roles { get; set; } = null!;
     }
 }
