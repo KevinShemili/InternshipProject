@@ -7,12 +7,23 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<CompanyType> builder) {
             builder
                 .ToTable("CompanyTypes")
-                .HasKey(x => x.CompanyTypeId);
+                .HasKey(x => x.Id);
+
+            builder
+                .Property(x => x.Type)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Description)
+                .HasMaxLength(100)
+                .IsRequired();
 
             builder
                 .HasOne(x => x.Borrower)
                 .WithOne(y => y.CompanyType)
-                .HasForeignKey<CompanyType>(x => x.BorrowerId);
+                .HasForeignKey<CompanyType>(x => x.BorrowerId)
+                .IsRequired();
         }
     }
 }

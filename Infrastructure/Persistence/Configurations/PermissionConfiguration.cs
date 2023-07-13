@@ -7,7 +7,17 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<Permission> builder) {
             builder
                 .ToTable("Permissions")
-                .HasKey(x => x.PermissionId);
+                .HasKey(x => x.Id);
+
+            builder
+                .Property(x => x.Name)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Description)
+                .HasMaxLength(100)
+                .IsRequired(false);
         }
     }
 }

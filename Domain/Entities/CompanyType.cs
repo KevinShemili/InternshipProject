@@ -2,7 +2,7 @@
 
 namespace Domain.Entities {
     public class CompanyType : BaseEntity {
-        public Guid CompanyTypeId { get; set; }
+        public Guid Id { get; set; }
         public string Type { get; set; } = null!;
         public string Description { get; set; } = null!;
         public Guid BorrowerId { get; set; }

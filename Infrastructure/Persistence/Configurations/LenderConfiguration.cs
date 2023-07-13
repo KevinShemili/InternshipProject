@@ -7,7 +7,30 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<Lender> builder) {
             builder
                 .ToTable("Lenders")
-                .HasKey(x => x.LenderId);
+                .HasKey(x => x.Id);
+
+            builder
+                .Property(x => x.Name)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.RequestedAmount)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Tenor)
+                .IsRequired();
+
+            builder
+                .Property(x => x.BorrowerCompanyType)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.Loans)
+                .WithOne(y => y.Lender)
+                .IsRequired(false);
         }
     }
 }

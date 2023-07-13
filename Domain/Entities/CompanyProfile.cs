@@ -2,7 +2,7 @@
 
 namespace Domain.Entities {
     public class CompanyProfile : BaseEntity {
-        public Guid ProfileId { get; set; }
+        public Guid Id { get; set; }
         public string Country { get; set; } = null!;
         public string Currency { get; set; } = null!;
         public string Exchange { get; set; } = null!;

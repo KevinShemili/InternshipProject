@@ -2,9 +2,9 @@
 
 namespace Domain.Entities {
     public class Product : BaseEntity {
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; } = null!;
-        public string ProductDescription { get; set; } = null!;
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
         public decimal ReferenceRate { get; set; } 
         public int FinanceMaxAmount { get; set; }
         public int FinanceMinAmount { get; set; }

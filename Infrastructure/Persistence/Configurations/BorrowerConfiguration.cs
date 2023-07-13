@@ -7,18 +7,34 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<Borrower> builder) {
             builder
                 .ToTable("Borrowers")
-                .HasKey(x => x.BorrowedId);
-            
+                .HasKey(x => x.Id);
+
             builder
-                 .HasOne(x => x.Application)
+                .Property(x => x.CompanyName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.VATNumber)
+                .IsRequired();
+
+            builder
+                .Property(x => x.FiscalCode)
+                .IsRequired();
+
+            builder
+                 .HasMany(x => x.Applications)
                  .WithOne(y => y.Borrower)
-                 .HasForeignKey<Borrower>(x => x.ApplicationId)
-                 .IsRequired(false);
+                 .HasForeignKey(x => x.BorrowerId)
+                 .IsRequired()
+                 .OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(x => x.User)
                 .WithMany(y => y.Borrowers)
-                .HasForeignKey(x => x.UserId);
+                .HasForeignKey(x => x.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

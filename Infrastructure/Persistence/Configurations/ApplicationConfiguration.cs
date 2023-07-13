@@ -7,19 +7,54 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<ApplicationEntity> builder) {
             builder
                 .ToTable("Applications")
-                .HasKey(x => x.ApplicationId);
+                .HasKey(x => x.Id);
+
+            builder
+                .Property(x => x.Name)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.RequestedAmount)
+                .IsRequired();
+
+            builder
+                .Property(x => x.RequestedTenor)
+                .IsRequired();
+
+            builder
+                .Property(x => x.FinancePurposeDefinition)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Status)
+                .HasMaxLength(50)
+                .IsRequired();
 
             builder
                 .HasOne(x => x.Product)
                 .WithOne(y => y.Application)
                 .HasForeignKey<ApplicationEntity>(x => x.ProductId)
-                .IsRequired(true);
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(x => x.Loan)
                 .WithOne(y => y.Application)
                 .HasForeignKey<ApplicationEntity>(x => x.LoanId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasOne(a => a.Borrower)
+                .WithMany(b => b.Applications)
                 .IsRequired(false);
+
+            builder
+                .HasOne(x => x.ProductMatrix)
+                .WithOne(y => y.Application)
+                .IsRequired();
         }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Domain.Entities {
     public class ProductMatrix : BaseEntity {
-        public Guid FileId { get; set; }
-        public string FileName { get; set; } = null!;
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
         public Guid ApplicationId { get; set; }
         public ApplicationEntity Application { get; set; } = null!;
     }

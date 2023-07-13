@@ -7,13 +7,19 @@ namespace Infrastructure.Persistence.Configurations {
         public void Configure(EntityTypeBuilder<ProductMatrix> builder) {
             builder
                 .ToTable("ProductMatrices")
-                .HasKey(x => x.FileId);
+                .HasKey(x => x.Id);
+
+            builder
+                .Property(x => x.Name)
+                .HasMaxLength(50)
+                .IsRequired();
 
             builder
                 .HasOne(x => x.Application)
                 .WithOne(y => y.ProductMatrix)
                 .HasForeignKey<ProductMatrix>(x => x.ApplicationId)
-                .IsRequired(false);
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

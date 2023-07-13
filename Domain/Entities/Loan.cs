@@ -2,7 +2,7 @@
 
 namespace Domain.Entities {
     public class Loan : BaseEntity {
-        public Guid LoanId { get; set; }
+        public Guid Id { get; set; }
         public int RequestedAmount { get; set; }
         public decimal ReferenceRate { get; set; }
         public decimal InterestRate { get; set; }

@@ -1,52 +1,69 @@
-﻿using Azure;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure.Persistence.Configurations {
     public class UserConfiguration : IEntityTypeConfiguration<User> {
         public void Configure(EntityTypeBuilder<User> builder) {
             builder
                 .ToTable("Users")
-                .HasKey(user => user.Id);
+                .HasKey(x => x.Id);
 
             builder
-                .Property(user => user.FirstName)
-                .HasMaxLength(50);
+                .HasAlternateKey(x => x.Username);
 
             builder
-                .Property(user => user.LastName)
-                .HasMaxLength(50);
+                .HasAlternateKey(x => x.Email);
 
             builder
-                .Property(user => user.Username)
-                .HasMaxLength(50);
+                .Property(x => x.FirstName)
+                .HasMaxLength(50)
+                .IsRequired();
 
             builder
-                .Property(user => user.Email)
-                .HasMaxLength(150);
+                .Property(x => x.LastName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Username)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Email)
+                .HasMaxLength(150)
+                .IsRequired();
 
             builder     
-                .Property(user => user.PhoneNumber)
-                .HasMaxLength(20);
+                .Property(x => x.PhoneNumber)
+                .HasMaxLength(20)
+                .IsRequired();
 
             builder
-                .Property(user => user.Prefix)
-                .HasMaxLength(5);
+                .Property(x => x.Prefix)
+                .HasMaxLength(5)
+                .IsRequired();
 
             builder
-                .Property(user => user.PasswordHash)
-                .HasMaxLength(255);
+                .Property(x => x.PasswordHash)
+                .HasMaxLength(255)
+                .IsRequired();
 
             builder
-                .Property(user => user.PasswordSalt)
-                .HasMaxLength(20);
+                .Property(x => x.PasswordSalt)
+                .HasMaxLength(255)
+                .IsRequired();
 
             builder
                 .HasMany(x => x.Roles)
                 .WithMany(y => y.Users)
                 .UsingEntity<User_Role>();
+
+            builder
+                .HasMany(x => x.Borrowers)
+                .WithOne(y => y.User)
+                .IsRequired();
         }
     }
 }
