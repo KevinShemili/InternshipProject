@@ -1,6 +1,4 @@
-﻿using Application.UseCases.Authentication;
-using Application.UseCases.Authentication.Commands;
-using Application.UseCases.Authentication.Common;
+﻿using Application.UseCases.Authentication.Commands;
 using Application.UseCases.Authentication.Queries;
 using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;

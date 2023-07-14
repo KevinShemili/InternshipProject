@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Infrastructure.Persistence.Context {
     public class DatabaseContext : DbContext {
@@ -27,14 +26,5 @@ namespace Infrastructure.Persistence.Context {
                 .ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-        
-        /*private void PermissionsSeed(ModelBuilder modelBuilder) {
-            modelBuilder.Entity<Permission>().HasData(
-                new Permission { PermissionId = Guid.NewGuid(), Name = "Write" },
-                new Permission { PermissionId = Guid.NewGuid(), Name = "Read" },
-                new Permission { PermissionId = Guid.NewGuid(), Name = "Edit" },
-                new Permission { PermissionId = Guid.NewGuid(), Name = "Delete" }
-            );
-        }*/
     }
 }

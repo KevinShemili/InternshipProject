@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Infrastructure.Persistence.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,6 +19,12 @@ namespace Infrastructure.Persistence.Configurations {
                 .Property(x => x.Description)
                 .HasMaxLength(100)
                 .IsRequired(false);
+
+            SeedData(builder);
+        }
+
+        private void SeedData(EntityTypeBuilder<Permission> builder) {
+
         }
     }
 }
