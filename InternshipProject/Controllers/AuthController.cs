@@ -1,6 +1,7 @@
 ﻿using Application.UseCases.Authentication.Commands;
 using Application.UseCases.Authentication.Queries;
 using AutoMapper;
+using Infrastructure.Persistence.Seeds;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,15 @@ namespace InternshipProject.Controllers {
             var result = await _mediator.Send(loginQuery);
 
             return Ok(result);
+        }
+
+
+
+        // TBD
+        [Authorize(Policy = Permissions.CanAddBorrower)]
+        [HttpPost("test-policy")]
+        public IActionResult TestPolicy() {
+            return Ok();
         }
     }
 }

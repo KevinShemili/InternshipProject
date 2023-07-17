@@ -23,12 +23,9 @@ namespace Application.UseCases.Authentication.Queries {
                 throw new NoSuchUserExistsException("Username doesn't exist");
             }
 
-            var tokenRequest = new TokenRequest {
-                Id = user.Id,
-                Username = user.Username
-            };
+            var roles = await _userRepository.GetRolesAsync(user.Id);
 
-            var token = _jwtToken.GenerateToken(tokenRequest);
+            var token = _jwtToken.GenerateToken(user.Id, user.Username, roles);
 
             var loginResult = new LoginResult {
                 Id = user.Id,

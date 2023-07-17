@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.UseCases.Authentication.Common;
-using Domain.Exceptions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,20 +16,19 @@ namespace Infrastructure.Services.Authentication
             _jwtSettings = jwtOptions.Value;
         }
 
-        public string GenerateToken(TokenRequest tokenRequest) {
-
-            var flag = true;
-            if (flag)
-                throw new TokenException("err");
+        public string GenerateToken(Guid UserId, string username, IEnumerable<string> roles) {
 
             // add the token claims
-            var claims = new[]
-            {
+            var claims = new List<Claim> {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, tokenRequest.Id.ToString()),
-                new Claim("Username", tokenRequest.Username)
-             };
+                new Claim(JwtRegisteredClaimNames.Sub, UserId.ToString()),
+                new Claim("username", username)
+            };
 
+            foreach (var role in roles) {
+                claims.Add(new Claim("roles", role));
+            }
+              
             var credentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
                                          SecurityAlgorithms.HmacSha256);

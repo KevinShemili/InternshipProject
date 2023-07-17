@@ -26,11 +26,11 @@ namespace Infrastructure.Persistence.Configurations {
         }
 
         private void SeedData(EntityTypeBuilder<Role> builder) {
-            builder.HasData(Guid.NewGuid(), Roles.SuperAdmin);
-            builder.HasData(Guid.NewGuid(), Roles.LoanOfficerBackOffice);
-            builder.HasData(Guid.NewGuid(), Roles.LoanOfficerFrontOffice);
-            builder.HasData(Guid.NewGuid(), Roles.Borrower);
-            builder.HasData(Guid.NewGuid(), Roles.RegisteredUser);
+            builder.HasData(new Role { Id = Guid.NewGuid(), Name = Roles.SuperAdmin });
+            builder.HasData(new Role { Id = Guid.NewGuid(), Name = Roles.LoanOfficerBackOffice });
+            builder.HasData(new Role { Id = Guid.NewGuid(), Name = Roles.LoanOfficerFrontOffice });
+            builder.HasData(new Role { Id = Guid.NewGuid(), Name = Roles.Borrower });
+            builder.HasData(new Role { Id = Guid.NewGuid(), Name = Roles.RegisteredUser });
         }
     }
 }

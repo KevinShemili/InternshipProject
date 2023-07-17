@@ -4,6 +4,7 @@ using System.Net;
 
 namespace InternshipProject.Middleware {
     public class ExceptionHandlingMiddleware {
+
         private readonly RequestDelegate _next;
 
         public ExceptionHandlingMiddleware(RequestDelegate next) {
@@ -18,6 +19,9 @@ namespace InternshipProject.Middleware {
                 await HandleExceptionAsync(context, ex);
             }
             catch (ValidationException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (UnauthorizedException ex) {
                 await HandleExceptionAsync(context, ex);
             }
             catch (Exception ex) { 
@@ -43,6 +47,7 @@ namespace InternshipProject.Middleware {
                         detail = noSuchUserExistsException.message
                     });
                     return context.Response.WriteAsync(result);
+
                 case ValidationException validationException:
                     context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                     context.Response.ContentType = "application/problem+json";
@@ -53,6 +58,29 @@ namespace InternshipProject.Middleware {
                         details = GetErrors(ex)
                     });
                     return context.Response.WriteAsync(result);
+
+                case UnauthorizedException unauthorizedException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/401",
+                        title = "Unauthorized",
+                        status = (int)HttpStatusCode.Unauthorized,
+                        detail = unauthorizedException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case ForbiddenException forbidenException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/403",
+                        title = "Forbidden",
+                        status = (int)HttpStatusCode.Forbidden,
+                        detail = forbidenException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
                 default:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/problem+json";

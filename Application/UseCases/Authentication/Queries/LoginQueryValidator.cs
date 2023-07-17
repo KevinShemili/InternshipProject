@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Application.UseCases.Authentication.Queries {
     public class LoginQueryValidator : AbstractValidator<LoginQuery> {
         public LoginQueryValidator() {
-            RuleFor(x => x.Username).NotEmpty();
+            /*RuleFor(x => x.Username).NotEmpty();
             RuleFor(x => x.Password).NotEmpty();
             RuleFor(x => x.Password)
                 .NotEmpty()
@@ -18,7 +18,7 @@ namespace Application.UseCases.Authentication.Queries {
                 .Matches(@"[A-Z]+").WithMessage("Your password must contain at least one uppercase letter.")
                 .Matches(@"[a-z]+").WithMessage("Your password must contain at least one lowercase letter.")
                 .Matches(@"[0-9]+").WithMessage("Your password must contain at least one number.")
-                .Matches(@"[\!\?\*\.]+").WithMessage("Your password must contain at least one (!? *.).");
+                .Matches(@"[\!\?\*\.]+").WithMessage("Your password must contain at least one (!? *.).");*/
         }
     }
 }
