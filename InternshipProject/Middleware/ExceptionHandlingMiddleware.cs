@@ -24,6 +24,9 @@ namespace InternshipProject.Middleware {
             catch (UnauthorizedException ex) {
                 await HandleExceptionAsync(context, ex);
             }
+            catch(InvalidPasswordException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex) { 
                 await HandleExceptionAsync(context, ex);
             }
@@ -78,6 +81,17 @@ namespace InternshipProject.Middleware {
                         title = "Forbidden",
                         status = (int)HttpStatusCode.Forbidden,
                         detail = forbidenException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case InvalidPasswordException invalidPasswordException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/401",
+                        title = "Unauthorized",
+                        status = (int)HttpStatusCode.Unauthorized,
+                        detail = invalidPasswordException.Message
                     });
                     return context.Response.WriteAsync(result);
 

@@ -8,12 +8,12 @@ namespace Infrastructure.Persistence.Repositories {
         public UserRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public User GetUserByUsername(string Username) {
-            var entity = _databaseContext.Users
+        public async Task<User> GetByUsernameAsync(string Username) {
+            var entity = await _databaseContext.Users
                 .Where(x => x.Username == Username)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
-            if (entity == null) 
+            if (entity == null)
                 return null;
 
             return entity;

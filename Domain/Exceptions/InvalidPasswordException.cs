@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Domain.Exceptions {
-    public class TokenException : Exception {
-        public TokenException(string message) : base(message) {
+    public class InvalidPasswordException : Exception {
+        public InvalidPasswordException(string message) : base(message) {
         }
 
     }

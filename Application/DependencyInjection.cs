@@ -1,4 +1,5 @@
-﻿using Application.Validator;
+﻿using Application.Interfaces.Services;
+using Application.Validator;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,7 @@ namespace Application {
         } 
 
         private static void AddScopes(IServiceCollection services) {
-            
+            services.AddScoped<IHasherService, HasherService>();
         }
 
         private static void AddMediatR(IServiceCollection services) {

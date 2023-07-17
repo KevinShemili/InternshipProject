@@ -8,7 +8,7 @@ namespace Application.Persistance.Common
 {
     public interface IBaseRepository<T>
     {
-        void Create(T entity);
+        public Task CreateAsync(T entity);
         void Delete(int id);
         T GetById(int id);
     }

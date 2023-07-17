@@ -11,9 +11,9 @@ namespace Infrastructure.Persistence.Repositories {
             _databaseContext = databaseContext;
         }
 
-        public void Create(T entity) {
-            _databaseContext.Set<T>().Add(entity);
-            _databaseContext.SaveChanges();
+        public async Task CreateAsync(T entity) {
+            await _databaseContext.Set<T>().AddAsync(entity);
+            await _databaseContext.SaveChangesAsync();
         }
 
         public void Delete(int id) {
