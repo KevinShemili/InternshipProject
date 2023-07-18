@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Context {
@@ -20,6 +21,7 @@ namespace Infrastructure.Persistence.Context {
         public DbSet<User_Role> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role_Permission> RolePermissions { get; set; }
+        public DbSet<UserVerificationAndReset> UserVerificationAndReset { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder

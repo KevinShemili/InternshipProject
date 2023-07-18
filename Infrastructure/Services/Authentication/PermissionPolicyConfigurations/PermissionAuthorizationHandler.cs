@@ -3,7 +3,7 @@ using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Infrastructure.Services.Authentication {
+namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations {
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement> {
 
         private readonly IUserRepository _userRepository;
@@ -19,7 +19,7 @@ namespace Infrastructure.Services.Authentication {
 
             if (!Guid.TryParse(UserId, out Guid parsedUserId))
                 throw new UnauthorizedException("Unathorized Access");
-         
+
             var permissions = await _userRepository.GetPermissionsAsync(parsedUserId);
 
             if (permissions.Contains(requirement.Permission))

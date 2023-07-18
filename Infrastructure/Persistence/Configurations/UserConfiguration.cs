@@ -64,6 +64,10 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasMany(x => x.Borrowers)
                 .WithOne(y => y.User)
                 .IsRequired();
+
+            builder
+                .HasOne(x => x.UserVerificationAndReset)
+                .WithOne(x => x.User);
         }
     }
 }

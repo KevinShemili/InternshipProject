@@ -1,11 +1,12 @@
-﻿using Application.Interfaces.Services;
-using Application.Persistance;
+﻿using Application.Persistance;
+using Application.Services;
 using Application.UseCases.Authentication.Common;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Commands {
+namespace Application.UseCases.Authentication.Commands
+{
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResult> {
 
         private readonly IUserRepository _userRepository;

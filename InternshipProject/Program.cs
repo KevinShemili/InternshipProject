@@ -1,6 +1,6 @@
 using Application;
 using Infrastructure;
-using Infrastructure.Services.Authentication;
+using Infrastructure.Services.Authentication.PermissionPolicyConfigurations;
 using InternshipProject.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;

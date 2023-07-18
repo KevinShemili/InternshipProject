@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace Application.Interfaces.Services {
+namespace Application.Services {
     public class HasherService : IHasherService {
 
         private const int SaltSize = 128 / 8;

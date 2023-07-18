@@ -1,13 +1,11 @@
 ﻿using Application.Interfaces.Authentication;
-using Application.UseCases.Authentication.Common;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Services.Authentication
-{
+namespace Infrastructure.Services.Authentication.JwtTokenConfigurations {
     public class JwtToken : IJwtToken {
 
         private readonly JwtSettings _jwtSettings;
@@ -28,7 +26,7 @@ namespace Infrastructure.Services.Authentication
             foreach (var role in roles) {
                 claims.Add(new Claim("roles", role));
             }
-              
+
             var credentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
                                          SecurityAlgorithms.HmacSha256);

@@ -1,12 +1,13 @@
 ﻿using Application.Interfaces.Authentication;
-using Application.Interfaces.Services;
 using Application.Persistance;
+using Application.Services;
 using Application.UseCases.Authentication.Common;
 using Domain.Entities;
 using Domain.Exceptions;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Queries {
+namespace Application.UseCases.Authentication.Queries
+{
     public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResult> {
 
         private readonly IUserRepository _userRepository;

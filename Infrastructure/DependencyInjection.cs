@@ -3,7 +3,7 @@ using Application.Persistance;
 using Domain.Exceptions;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
-using Infrastructure.Services.Authentication;
+using Infrastructure.Services.Authentication.JwtTokenConfigurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
-namespace Infrastructure {
+namespace Infrastructure
+{
     public static class DependencyInjection {
         public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration) {
             AddScopes(services);
