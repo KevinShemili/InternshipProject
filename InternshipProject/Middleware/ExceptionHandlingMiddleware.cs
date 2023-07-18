@@ -24,10 +24,22 @@ namespace InternshipProject.Middleware {
             catch (UnauthorizedException ex) {
                 await HandleExceptionAsync(context, ex);
             }
-            catch(InvalidPasswordException ex) {
+            catch (InvalidPasswordException ex) {
                 await HandleExceptionAsync(context, ex);
             }
-            catch (Exception ex) { 
+            catch (DuplicateException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (EmailServiceException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (TokenExpiredException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (ForbiddenException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (Exception ex) {
                 await HandleExceptionAsync(context, ex);
             }
 
@@ -95,6 +107,39 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
+                case DuplicateException duplicateException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/409",
+                        title = "Conflict",
+                        status = (int)HttpStatusCode.Conflict,
+                        detail = duplicateException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case EmailServiceException emailServiceException:
+                    context.Response.StatusCode = (int)HttpStatusCode.BadGateway;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/502",
+                        title = "BadGateway",
+                        status = (int)HttpStatusCode.BadGateway,
+                        detail = emailServiceException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case TokenExpiredException tokenExpiredException:
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/400",
+                        title = "BadGateway",
+                        status = (int)HttpStatusCode.BadRequest,
+                        detail = tokenExpiredException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
                 default:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/problem+json";
@@ -111,9 +156,9 @@ namespace InternshipProject.Middleware {
         private static IReadOnlyDictionary<string, string[]> GetErrors(Exception exception) {
             IReadOnlyDictionary<string, string[]> errors = null;
 
-            if (exception is ValidationException validationException) {
+            if (exception is ValidationException validationException)
                 errors = validationException.ErrorsDictionary;
-            }
+
             return errors;
         }
     }

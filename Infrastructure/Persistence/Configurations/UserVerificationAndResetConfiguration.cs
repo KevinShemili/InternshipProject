@@ -11,7 +11,8 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .HasOne(x => x.User)
                 .WithOne(x => x.UserVerificationAndReset)
-                .HasForeignKey<UserVerificationAndReset>(x => x.UserId)
+                .HasForeignKey<UserVerificationAndReset>(x => x.UserEmail)
+                .HasPrincipalKey<User>(x => x.Email)
                 .IsRequired();
         }
     }

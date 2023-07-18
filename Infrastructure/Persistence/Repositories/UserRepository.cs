@@ -8,12 +8,49 @@ namespace Infrastructure.Persistence.Repositories {
         public UserRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
+        public async Task ActivateAccount(string Email) {
+            var entity = await GetByEmailAsync(Email);
+            entity.IsEmailConfirmed = true;
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> ContainsEmail(string Email) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Email == Email)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
+        public async Task<bool> ContainsUsername(string Username) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Username == Username)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
         public async Task<User> GetByUsernameAsync(string Username) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Username == Username)
                 .FirstOrDefaultAsync();
 
-            if (entity == null)
+            if (entity is null)
+                return null;
+
+            return entity;
+        }
+
+        public async Task<User> GetByEmailAsync(string Email) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Email == Email)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
                 return null;
 
             return entity;

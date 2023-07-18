@@ -16,17 +16,17 @@ namespace Infrastructure.Persistence.Repositories {
             await _databaseContext.SaveChangesAsync();
         }
 
-        public void Delete(int id) {
-            var toBeDeleted = GetById(id);
+        public async void DeleteAsync(int id) {
+            var toBeDeleted = await GetByIdAsync(id);
             var entity = _databaseContext.Set<T>().Remove(toBeDeleted);
-            _databaseContext.SaveChanges();
+            await _databaseContext.SaveChangesAsync();
         }
 
-        public T GetById(int id) {
-            var entity = _databaseContext.Set<T>().Find(id);
-            if (entity == null) {
+        public async Task<T> GetByIdAsync(int id) {
+            var entity = await _databaseContext.Set<T>().FindAsync(id);
+            if (entity == null)
                 return null;
-            }
+
             return entity;
         }
     }

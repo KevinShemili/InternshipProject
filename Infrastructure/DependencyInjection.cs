@@ -29,6 +29,7 @@ namespace Infrastructure {
             services.AddScoped<IJwtToken, JwtToken>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IUserVerificationAndResetRepository, UserVerificationAndResetRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

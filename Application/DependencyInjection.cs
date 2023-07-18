@@ -5,8 +5,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Application
-{
+namespace Application {
     public static class DependencyInjection {
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services) {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -15,10 +14,11 @@ namespace Application
             AddMediatR(services);
             AddFluentValidation(services);
             return services;
-        } 
+        }
 
         private static void AddScopes(IServiceCollection services) {
             services.AddScoped<IHasherService, HasherService>();
+            services.AddScoped<IActivateAccountEmailService, ActivateAccountEmailService>();
         }
 
         private static void AddMediatR(IServiceCollection services) {
