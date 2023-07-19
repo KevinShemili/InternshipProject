@@ -1,7 +1,5 @@
-﻿namespace InternshipProject.Objects.Requests.AuthenticationRequests
-{
-    public class RegisterRequest
-    {
+﻿namespace InternshipProject.Objects.Requests.AuthenticationRequests {
+    public class RegisterRequest {
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Username { get; set; } = null!;

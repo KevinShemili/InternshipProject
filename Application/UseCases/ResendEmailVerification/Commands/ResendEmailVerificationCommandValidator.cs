@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Application.UseCases.ResendEmailVerification {
+namespace Application.UseCases.ResendEmailVerification.Commands {
     public class ResendEmailVerificationCommandValidator : AbstractValidator<ResendEmailVerificationCommand> {
         public ResendEmailVerificationCommandValidator() {
             RuleFor(x => x.Email)

@@ -1,6 +1,4 @@
-﻿using Application.UseCases.Authentication.Common;
-
-namespace Application.Interfaces.Authentication {
+﻿namespace Application.Interfaces.Authentication {
     public interface IJwtToken {
         public string GenerateToken(Guid UserId, string username, IEnumerable<string> roles);
     }

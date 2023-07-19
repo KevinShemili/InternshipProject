@@ -1,6 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Interfaces.Email;
+using Application.Persistance;
 using Application.Services;
-using Application.UseCases.Authentication.Common;
+using Application.UseCases.Authentication.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -12,13 +13,19 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IHasherService _hasherService;
-        private readonly IActivateAccountEmailService _activateAccountEmailService;
+        private readonly IMailBodyService _mailBodyService;
+        private readonly IRecoveryTokenService _recoveryTokenService;
+        private readonly IMailService _mailService;
+        private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
 
-        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IActivateAccountEmailService activateAccountEmailService) {
+        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, IRecoveryTokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
-            _activateAccountEmailService = activateAccountEmailService;
+            _mailBodyService = mailBodyService;
+            _recoveryTokenService = recoveryTokenService;
+            _mailService = mailService;
+            _userVerificationAndResetRepository = userVerificationAndResetRepository;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
@@ -40,7 +47,20 @@ namespace Application.UseCases.Authentication.Commands {
 
             await _userRepository.CreateAsync(user);
 
-            await _activateAccountEmailService.SendActivationEmail(request, cancellationToken);
+            var token = await _recoveryTokenService.GenerateVerificationToken();
+            var tokenExpiry = DateTime.Now.AddMinutes(30);
+
+            var body = await _mailBodyService.GetVerificationMailBody(request.Email, token);
+
+            await _userVerificationAndResetRepository.CreateAsync(new UserVerificationAndReset {
+                EmailVerificationToken = token,
+                EmailVerificationTokenExpiry = tokenExpiry,
+                UserEmail = request.Email,
+            });
+
+            var subject = "Verify Your Email";
+            var mailData = new MailData(request.Email, subject, body);
+            await _mailService.SendAsync(mailData, cancellationToken);
 
             var returnResult = new RegisterResult {
                 Id = user.Id,
@@ -49,7 +69,5 @@ namespace Application.UseCases.Authentication.Commands {
 
             return returnResult;
         }
-
-
     }
 }

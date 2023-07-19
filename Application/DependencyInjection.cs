@@ -18,7 +18,9 @@ namespace Application {
 
         private static void AddScopes(IServiceCollection services) {
             services.AddScoped<IHasherService, HasherService>();
-            services.AddScoped<IActivateAccountEmailService, ActivateAccountEmailService>();
+            services.AddScoped<IRecoveryTokenService, RecoveryTokenService>();
+            services.AddScoped<IMailBodyService, MailBodyService>();
+
         }
 
         private static void AddMediatR(IServiceCollection services) {

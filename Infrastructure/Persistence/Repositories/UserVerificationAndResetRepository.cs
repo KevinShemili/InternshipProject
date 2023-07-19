@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Repositories {
         public UserVerificationAndResetRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task<bool> ContainsEmail(string email) {
+        public async Task<bool> ContainsEmailAsync(string email) {
             var entity = await _databaseContext.UserVerificationAndReset
                 .Where(x => x.UserEmail == email)
                 .FirstOrDefaultAsync();
@@ -18,7 +18,17 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<bool> ContainsVerificationToken(string token) {
+        public async Task<bool> ContainsPasswordTokenAsync(string token) {
+            var entity = await _databaseContext.UserVerificationAndReset
+                .Where(x => x.PasswordResetToken == token)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
+        public async Task<bool> ContainsVerificationTokenAsync(string token) {
             var entity = await _databaseContext.UserVerificationAndReset
                 .Where(x => x.EmailVerificationToken == token)
                 .FirstOrDefaultAsync();
@@ -39,7 +49,19 @@ namespace Infrastructure.Persistence.Repositories {
             return entity;
         }
 
-        public async Task<bool?> UpdateVerificationTokens(string email, string verificationToken, DateTime tokenExpiry) {
+        public async Task<bool?> SetPasswordTokenAsync(string email, string passwordToken, DateTime tokenExpiry) {
+            var entity = await GetByEmailAsync(email);
+
+            if (entity is null)
+                return null;
+
+            entity.PasswordResetToken = passwordToken;
+            entity.PasswordResetTokenExpiry = tokenExpiry;
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool?> UpdateVerificationTokenAsync(string email, string verificationToken, DateTime tokenExpiry) {
             var entity = await GetByEmailAsync(email);
 
             if (entity is null)

@@ -1,4 +1,4 @@
-﻿using Application.UseCases.Authentication.Common;
+﻿using Application.UseCases.Authentication.Results;
 using MediatR;
 
 namespace Application.UseCases.Authentication.Commands {

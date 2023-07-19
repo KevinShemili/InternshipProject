@@ -2,7 +2,10 @@
     public static class Permissions {
         // Read & Write & Update & Delete Permissions
 
-        public const string CanReadBorrowers = "CanReadBorrowers";        
+        public const string IsRegistered = "IsRegistered";
+        public const string IsSuperAdmin = "IsSuperAdmin";
+
+        public const string CanReadBorrowers = "CanReadBorrowers";
         public const string CanAddBorrower = "CanAddBorrower";
         public const string CanUpdateBorrower = "CanUpdateBorrower";
         public const string CanDeleteBorrower = "CanDeleteBorrower";

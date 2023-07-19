@@ -20,10 +20,10 @@ namespace Application.UseCases.ActivateAccount.Commands {
             var VerificationTokenExpiry = entity.EmailVerificationTokenExpiry;
 
             if (VerificationToken is null)
-                throw new Exception();
+                throw new ForbiddenException("Invalid token");
 
             if (VerificationTokenExpiry is null)
-                throw new Exception();
+                throw new ForbiddenException("Invalid token");
 
             if (VerificationToken == request.Token
                 && VerificationTokenExpiry > DateTime.Now)

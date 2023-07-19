@@ -16,24 +16,9 @@ namespace Infrastructure.Services.Email {
             try {
                 var mail = new MimeMessage();
 
-                mail.From.Add(new MailboxAddress(_settings.DisplayName, mailData.From ?? _settings.From));
-                mail.Sender = new MailboxAddress(mailData.DisplayName ?? _settings.DisplayName, mailData.From ?? _settings.From);
-
-                foreach (string mailAddress in mailData.To)
-                    mail.To.Add(MailboxAddress.Parse(mailAddress));
-
-                if (!string.IsNullOrEmpty(mailData.ReplyTo))
-                    mail.ReplyTo.Add(new MailboxAddress(mailData.ReplyToName, mailData.ReplyTo));
-
-                if (mailData.Bcc is not null) {
-                    foreach (string mailAddress in mailData.Bcc.Where(x => !string.IsNullOrWhiteSpace(x)))
-                        mail.Bcc.Add(MailboxAddress.Parse(mailAddress.Trim()));
-                }
-
-                if (mailData.Cc is not null) {
-                    foreach (string mailAddress in mailData.Cc.Where(x => !string.IsNullOrWhiteSpace(x)))
-                        mail.Cc.Add(MailboxAddress.Parse(mailAddress.Trim()));
-                }
+                mail.From.Add(new MailboxAddress(_settings.DisplayName, _settings.From));
+                mail.Sender = new MailboxAddress(_settings.DisplayName, _settings.From);
+                mail.To.Add(MailboxAddress.Parse(mailData.To));
 
                 var body = new BodyBuilder();
                 mail.Subject = mailData.Subject;

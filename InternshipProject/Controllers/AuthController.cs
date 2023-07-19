@@ -1,11 +1,13 @@
 ﻿using Application.UseCases.ActivateAccount.Commands;
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.Authentication.Queries;
-using Application.UseCases.ResendEmailVerification;
+using Application.UseCases.ForgotPassword.Commands;
+using Application.UseCases.ForgotPassword.Queries;
+using Application.UseCases.ForgotUsername.Queries;
+using Application.UseCases.ResendEmailVerification.Commands;
 using AutoMapper;
 using Infrastructure.Persistence.Seeds;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
-using InternshipProject.Objects.Requests.EmailRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +67,42 @@ namespace InternshipProject.Controllers {
         [HttpPatch("request-new-email")]
         public async Task<IActionResult> RequestNewEmail([FromBody] ResendVerificationEmailRequest resendVerificationEmailRequest) {
             var request = _mapper.Map<ResendEmailVerificationCommand>(resendVerificationEmailRequest);
+
+            await _mediator.Send(request);
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("forgot-username")]
+        public async Task<IActionResult> ForgotUsername([FromQuery] ForgotUsernameRequest forgotUsernameRequest) {
+            var request = _mapper.Map<ForgotUsernameQuery>(forgotUsernameRequest);
+
+            await _mediator.Send(request);
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromQuery] ForgotPasswordRequest forgotPasswordRequest) {
+            var request = _mapper.Map<ForgotPasswordQuery>(forgotPasswordRequest);
+
+            await _mediator.Send(request);
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPatch("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromHeader] string token, [FromBody] ResetPasswordRequest resetPasswordRequest) {
+
+            var request = new ResetPasswordCommand {
+                Email = resetPasswordRequest.Email,
+                Token = token,
+                Password = resetPasswordRequest.Password,
+                ConfirmPassword = resetPasswordRequest.ConfirmPassword
+            };
 
             await _mediator.Send(request);
 

@@ -8,15 +8,15 @@ namespace Infrastructure.Persistence.Repositories {
         public UserRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task ActivateAccount(string Email) {
-            var entity = await GetByEmailAsync(Email);
+        public async Task ActivateAccount(string email) {
+            var entity = await GetByEmailAsync(email);
             entity.IsEmailConfirmed = true;
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task<bool> ContainsEmail(string Email) {
+        public async Task<bool> ContainsEmail(string email) {
             var entity = await _databaseContext.Users
-                .Where(x => x.Email == Email)
+                .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
@@ -24,9 +24,9 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<bool> ContainsUsername(string Username) {
+        public async Task<bool> ContainsUsername(string username) {
             var entity = await _databaseContext.Users
-                .Where(x => x.Username == Username)
+                .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
@@ -34,9 +34,9 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<User> GetByUsernameAsync(string Username) {
+        public async Task<User> GetByUsernameAsync(string username) {
             var entity = await _databaseContext.Users
-                .Where(x => x.Username == Username)
+                .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
@@ -45,9 +45,9 @@ namespace Infrastructure.Persistence.Repositories {
             return entity;
         }
 
-        public async Task<User> GetByEmailAsync(string Email) {
+        public async Task<User> GetByEmailAsync(string email) {
             var entity = await _databaseContext.Users
-                .Where(x => x.Email == Email)
+                .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
@@ -56,11 +56,11 @@ namespace Infrastructure.Persistence.Repositories {
             return entity;
         }
 
-        public async Task<HashSet<string>> GetPermissionsAsync(Guid UserId) {
+        public async Task<HashSet<string>> GetPermissionsAsync(Guid userId) {
             var roles = await _databaseContext.Users
                 .Include(x => x.Roles)
                 .ThenInclude(x => x.Permissions)
-                .Where(x => x.Id == UserId)
+                .Where(x => x.Id == userId)
                 .Select(x => x.Roles)
                 .ToArrayAsync();
 
@@ -82,6 +82,18 @@ namespace Infrastructure.Persistence.Repositories {
                 .ToListAsync();
 
             return roles.AsEnumerable();
+        }
+
+        public async Task<bool?> ChangePassword(string email, string passwordHash, string passwordSalt) {
+            var entity = await GetByEmailAsync(email);
+
+            if (entity is null)
+                return null;
+
+            entity.PasswordHash = passwordHash;
+            entity.PasswordSalt = passwordSalt;
+            await _databaseContext.SaveChangesAsync();
+            return true;
         }
     }
 }
