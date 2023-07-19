@@ -5,7 +5,7 @@ using InternshipProject.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args); 
+var builder = WebApplication.CreateBuilder(args);
 
 // Services Scope
 {
@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
         .AddInfrastructureLayer(builder.Configuration);
 
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
-   
+
     builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddAuthorization();
@@ -26,8 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
-    builder.Services.AddSwaggerGen(opt =>
-    {
+    builder.Services.AddSwaggerGen(opt => {
         opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
         opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
             In = ParameterLocation.Header,
@@ -53,12 +52,9 @@ var builder = WebApplication.CreateBuilder(args);
         }
     });
     });
-
-
 }
 
-var app = builder.Build(); 
-
+var app = builder.Build();
 
 // Middleware Scope
 {

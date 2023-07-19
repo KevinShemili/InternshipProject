@@ -1,9 +1,11 @@
 ﻿using Application.UseCases.ActivateAccount.Commands;
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.Authentication.Queries;
+using Application.UseCases.ResendEmailVerification;
 using AutoMapper;
 using Infrastructure.Persistence.Seeds;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
+using InternshipProject.Objects.Requests.EmailRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,8 +62,12 @@ namespace InternshipProject.Controllers {
 
         // send new email with new token if old token expired
         [AllowAnonymous]
-        [HttpGet("request-new-email")]
-        public async Task<IActionResult> RequestNewEmail([FromBody] string email) {
+        [HttpPatch("request-new-email")]
+        public async Task<IActionResult> RequestNewEmail([FromBody] ResendVerificationEmailRequest resendVerificationEmailRequest) {
+            var request = _mapper.Map<ResendEmailVerificationCommand>(resendVerificationEmailRequest);
+
+            await _mediator.Send(request);
+
             return Ok();
         }
 
@@ -71,6 +77,13 @@ namespace InternshipProject.Controllers {
         [HttpPost("test-policy")]
         public IActionResult TestPolicy() {
             return Ok();
+        }
+
+        // TBD
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPost("test-role")]
+        public IActionResult TestRoles([FromQuery] string str) {
+            return Ok(str);
         }
     }
 }

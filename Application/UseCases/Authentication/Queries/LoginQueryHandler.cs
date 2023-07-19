@@ -2,12 +2,10 @@
 using Application.Persistance;
 using Application.Services;
 using Application.UseCases.Authentication.Common;
-using Domain.Entities;
 using Domain.Exceptions;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Queries
-{
+namespace Application.UseCases.Authentication.Queries {
     public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResult> {
 
         private readonly IUserRepository _userRepository;
@@ -25,6 +23,9 @@ namespace Application.UseCases.Authentication.Queries
 
             if (user == null)
                 throw new NoSuchUserExistsException("Username doesn't exist");
+
+            if (user.IsEmailConfirmed is false)
+                throw new ForbiddenException("Unverified email");
 
             var flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
 
