@@ -24,6 +24,9 @@ namespace Infrastructure.Persistence.Configurations {
         }
 
         private void SeedData(EntityTypeBuilder<Permission> builder) {
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.IsSuperAdmin });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.IsRegistered });
+
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanReadBorrowers });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanAddBorrower });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanUpdateBorrower });
@@ -33,7 +36,6 @@ namespace Infrastructure.Persistence.Configurations {
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanAddUser });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanUpdateUser });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanDeleteUser });
-
         }
     }
 }

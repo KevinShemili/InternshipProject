@@ -1,19 +1,13 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.UseCases.Authentication.Queries {
     public class LoginQueryValidator : AbstractValidator<LoginQuery> {
         public LoginQueryValidator() {
             RuleFor(x => x.Username)
-                .NotEmpty()
-                .WithMessage("Username cannot be empty");
+                .NotEmpty().WithMessage("Username cannot be empty");
+
             RuleFor(x => x.Password)
-                .NotEmpty()
-                .WithMessage("Password cannot be empty");  
+                .NotEmpty().WithMessage("Password cannot be empty");
         }
     }
 }
