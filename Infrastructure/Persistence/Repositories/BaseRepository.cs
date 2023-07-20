@@ -1,6 +1,7 @@
 ﻿using Application.Persistance.Common;
 using Domain.Common;
 using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity {
@@ -21,6 +22,11 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = _databaseContext.Set<T>().Remove(toBeDeleted);
             await _databaseContext.SaveChangesAsync();
         }
+
+        public async Task<List<T>> GetAllAsync() {
+            return await _databaseContext.Set<T>().ToListAsync();
+        }
+
 
         public async Task<T> GetByIdAsync(int id) {
             var entity = await _databaseContext.Set<T>().FindAsync(id);

@@ -111,7 +111,7 @@ namespace InternshipProject.Controllers {
 
 
         // TBD
-        [Authorize(Policy = Permissions.CanAddBorrower)]
+        [Authorize(Policy = Permissions.IsSuperAdmin)]
         [HttpPost("test-policy")]
         public IActionResult TestPolicy() {
             return Ok();

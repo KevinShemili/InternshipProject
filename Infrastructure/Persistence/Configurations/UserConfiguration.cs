@@ -35,7 +35,7 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasMaxLength(150)
                 .IsRequired();
 
-            builder     
+            builder
                 .Property(x => x.PhoneNumber)
                 .HasMaxLength(20)
                 .IsRequired();
@@ -68,6 +68,23 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .HasOne(x => x.UserVerificationAndReset)
                 .WithOne(x => x.User);
+
+            SeedData(builder);
+        }
+
+        private void SeedData(EntityTypeBuilder<User> builder) {
+            builder.HasData(new User {
+                Id = Guid.Parse("0f7195df-de82-429c-a430-dc0742edf721"),
+                FirstName = "Kevin",
+                LastName = "Shemili",
+                Username = "kevinshemili1",
+                Email = "kevin.shemili@cardoai.com",
+                IsEmailConfirmed = true,
+                PhoneNumber = "683363203",
+                Prefix = "+355",
+                PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=",
+                PasswordSalt = "jWRLoRafDBcFS72uPEqyqg=="
+            });
         }
     }
 }

@@ -30,6 +30,7 @@ namespace Infrastructure {
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IUserVerificationAndResetRepository, UserVerificationAndResetRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

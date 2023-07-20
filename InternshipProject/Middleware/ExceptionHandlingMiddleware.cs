@@ -39,6 +39,9 @@ namespace InternshipProject.Middleware {
             catch (ForbiddenException ex) {
                 await HandleExceptionAsync(context, ex);
             }
+            catch (AutoMapper.AutoMapperMappingException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex) {
                 await HandleExceptionAsync(context, ex);
             }
@@ -137,6 +140,17 @@ namespace InternshipProject.Middleware {
                         title = "BadGateway",
                         status = (int)HttpStatusCode.BadRequest,
                         detail = tokenExpiredException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case AutoMapper.AutoMapperMappingException automapperException:
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/500",
+                        title = "Internal Server Error",
+                        status = (int)HttpStatusCode.InternalServerError,
+                        detail = automapperException.Message
                     });
                     return context.Response.WriteAsync(result);
 

@@ -24,7 +24,7 @@ namespace Infrastructure.Services.Authentication.JwtTokenConfigurations {
             };
 
             foreach (var role in roles) {
-                claims.Add(new Claim("roles", role));
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
             var credentials = new SigningCredentials(

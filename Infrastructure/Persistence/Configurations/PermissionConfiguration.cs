@@ -24,7 +24,7 @@ namespace Infrastructure.Persistence.Configurations {
         }
 
         private void SeedData(EntityTypeBuilder<Permission> builder) {
-            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.IsSuperAdmin });
+            builder.HasData(new Permission { Id = Guid.Parse("445248ae-bc8b-4a7e-90ce-1636f8206fa5"), Name = Permissions.IsSuperAdmin });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.IsRegistered });
 
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanReadBorrowers });
