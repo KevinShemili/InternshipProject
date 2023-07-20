@@ -24,7 +24,7 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
             var flag = await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email);
 
             if (flag is false)
-                throw new NoSuchUserExistsException("Invalid email");
+                throw new NoSuchEntityExistsException("Invalid email");
 
             var token = await _recoveryTokenService.GenerateVerificationToken();
             var tokenExpiry = DateTime.Now.AddMinutes(30);

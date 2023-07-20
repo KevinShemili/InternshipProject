@@ -22,7 +22,7 @@ namespace Application.UseCases.Authentication.Queries {
             var user = await _userRepository.GetByUsernameAsync(request.Username);
 
             if (user == null)
-                throw new NoSuchUserExistsException("Username doesn't exist");
+                throw new NoSuchEntityExistsException("Username doesn't exist");
 
             if (user.IsEmailConfirmed is false)
                 throw new ForbiddenException("Unverified email");
@@ -34,7 +34,9 @@ namespace Application.UseCases.Authentication.Queries {
 
             var roles = await _userRepository.GetRolesAsync(user.Id);
 
-            var token = _jwtToken.GenerateToken(user.Id, user.Username, roles);
+            var roleNames = roles.Select(x => x.Name).AsEnumerable();
+
+            var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames);
 
             var loginResult = new LoginResult {
                 Id = user.Id,

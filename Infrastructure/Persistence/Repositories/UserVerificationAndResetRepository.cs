@@ -38,7 +38,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<UserVerificationAndReset> GetByEmailAsync(string email) {
+        public async Task<UserVerificationAndReset?> GetByEmailAsync(string email) {
             var entity = await _databaseContext.UserVerificationAndReset
                 .Where(x => x.UserEmail == email)
                 .FirstOrDefaultAsync();

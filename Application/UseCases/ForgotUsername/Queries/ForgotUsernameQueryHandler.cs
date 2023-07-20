@@ -22,7 +22,7 @@ namespace Application.UseCases.ForgotUsername.Queries {
             var entity = await _userRepository.GetByEmailAsync(request.Email);
 
             if (entity == null)
-                throw new NoSuchUserExistsException("User does not exist");
+                throw new NoSuchEntityExistsException("User does not exist");
 
             var body = await _mailBodyService.GetForgotUsernameMailBody(entity.Username);
             string subject = "Forgot Username";

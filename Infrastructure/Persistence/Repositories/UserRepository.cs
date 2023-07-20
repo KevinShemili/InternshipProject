@@ -10,7 +10,9 @@ namespace Infrastructure.Persistence.Repositories {
 
         public async Task ActivateAccount(string email) {
             var entity = await GetByEmailAsync(email);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsEmailConfirmed = true;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -34,7 +36,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<User> GetByUsernameAsync(string username) {
+        public async Task<User?> GetByUsernameAsync(string username) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
@@ -45,7 +47,7 @@ namespace Infrastructure.Persistence.Repositories {
             return entity;
         }
 
-        public async Task<User> GetByEmailAsync(string email) {
+        public async Task<User?> GetByEmailAsync(string email) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
@@ -73,17 +75,6 @@ namespace Infrastructure.Persistence.Repositories {
             return permissions;
         }
 
-        public async Task<IEnumerable<string>> GetRolesAsync(Guid userId) {
-            var roles = await _databaseContext.Users
-                .Include(x => x.Roles)
-                .Where(x => x.Id == userId)
-                .SelectMany(x => x.Roles)
-                .Select(x => x.Name)
-                .ToListAsync();
-
-            return roles.AsEnumerable();
-        }
-
         public async Task<bool?> ChangePassword(string email, string passwordHash, string passwordSalt) {
             var entity = await GetByEmailAsync(email);
 
@@ -92,6 +83,62 @@ namespace Infrastructure.Persistence.Repositories {
 
             entity.PasswordHash = passwordHash;
             entity.PasswordSalt = passwordSalt;
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<HashSet<Role>> GetRolesAsync(Guid userId) {
+            var roles = await _databaseContext.Users
+                .Include(x => x.Roles)
+                .Where(x => x.Id == userId)
+                .SelectMany(x => x.Roles)
+                .ToListAsync();
+
+            return roles.ToHashSet();
+        }
+
+        public async Task<bool> UpdateRoles(Guid id, IEnumerable<Role> assign, IEnumerable<Role> unassign) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Roles)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            foreach (var role in assign)
+                user.Roles.Add(role);
+
+            foreach (var role in unassign)
+                user.Roles.Remove(role);
+
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> AddRoles(Guid id, IEnumerable<Role> assign) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Roles)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            foreach (var role in assign)
+                user.Roles.Add(role);
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RemoveRoles(Guid id, IEnumerable<Role> unassign) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Roles)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            foreach (var role in unassign)
+                user.Roles.Remove(role);
             await _databaseContext.SaveChangesAsync();
             return true;
         }

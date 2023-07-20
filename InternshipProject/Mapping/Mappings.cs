@@ -2,18 +2,26 @@
 using Application.UseCases.Authentication.Queries;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
+using Application.UseCases.Permissions.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
+using Application.UseCases.Roles.Commands;
 using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
+using InternshipProject.Objects.Requests.RolePermissionRequests;
 
 namespace Application.Mapping {
-    public class AuthenticationMapping : Profile {
-        public AuthenticationMapping() {
+    public class Mappings : Profile {
+        public Mappings() {
             CreateMap<RegisterRequest, RegisterCommand>().ReverseMap();
             CreateMap<LogInRequest, LoginQuery>().ReverseMap();
             CreateMap<ResendVerificationEmailRequest, ResendEmailVerificationCommand>().ReverseMap();
             CreateMap<ForgotUsernameRequest, ForgotUsernameQuery>().ReverseMap();
             CreateMap<ForgotPasswordRequest, ForgotPasswordQuery>().ReverseMap();
+            CreateMap<PermissionRequest, CreatePermissionCommand>().ReverseMap();
+            CreateMap<RoleRequest, CreateRoleCommand>().ReverseMap();
+            CreateMap<AssignationRequest, AssignationCommand>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ReverseMap();
         }
     }
 }

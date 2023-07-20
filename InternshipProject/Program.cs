@@ -9,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Services Scope
 {
-    builder.Services.AddProblemDetails();
-
     builder.Services
         .AddApplicationLayer()
         .AddInfrastructureLayer(builder.Configuration);

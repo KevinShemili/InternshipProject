@@ -25,7 +25,7 @@ namespace Application.UseCases.ForgotPassword.Queries {
             var entity = await _userRepository.ContainsEmail(request.Email);
 
             if (entity is false)
-                throw new NoSuchUserExistsException("User does not exist");
+                throw new NoSuchEntityExistsException("User does not exist");
 
             var token = await _recoveryTokenService.GeneratePasswordToken();
 

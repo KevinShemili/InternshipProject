@@ -4,12 +4,12 @@ using AutoMapper;
 using MediatR;
 
 namespace Application.UseCases.ViewPermissions.Queries {
-    public class GetRoleQuery : IRequestHandler<EmptyRoleClassQuery, List<RoleResult>> {
+    public class GetRoleQueryHandler : IRequestHandler<EmptyRoleClassQuery, List<RoleResult>> {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
 
-        public GetRoleQuery(IRoleRepository roleRepository, IMapper mapper) {
+        public GetRoleQueryHandler(IRoleRepository roleRepository, IMapper mapper) {
             _roleRepository = roleRepository;
             _mapper = mapper;
         }

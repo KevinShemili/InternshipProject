@@ -2,6 +2,6 @@
 using MediatR;
 
 namespace Application.UseCases.ViewPermissions.Queries {
-    public class EmptyPermissionClassQuery : IRequest<List<PermissionResult>> {
+    public class EmptyPermissionClassQuery : IRequest<List<PermissionsResult>> {
     }
 }

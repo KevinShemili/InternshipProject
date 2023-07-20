@@ -15,7 +15,7 @@ namespace InternshipProject.Middleware {
             try {
                 await _next(context);
             }
-            catch (NoSuchUserExistsException ex) {
+            catch (NoSuchEntityExistsException ex) {
                 await HandleExceptionAsync(context, ex);
             }
             catch (ValidationException ex) {
@@ -55,7 +55,7 @@ namespace InternshipProject.Middleware {
             string? result = null;
 
             switch (ex) {
-                case NoSuchUserExistsException noSuchUserExistsException:
+                case NoSuchEntityExistsException noSuchUserExistsException:
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
@@ -167,8 +167,8 @@ namespace InternshipProject.Middleware {
             }
         }
 
-        private static IReadOnlyDictionary<string, string[]> GetErrors(Exception exception) {
-            IReadOnlyDictionary<string, string[]> errors = null;
+        private static IReadOnlyDictionary<string, string[]>? GetErrors(Exception exception) {
+            IReadOnlyDictionary<string, string[]>? errors = null;
 
             if (exception is ValidationException validationException)
                 errors = validationException.ErrorsDictionary;

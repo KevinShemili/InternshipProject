@@ -4,20 +4,20 @@ using AutoMapper;
 using MediatR;
 
 namespace Application.UseCases.ViewPermissions.Queries {
-    public class GetPermissionsQuery : IRequestHandler<EmptyPermissionClassQuery, List<PermissionResult>> {
+    public class GetAllPermissionsQuery : IRequestHandler<EmptyPermissionClassQuery, List<PermissionsResult>> {
 
         private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
 
-        public GetPermissionsQuery(IPermissionRepository permissionRepository, IMapper mapper) {
+        public GetAllPermissionsQuery(IPermissionRepository permissionRepository, IMapper mapper) {
             _permissionRepository = permissionRepository;
             _mapper = mapper;
         }
 
-        public async Task<List<PermissionResult>> Handle(EmptyPermissionClassQuery request, CancellationToken cancellationToken) {
+        public async Task<List<PermissionsResult>> Handle(EmptyPermissionClassQuery request, CancellationToken cancellationToken) {
             var permissions = await _permissionRepository.GetAllAsync();
 
-            var permissionsResult = _mapper.Map<List<PermissionResult>>(permissions);
+            var permissionsResult = _mapper.Map<List<PermissionsResult>>(permissions);
             return permissionsResult;
         }
     }
