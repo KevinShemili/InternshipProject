@@ -8,13 +8,19 @@ namespace Infrastructure.Persistence.Repositories {
         public RoleRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
+        public async Task<bool> AddPermissions(Guid id, IEnumerable<Permission> assign) {
+            var role = await _databaseContext.Roles
+                .Include(x => x.Permissions)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-        public async Task<IEnumerable<Role>> GetByIdAsync(IEnumerable<Guid> ids) {
-            var roles = await _databaseContext.Roles
-                .Where(role => ids.Contains(role.Id))
-                .ToListAsync();
+            if (role is null)
+                return false;
 
-            return roles.AsEnumerable();
+            foreach (var permission in assign)
+                role.Permissions.Add(permission);
+
+            await _databaseContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<HashSet<Permission>> GetPermissionsAsync(Guid roleId) {
@@ -27,16 +33,37 @@ namespace Infrastructure.Persistence.Repositories {
             return permissions.ToHashSet();
         }
 
-        public async Task<bool> Contains(IEnumerable<Guid> ids) {
-            var roleIds = await _databaseContext.Roles
-                .Select(role => role.Id)
-                .ToListAsync();
+        public async Task<bool> RemovePermissions(Guid id, IEnumerable<Permission> unassign) {
+            var role = await _databaseContext.Roles
+                .Include(x => x.Permissions)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            foreach (var id in ids)
-                if (!roleIds.Contains(id))
-                    return false;
+            if (role is null)
+                return false;
+
+            foreach (var permission in unassign)
+                role.Permissions.Remove(permission);
+
+            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
+        public async Task<bool> UpdatePermissions(Guid id, IEnumerable<Permission> assign, IEnumerable<Permission> unassign) {
+            var role = await _databaseContext.Roles
+                .Include(x => x.Permissions)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (role is null)
+                return false;
+
+            foreach (var permission in assign)
+                role.Permissions.Add(permission);
+
+            foreach (var permission in unassign)
+                role.Permissions.Remove(permission);
+
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

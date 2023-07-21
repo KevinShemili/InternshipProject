@@ -19,7 +19,10 @@ namespace Application.Mapping {
             CreateMap<ForgotPasswordRequest, ForgotPasswordQuery>().ReverseMap();
             CreateMap<PermissionRequest, CreatePermissionCommand>().ReverseMap();
             CreateMap<RoleRequest, CreateRoleCommand>().ReverseMap();
-            CreateMap<AssignationRequest, AssignationCommand>()
+            CreateMap<AssignationRequest, RoleAssignationCommand>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<AssignationRequest, PermissionAssignationCommand>()
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ReverseMap();
         }

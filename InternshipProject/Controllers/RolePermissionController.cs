@@ -74,18 +74,19 @@ namespace InternshipProject.Controllers {
         [Authorize(Roles = Roles.SuperAdmin)]
         [HttpPost("users/{id}/roles")]
         public async Task<IActionResult> AssignRole([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
-            var command = _mapper.Map<AssignationCommand>(assignationRequest);
+            var command = _mapper.Map<RoleAssignationCommand>(assignationRequest);
             command.UserId = id;
             await _mediator.Send(command);
             return Ok();
         }
 
-        /*[Authorize(Roles = Roles.SuperAdmin)]
-        [HttpPost("users/{id}/roles")]
-        public async Task<IActionResult> AssignPermission([FromRoute] Guid id) {
-            var query = new UserRoleQuery { Id = id };
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }*/
+        [Authorize(Roles = Roles.SuperAdmin)]
+        [HttpPost("roles/{id}/permissions")]
+        public async Task<IActionResult> AssignPermission([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
+            var command = _mapper.Map<PermissionAssignationCommand>(assignationRequest);
+            command.UserId = id;
+            await _mediator.Send(command);
+            return Ok();
+        }
     }
 }

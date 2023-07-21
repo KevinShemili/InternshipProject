@@ -5,19 +5,19 @@ using Domain.Exceptions;
 using MediatR;
 
 namespace Application.UseCases.Roles.Commands {
-    public class AssignationCommandHandler : IRequestHandler<AssignationCommand> {
+    public class RoleAssignationCommandHandler : IRequestHandler<RoleAssignationCommand> {
 
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
 
-        public AssignationCommandHandler(IUserRepository userRepository, IMapper mapper, IRoleRepository roleRepository) {
+        public RoleAssignationCommandHandler(IUserRepository userRepository, IMapper mapper, IRoleRepository roleRepository) {
             _userRepository = userRepository;
             _mapper = mapper;
             _roleRepository = roleRepository;
         }
 
-        public async Task Handle(AssignationCommand request, CancellationToken cancellationToken) {
+        public async Task Handle(RoleAssignationCommand request, CancellationToken cancellationToken) {
 
             var roles = await _roleRepository.GetAllAsync();
             var roleIds = roles.Select(x => x.Id).AsEnumerable();
