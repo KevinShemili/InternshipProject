@@ -1,9 +1,15 @@
 ﻿using Application.Persistance;
 using Application.UseCases.ViewPermissions.Results;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Permissions.Queries {
+
+    public class RolePermissionsQuery : IRequest<List<PermissionsResult>> {
+        public Guid Id { get; set; }
+    }
+
     public class RolePermissionsQueryHandler : IRequestHandler<RolePermissionsQuery, List<PermissionsResult>> {
 
         private readonly IRoleRepository _roleRepository;
@@ -19,6 +25,13 @@ namespace Application.UseCases.Permissions.Queries {
 
             var result = _mapper.Map<List<PermissionsResult>>(permissions.ToList());
             return result;
+        }
+    }
+
+    public class RolePermissionsQueryValidator : AbstractValidator<RolePermissionsQuery> {
+        public RolePermissionsQueryValidator() {
+            RuleFor(x => x.Id)
+                .NotEmpty().WithMessage("Role ID cannot be empty");
         }
     }
 }

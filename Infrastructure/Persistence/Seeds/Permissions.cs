@@ -14,5 +14,15 @@
         public const string CanAddUser = "CanAddUser";
         public const string CanUpdateUser = "CanUpdateUser";
         public const string CanDeleteUser = "CanDeleteUser";
+
+        public const string CanReadApplications = "CanReadApplications";
+        public const string CanAddApplication = "CanAddApplication";
+        public const string CanUpdateApplication = "CanUpdateApplication";
+        public const string CanDeleteApplication = "CanDeleteApplication";
+
+        public const string CanReadLenders = "CanReadLenders";
+        public const string CanAddLender = "CanAddLender";
+        public const string CanUpdateLender = "CanUpdateLender";
+        public const string CanDeleteLender = "CanDeleteLender";
     }
 }

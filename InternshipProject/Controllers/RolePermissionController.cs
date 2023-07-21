@@ -26,7 +26,7 @@ namespace InternshipProject.Controllers {
         [Authorize(Roles = Roles.SuperAdmin)]
         [HttpGet("permissions")]
         public async Task<IActionResult> GetPermissions() {
-            var empty = new EmptyPermissionClassQuery();
+            var empty = new GetAllPermissionsQuery();
             var result = await _mediator.Send(empty);
             return Ok(result);
         }
@@ -34,7 +34,7 @@ namespace InternshipProject.Controllers {
         [Authorize(Roles = Roles.SuperAdmin)]
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles() {
-            var empty = new EmptyRoleClassQuery();
+            var empty = new GetRoleQuery();
             var result = await _mediator.Send(empty);
             return Ok(result);
         }
@@ -84,7 +84,7 @@ namespace InternshipProject.Controllers {
         [HttpPost("roles/{id}/permissions")]
         public async Task<IActionResult> AssignPermission([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
             var command = _mapper.Map<PermissionAssignationCommand>(assignationRequest);
-            command.UserId = id;
+            command.RoleId = id;
             await _mediator.Send(command);
             return Ok();
         }

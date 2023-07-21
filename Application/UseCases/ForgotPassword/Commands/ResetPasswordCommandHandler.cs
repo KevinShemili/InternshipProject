@@ -2,9 +2,18 @@
 using Application.Persistance;
 using Application.Services;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.ForgotPassword.Commands {
+
+    public class ResetPasswordCommand : IRequest {
+        public string Email { get; set; } = null!;
+        public string Token { get; set; } = null!;
+        public string Password { get; set; } = null!;
+        public string ConfirmPassword { get; set; } = null!;
+    }
+
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand> {
 
         private readonly IUserRepository _userRepository;
@@ -40,9 +49,9 @@ namespace Application.UseCases.ForgotPassword.Commands {
                 var passwordHash = tuple.Item1;
                 var passwordSalt = tuple.Item2;
 
-                await _userRepository.ChangePassword(request.Email, passwordHash, passwordSalt);
+                await _userRepository.ChangePasswordAsync(request.Email, passwordHash, passwordSalt);
 
-                var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBody();
+                var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBodyAsync();
                 var subject = "Password Reset";
                 var mailData = new MailData(request.Email, subject, body);
                 await _mailService.SendAsync(mailData, cancellationToken);
@@ -54,6 +63,29 @@ namespace Application.UseCases.ForgotPassword.Commands {
                 throw new ForbiddenException("Invalid token");
 
 
+        }
+    }
+
+    public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand> {
+        public ResetPasswordCommandValidator() {
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Email cannot be empty")
+                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+
+            RuleFor(x => x.Token)
+                .NotEmpty().WithMessage("Invalid token");
+
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("Your password cannot be empty")
+                .MinimumLength(8).WithMessage("Your password length must be at least 8.")
+                .MaximumLength(14).WithMessage("Your password length must not exceed 16.")
+                .Matches(@"[A-Z]+").WithMessage("Your password must contain at least one uppercase letter.")
+                .Matches(@"[a-z]+").WithMessage("Your password must contain at least one lowercase letter.")
+                .Matches(@"[0-9]+").WithMessage("Your password must contain at least one number.");
+
+            RuleFor(x => x.ConfirmPassword)
+                .Equal(x => x.Password)
+                .WithMessage("Passwords do not match");
         }
     }
 }

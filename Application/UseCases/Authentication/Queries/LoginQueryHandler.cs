@@ -3,9 +3,16 @@ using Application.Persistance;
 using Application.Services;
 using Application.UseCases.Authentication.Results;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Authentication.Queries {
+
+    public class LoginQuery : IRequest<LoginResult> {
+        public string Username { get; set; } = null!;
+        public string Password { get; set; } = null!;
+    }
+
     public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResult> {
 
         private readonly IUserRepository _userRepository;
@@ -44,6 +51,16 @@ namespace Application.UseCases.Authentication.Queries {
             };
 
             return loginResult;
+        }
+    }
+
+    public class LoginQueryValidator : AbstractValidator<LoginQuery> {
+        public LoginQueryValidator() {
+            RuleFor(x => x.Username)
+                .NotEmpty().WithMessage("Username cannot be empty");
+
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("Password cannot be empty");
         }
     }
 }

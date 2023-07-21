@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Repositories {
         public UserRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task ActivateAccount(string email) {
+        public async Task ActivateAccountAsync(string email) {
             var entity = await GetByEmailAsync(email);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsEmailConfirmed = true;
@@ -16,7 +16,7 @@ namespace Infrastructure.Persistence.Repositories {
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task<bool> ContainsEmail(string email) {
+        public async Task<bool> ContainsEmailAsync(string email) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
@@ -26,7 +26,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<bool> ContainsUsername(string username) {
+        public async Task<bool> ContainsUsernameAsync(string username) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
@@ -75,7 +75,7 @@ namespace Infrastructure.Persistence.Repositories {
             return permissions;
         }
 
-        public async Task<bool?> ChangePassword(string email, string passwordHash, string passwordSalt) {
+        public async Task<bool?> ChangePasswordAsync(string email, string passwordHash, string passwordSalt) {
             var entity = await GetByEmailAsync(email);
 
             if (entity is null)
@@ -97,7 +97,7 @@ namespace Infrastructure.Persistence.Repositories {
             return roles.ToHashSet();
         }
 
-        public async Task<bool> UpdateRoles(Guid id, IEnumerable<Role> assign, IEnumerable<Role> unassign) {
+        public async Task<bool> UpdateRolesAsync(Guid id, IEnumerable<Role> roles) {
             var user = await _databaseContext.Users
                 .Include(x => x.Roles)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -105,17 +105,16 @@ namespace Infrastructure.Persistence.Repositories {
             if (user is null)
                 return false;
 
-            foreach (var role in assign)
-                user.Roles.Add(role);
+            user.Roles.Clear();
 
-            foreach (var role in unassign)
-                user.Roles.Remove(role);
+            foreach (var role in roles)
+                user.Roles.Add(role);
 
             await _databaseContext.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> AddRoles(Guid id, IEnumerable<Role> assign) {
+        public async Task<bool> ClearRolesAsync(Guid id) {
             var user = await _databaseContext.Users
                 .Include(x => x.Roles)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -123,22 +122,7 @@ namespace Infrastructure.Persistence.Repositories {
             if (user is null)
                 return false;
 
-            foreach (var role in assign)
-                user.Roles.Add(role);
-            await _databaseContext.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> RemoveRoles(Guid id, IEnumerable<Role> unassign) {
-            var user = await _databaseContext.Users
-                .Include(x => x.Roles)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (user is null)
-                return false;
-
-            foreach (var role in unassign)
-                user.Roles.Remove(role);
+            user.Roles.Clear();
             await _databaseContext.SaveChangesAsync();
             return true;
         }

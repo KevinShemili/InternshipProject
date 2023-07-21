@@ -1,67 +1,44 @@
 ﻿using Application.Persistance;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Roles.Commands {
+
+    public class RoleAssignationCommand : IRequest {
+        public Guid UserId { get; set; }
+        public List<Guid> Ids { get; set; } = null!;
+    }
+
     public class RoleAssignationCommandHandler : IRequestHandler<RoleAssignationCommand> {
 
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IMapper _mapper;
 
-        public RoleAssignationCommandHandler(IUserRepository userRepository, IMapper mapper, IRoleRepository roleRepository) {
+        public RoleAssignationCommandHandler(IUserRepository userRepository, IRoleRepository roleRepository) {
             _userRepository = userRepository;
-            _mapper = mapper;
             _roleRepository = roleRepository;
         }
 
         public async Task Handle(RoleAssignationCommand request, CancellationToken cancellationToken) {
 
+            if (request.Ids.Any() is false)
+                await _userRepository.ClearRolesAsync(request.UserId);
+
             var roles = await _roleRepository.GetAllAsync();
             var roleIds = roles.Select(x => x.Id).AsEnumerable();
 
+            // Check if provided id values exist in database
+            var flag = request.Ids.All(item => roleIds.Contains(item));
 
-            var flag = CheckList(roleIds, request.AssignIds);
-            if (flag is not null)
-                throw new NoSuchEntityExistsException($"Role with ID: \"{flag}\" does not exist");
+            if (flag is false)
+                throw new NoSuchEntityExistsException($"Invalid roles list");
 
-            flag = CheckList(roleIds, request.UnassignIds);
-            if (flag is not null)
-                throw new NoSuchEntityExistsException($"Role with ID: \"{flag}\" does not exist");
-
-            if (request.AssignIds.Any() is true
-                && request.UnassignIds.Any() is true) {
-                var assignRoles = GetRoles(request.AssignIds, roles);
-                var unassignRoles = GetRoles(request.UnassignIds, roles);
-
-                await _userRepository.UpdateRoles(request.UserId, assignRoles, unassignRoles);
-            }
-            else if (request.AssignIds.Any() is true
-                && request.UnassignIds.Any() is false) {
-                var assignRoles = GetRoles(request.AssignIds, roles);
-
-                await _userRepository.AddRoles(request.UserId, assignRoles);
-            }
-            else if (request.AssignIds.Any() is false
-                && request.UnassignIds.Any() is true) {
-                var unassignRoles = GetRoles(request.UnassignIds, roles);
-
-                await _userRepository.RemoveRoles(request.UserId, unassignRoles);
-            }
-            else {
-                return;
-            }
+            await _userRepository.UpdateRolesAsync(request.UserId, GetRoles(request.Ids, roles));
         }
 
-        private Guid? CheckList(IEnumerable<Guid> roleIds, IEnumerable<Guid> checkIds) {
-            foreach (var roleId in checkIds)
-                if (roleIds.Contains(roleId) is false)
-                    return roleId;
-            return null;
-        }
-
+        // we are getting a list of Ids, we need to get the entities associated with these ids in order to perform the insertion in the db
         private List<Role> GetRoles(IEnumerable<Guid> ids, IEnumerable<Role> roles) {
             var list = new List<Role>();
             foreach (var role in roles)
@@ -69,6 +46,12 @@ namespace Application.UseCases.Roles.Commands {
                     list.Add(role);
             return list;
         }
+    }
 
+    public class RoleAssignationCommandValidator : AbstractValidator<RoleAssignationCommand> {
+        public RoleAssignationCommandValidator() {
+            RuleFor(x => x.UserId)
+                .NotEmpty().WithMessage("User ID cannot be empty");
+        }
     }
 }

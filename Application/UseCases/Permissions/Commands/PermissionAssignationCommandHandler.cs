@@ -1,71 +1,57 @@
 ﻿using Application.Persistance;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Permissions.Commands {
+
+    public class PermissionAssignationCommand : IRequest {
+        public Guid RoleId { get; set; }
+        public List<Guid> Ids { get; set; } = null!;
+    }
+
     public class PermissionAssignationCommandHandler : IRequestHandler<PermissionAssignationCommand> {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IPermissionRepository _permissionRepository;
-        private readonly IMapper _mapper;
 
-        public PermissionAssignationCommandHandler(IMapper mapper, IPermissionRepository permissionRepository, IRoleRepository roleRepository) {
-            _mapper = mapper;
+        public PermissionAssignationCommandHandler(IPermissionRepository permissionRepository, IRoleRepository roleRepository) {
             _permissionRepository = permissionRepository;
             _roleRepository = roleRepository;
         }
 
         public async Task Handle(PermissionAssignationCommand request, CancellationToken cancellationToken) {
+
+            if (request.Ids.Any() is false)
+                await _roleRepository.ClearPermissionsAsync(request.RoleId);
+
             var permissions = await _permissionRepository.GetAllAsync();
             var permissionIds = permissions.Select(x => x.Id).AsEnumerable();
 
-            var flag = CheckList(permissionIds, request.AssignIds);
-            if (flag is not null)
-                throw new NoSuchEntityExistsException($"Permission with ID: \"{flag}\" does not exist");
+            // Check if provided id values exist in database
+            var flag = request.Ids.All(item => permissionIds.Contains(item));
 
-            flag = CheckList(permissionIds, request.UnassignIds);
-            if (flag is not null)
-                throw new NoSuchEntityExistsException($"Permission with ID: \"{flag}\" does not exist");
+            if (flag is false)
+                throw new NoSuchEntityExistsException($"Invalid permissions list");
 
-            if (request.AssignIds.Any() is true
-                && request.UnassignIds.Any() is true) {
-                var assignRoles = GetPermissions(request.AssignIds, permissions);
-                var unassignRoles = GetPermissions(request.UnassignIds, permissions);
-
-                await _roleRepository.UpdatePermissions(request.UserId, assignRoles, unassignRoles);
-            }
-            else if (request.AssignIds.Any() is true
-                && request.UnassignIds.Any() is false) {
-                var assignRoles = GetPermissions(request.AssignIds, permissions);
-
-                await _roleRepository.AddPermissions(request.UserId, assignRoles);
-            }
-            else if (request.AssignIds.Any() is false
-                && request.UnassignIds.Any() is true) {
-                var unassignRoles = GetPermissions(request.UnassignIds, permissions);
-
-                await _roleRepository.RemovePermissions(request.UserId, unassignRoles);
-            }
-            else {
-                return;
-            }
+            await _roleRepository.UpdatePermissionsAsync(request.RoleId, GetPermissions(request.Ids, permissions));
         }
 
-        private Guid? CheckList(IEnumerable<Guid> permissionIds, IEnumerable<Guid> checkIds) {
-            foreach (var roleId in checkIds)
-                if (permissionIds.Contains(roleId) is false)
-                    return roleId;
-            return null;
-        }
-
+        // we are getting a list of Ids, we need to get the entities associated with these ids in order to perform the insertion in the db
         private List<Permission> GetPermissions(IEnumerable<Guid> ids, IEnumerable<Permission> permissions) {
             var list = new List<Permission>();
             foreach (var permission in permissions)
                 if (ids.Contains(permission.Id))
                     list.Add(permission);
             return list;
+        }
+    }
+
+    public class PermissionAssignationCommandValidator : AbstractValidator<PermissionAssignationCommand> {
+        public PermissionAssignationCommandValidator() {
+            RuleFor(x => x.RoleId)
+                .NotEmpty().WithMessage("Role ID cannot be empty");
         }
     }
 }

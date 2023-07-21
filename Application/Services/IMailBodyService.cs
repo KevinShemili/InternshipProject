@@ -1,8 +1,8 @@
 ﻿namespace Application.Services {
     public interface IMailBodyService {
-        public Task<string> GetVerificationMailBody(string email, string token);
-        public Task<string> GetForgotUsernameMailBody(string email);
-        public Task<string> GetForgotPasswordMailBody(string email, string token);
-        public Task<string> GetSuccessfulPasswordChangeMailBody();
+        Task<string> GetVerificationMailBodyAsync(string email, string token);
+        Task<string> GetForgotUsernameMailBodyAsync(string email);
+        Task<string> GetForgotPasswordMailBodyAsync(string email, string token);
+        Task<string> GetSuccessfulPasswordChangeMailBodyAsync();
     }
 }

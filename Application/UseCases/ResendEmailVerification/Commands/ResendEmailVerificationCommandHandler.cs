@@ -2,9 +2,15 @@
 using Application.Persistance;
 using Application.Services;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.ResendEmailVerification.Commands {
+
+    public class ResendEmailVerificationCommand : IRequest {
+        public string Email { get; set; } = null!;
+    }
+
     public class ResendEmailVerificationCommandHandler : IRequestHandler<ResendEmailVerificationCommand> {
 
         private readonly IMailBodyService _mailBodyService;
@@ -26,10 +32,10 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
             if (flag is false)
                 throw new NoSuchEntityExistsException("Invalid email");
 
-            var token = await _recoveryTokenService.GenerateVerificationToken();
+            var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);
 
-            var body = await _mailBodyService.GetVerificationMailBody(request.Email, token);
+            var body = await _mailBodyService.GetVerificationMailBodyAsync(request.Email, token);
 
             await _userVerificationAndResetRepository.UpdateVerificationTokenAsync(request.Email, token, tokenExpiry);
 
@@ -37,6 +43,14 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
             var mailData = new MailData(request.Email, subject, body);
 
             await _mailService.SendAsync(mailData, cancellationToken);
+        }
+    }
+
+    public class ResendEmailVerificationCommandValidator : AbstractValidator<ResendEmailVerificationCommand> {
+        public ResendEmailVerificationCommandValidator() {
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Email cannot be empty")
+                .EmailAddress().WithMessage("Email format johndoe@mail.com");
         }
     }
 }

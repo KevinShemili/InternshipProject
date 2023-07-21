@@ -9,6 +9,7 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
 
 
         /*  Automatic alternative to manual policy registration
+         *  The alternative would be manually declaring each new permission
          *  
          *  services.AddAuthorization(options =>
          *  {

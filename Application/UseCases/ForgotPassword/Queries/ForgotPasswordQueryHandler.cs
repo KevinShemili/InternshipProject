@@ -2,9 +2,15 @@
 using Application.Persistance;
 using Application.Services;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.ForgotPassword.Queries {
+
+    public class ForgotPasswordQuery : IRequest {
+        public string Email { get; set; } = null!;
+    }
+
     public class ForgotPasswordQueryHandler : IRequestHandler<ForgotPasswordQuery> {
 
         private readonly IMailBodyService _mailBodyService;
@@ -22,21 +28,29 @@ namespace Application.UseCases.ForgotPassword.Queries {
         }
 
         public async Task Handle(ForgotPasswordQuery request, CancellationToken cancellationToken) {
-            var entity = await _userRepository.ContainsEmail(request.Email);
+            var entity = await _userRepository.ContainsEmailAsync(request.Email);
 
             if (entity is false)
                 throw new NoSuchEntityExistsException("User does not exist");
 
-            var token = await _recoveryTokenService.GeneratePasswordToken();
+            var token = await _recoveryTokenService.GeneratePasswordTokenAsync();
 
             await _userVerificationAndResetRepository.SetPasswordTokenAsync(request.Email, token, DateTime.Now.AddMinutes(15));
 
-            var body = await _mailBodyService.GetForgotPasswordMailBody(request.Email, token);
+            var body = await _mailBodyService.GetForgotPasswordMailBodyAsync(request.Email, token);
 
             string subject = "Reset Password Request";
 
             var mailData = new MailData(request.Email, subject, body);
             await _mailService.SendAsync(mailData, cancellationToken);
+        }
+    }
+
+    public class ForgotPasswordQueryValidator : AbstractValidator<ForgotPasswordQuery> {
+        public ForgotPasswordQueryValidator() {
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Email cannot be empty")
+                .EmailAddress().WithMessage("Email format johndoe@mail.com");
         }
     }
 }

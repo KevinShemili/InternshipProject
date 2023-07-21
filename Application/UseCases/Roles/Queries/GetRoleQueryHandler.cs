@@ -4,7 +4,11 @@ using AutoMapper;
 using MediatR;
 
 namespace Application.UseCases.ViewPermissions.Queries {
-    public class GetRoleQueryHandler : IRequestHandler<EmptyRoleClassQuery, List<RoleResult>> {
+
+    public class GetRoleQuery : IRequest<List<RoleResult>> {
+    }
+
+    public class GetRoleQueryHandler : IRequestHandler<GetRoleQuery, List<RoleResult>> {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
@@ -14,7 +18,7 @@ namespace Application.UseCases.ViewPermissions.Queries {
             _mapper = mapper;
         }
 
-        public async Task<List<RoleResult>> Handle(EmptyRoleClassQuery request, CancellationToken cancellationToken) {
+        public async Task<List<RoleResult>> Handle(GetRoleQuery request, CancellationToken cancellationToken) {
             var permissions = await _roleRepository.GetAllAsync();
 
             var permissionsResult = _mapper.Map<List<RoleResult>>(permissions);

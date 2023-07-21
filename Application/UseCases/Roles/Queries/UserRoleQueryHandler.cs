@@ -1,9 +1,15 @@
 ﻿using Application.Persistance;
 using Application.UseCases.ViewRoles.Results;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Roles.Queries {
+
+    public class UserRoleQuery : IRequest<List<RoleResult>> {
+        public Guid Id { get; set; }
+    }
+
     public class UserRoleQueryHandler : IRequestHandler<UserRoleQuery, List<RoleResult>> {
 
         private readonly IUserRepository _userRepository;
@@ -19,6 +25,13 @@ namespace Application.UseCases.Roles.Queries {
 
             var result = _mapper.Map<List<RoleResult>>(roles.ToList());
             return result;
+        }
+    }
+
+    public class UserRoleQueryValidator : AbstractValidator<UserRoleQuery> {
+        public UserRoleQueryValidator() {
+            RuleFor(x => x.Id)
+                .NotEmpty().WithMessage("User ID cannot be empty");
         }
     }
 }

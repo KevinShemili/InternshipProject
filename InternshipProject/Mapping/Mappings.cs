@@ -23,7 +23,7 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ReverseMap();
             CreateMap<AssignationRequest, PermissionAssignationCommand>()
-                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.RoleId, opt => opt.Ignore())
                 .ReverseMap();
         }
     }

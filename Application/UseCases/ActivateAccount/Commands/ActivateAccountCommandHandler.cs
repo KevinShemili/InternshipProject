@@ -1,8 +1,15 @@
 ﻿using Application.Persistance;
 using Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.ActivateAccount.Commands {
+
+    public class ActivateAccountCommand : IRequest {
+        public string Token { get; set; } = null!;
+        public string Email { get; set; } = null!;
+    }
+
     public class ActivateAccountCommandHandler : IRequestHandler<ActivateAccountCommand> {
 
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
@@ -27,12 +34,23 @@ namespace Application.UseCases.ActivateAccount.Commands {
 
             if (VerificationToken == request.Token
                 && VerificationTokenExpiry > DateTime.Now)
-                await _userRepository.ActivateAccount(request.Email);
+                await _userRepository.ActivateAccountAsync(request.Email);
             else if (VerificationToken == request.Token
                 && VerificationTokenExpiry < DateTime.Now)
                 throw new TokenExpiredException("Token has expired");
             else
                 throw new ForbiddenException("Invalid token");
+        }
+    }
+
+    public class ActivateCommandValidator : AbstractValidator<ActivateAccountCommand> {
+        public ActivateCommandValidator() {
+            RuleFor(x => x.Token)
+                .NotEmpty().WithMessage("Token cannot be empty");
+
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Email cannot be empty")
+                .EmailAddress().WithMessage("Email format johndoe@mail.com");
         }
     }
 }

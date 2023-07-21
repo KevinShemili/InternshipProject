@@ -10,7 +10,7 @@ namespace Application.Services {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
         }
 
-        public async Task<string> GenerateVerificationToken() {
+        public async Task<string> GenerateVerificationTokenAsync() {
             string token;
 
             do {
@@ -20,7 +20,7 @@ namespace Application.Services {
             return token;
         }
 
-        public async Task<string> GeneratePasswordToken() {
+        public async Task<string> GeneratePasswordTokenAsync() {
             string token;
 
             do {
