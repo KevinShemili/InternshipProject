@@ -6,5 +6,6 @@ namespace Application.Persistance {
         Task<HashSet<Permission>> GetPermissionsAsync(Guid id);
         Task<bool> ClearPermissionsAsync(Guid id);
         Task<bool> UpdatePermissionsAsync(Guid id, IEnumerable<Permission> permissions);
+        Task<bool> ContainsAsync(Guid id);
     }
 }

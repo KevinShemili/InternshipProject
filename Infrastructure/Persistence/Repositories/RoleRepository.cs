@@ -21,6 +21,16 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
+        public async Task<bool> ContainsAsync(Guid id) {
+            var entity = await _databaseContext.Roles
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
         public async Task<HashSet<Permission>> GetPermissionsAsync(Guid id) {
             var permissions = await _databaseContext.Roles
                 .Include(x => x.Permissions)

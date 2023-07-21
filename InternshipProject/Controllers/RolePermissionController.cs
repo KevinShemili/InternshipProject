@@ -26,16 +26,14 @@ namespace InternshipProject.Controllers {
         [Authorize(Roles = Roles.SuperAdmin)]
         [HttpGet("permissions")]
         public async Task<IActionResult> GetPermissions() {
-            var empty = new GetAllPermissionsQuery();
-            var result = await _mediator.Send(empty);
+            var result = await _mediator.Send(new GetAllPermissionsQuery());
             return Ok(result);
         }
 
         [Authorize(Roles = Roles.SuperAdmin)]
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles() {
-            var empty = new GetRoleQuery();
-            var result = await _mediator.Send(empty);
+            var result = await _mediator.Send(new GetRoleQuery());
             return Ok(result);
         }
 
@@ -85,6 +83,22 @@ namespace InternshipProject.Controllers {
         public async Task<IActionResult> AssignPermission([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
             var command = _mapper.Map<PermissionAssignationCommand>(assignationRequest);
             command.RoleId = id;
+            await _mediator.Send(command);
+            return Ok();
+        }
+
+        [Authorize(Roles = Roles.SuperAdmin)]
+        [HttpDelete("roles/{id}")]
+        public async Task<IActionResult> DeleteRole([FromRoute] Guid id) {
+            var command = new DeleteRoleCommand { Id = id };
+            await _mediator.Send(command);
+            return Ok();
+        }
+
+        [Authorize(Roles = Roles.SuperAdmin)]
+        [HttpDelete("permissions/{id}")]
+        public async Task<IActionResult> DeletePermission([FromRoute] Guid id) {
+            var command = new DeletePermissionCommand { Id = id };
             await _mediator.Send(command);
             return Ok();
         }
