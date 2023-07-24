@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Application.Interfaces.Authentication;
+using System.Security.Cryptography;
 
 namespace Application.Services {
     public class HasherService : IHasherService {

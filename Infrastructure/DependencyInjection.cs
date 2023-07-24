@@ -1,9 +1,11 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
+using Application.Services;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
-using Infrastructure.Services.Authentication.JwtTokenConfigurations;
+using Infrastructure.Services.Authentication;
+using Infrastructure.Services.Common;
 using Infrastructure.Services.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,9 @@ namespace Infrastructure {
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IUserVerificationAndResetRepository, UserVerificationAndResetRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IHasherService, HasherService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IMailBodyService, MailBodyService>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

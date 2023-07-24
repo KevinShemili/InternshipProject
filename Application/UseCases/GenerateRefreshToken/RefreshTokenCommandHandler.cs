@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Persistance;
-using Application.Services;
 using Application.UseCases.GenerateRefreshToken.Results;
 using Domain.Exceptions;
 using FluentValidation;
@@ -8,7 +7,8 @@ using MediatR;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Application.UseCases.GenerateRefreshToken {
+namespace Application.UseCases.GenerateRefreshToken
+{
 
     public class RefreshTokenCommand : IRequest<RefreshTokenResult> {
         public string AccessToken { get; set; } = null!;

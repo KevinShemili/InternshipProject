@@ -1,11 +1,12 @@
-﻿using Application.Interfaces.Email;
+﻿using Application.Interfaces.Authentication;
+using Application.Interfaces.Email;
 using Application.Persistance;
-using Application.Services;
 using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.ForgotPassword.Queries {
+namespace Application.UseCases.ForgotPassword.Queries
+{
 
     public class ForgotPasswordQuery : IRequest {
         public string Email { get; set; } = null!;

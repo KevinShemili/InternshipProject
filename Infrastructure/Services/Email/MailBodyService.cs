@@ -1,4 +1,6 @@
-﻿namespace Application.Services {
+﻿using Application.Interfaces.Email;
+
+namespace Application.Services {
     public class MailBodyService : IMailBodyService {
         public async Task<string> GetVerificationMailBodyAsync(string email, string token) {
 

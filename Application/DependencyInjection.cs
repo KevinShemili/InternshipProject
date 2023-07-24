@@ -1,5 +1,4 @@
-﻿using Application.Services;
-using Application.Validator;
+﻿using Application.Validator;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,18 +8,9 @@ namespace Application {
     public static class DependencyInjection {
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services) {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
-            AddScopes(services);
             AddMediatR(services);
             AddFluentValidation(services);
             return services;
-        }
-
-        private static void AddScopes(IServiceCollection services) {
-            services.AddScoped<IHasherService, HasherService>();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IMailBodyService, MailBodyService>();
-
         }
 
         private static void AddMediatR(IServiceCollection services) {

@@ -1,9 +1,11 @@
 ﻿using Application.Persistance;
 using Domain.Exceptions;
+using Infrastructure.Services.Common;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations {
+namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations
+{
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement> {
 
         private readonly IUserRepository _userRepository;

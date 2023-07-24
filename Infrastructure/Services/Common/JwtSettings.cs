@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Services.Authentication.JwtTokenConfigurations {
+﻿namespace Infrastructure.Services.Common {
     public class JwtSettings {
         public const string SectionName = "JwtSettings";
         public string Secret { get; set; } = null!;

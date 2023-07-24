@@ -1,12 +1,12 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Persistance;
-using Application.Services;
 using Application.UseCases.Authentication.Results;
 using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Queries {
+namespace Application.UseCases.Authentication.Queries
+{
 
     public class LoginQuery : IRequest<LoginResult> {
         public string Username { get; set; } = null!;

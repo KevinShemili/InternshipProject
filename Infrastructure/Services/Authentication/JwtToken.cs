@@ -1,11 +1,12 @@
 ﻿using Application.Interfaces.Authentication;
+using Infrastructure.Services.Common;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Services.Authentication.JwtTokenConfigurations {
+namespace Infrastructure.Services.Authentication {
     public class JwtToken : IJwtToken {
 
         private readonly JwtSettings _jwtSettings;

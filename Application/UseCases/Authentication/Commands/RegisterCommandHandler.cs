@@ -1,6 +1,6 @@
-﻿using Application.Interfaces.Email;
+﻿using Application.Interfaces.Authentication;
+using Application.Interfaces.Email;
 using Application.Persistance;
-using Application.Services;
 using Application.UseCases.Authentication.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -8,7 +8,8 @@ using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Commands {
+namespace Application.UseCases.Authentication.Commands
+{
 
     public class RegisterCommand : IRequest<RegisterResult> {
         public string FirstName { get; set; } = null!;

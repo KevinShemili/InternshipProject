@@ -1,11 +1,11 @@
 ﻿using Application.Interfaces.Email;
 using Application.Persistance;
-using Application.Services;
 using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.ForgotUsername.Queries {
+namespace Application.UseCases.ForgotUsername.Queries
+{
 
     public class ForgotUsernameQuery : IRequest {
         public string Email { get; set; } = null!;

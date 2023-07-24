@@ -1,4 +1,5 @@
-﻿using Application.Persistance;
+﻿using Application.Interfaces.Authentication;
+using Application.Persistance;
 using System.Security.Cryptography;
 
 namespace Application.Services {

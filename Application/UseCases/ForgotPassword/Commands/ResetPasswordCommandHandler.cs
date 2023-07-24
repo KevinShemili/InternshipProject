@@ -1,11 +1,12 @@
-﻿using Application.Interfaces.Email;
+﻿using Application.Interfaces.Authentication;
+using Application.Interfaces.Email;
 using Application.Persistance;
-using Application.Services;
 using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.ForgotPassword.Commands {
+namespace Application.UseCases.ForgotPassword.Commands
+{
 
     public class ResetPasswordCommand : IRequest {
         public string Email { get; set; } = null!;

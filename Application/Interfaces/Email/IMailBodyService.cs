@@ -1,4 +1,4 @@
-﻿namespace Application.Services {
+﻿namespace Application.Interfaces.Email {
     public interface IMailBodyService {
         Task<string> GetVerificationMailBodyAsync(string email, string token);
         Task<string> GetForgotUsernameMailBodyAsync(string email);
