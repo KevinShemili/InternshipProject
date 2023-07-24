@@ -18,11 +18,15 @@ namespace Application.UseCases.Authentication.Queries {
         private readonly IUserRepository _userRepository;
         private readonly IJwtToken _jwtToken;
         private readonly IHasherService _hasherService;
+        private readonly ITokenService _tokenService;
+        private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
 
-        public LoginQueryHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService) {
+        public LoginQueryHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
             _userRepository = userRepository;
             _jwtToken = jwtToken;
             _hasherService = hasherService;
+            _tokenService = tokenService;
+            _userVerificationAndResetRepository = userVerificationAndResetRepository;
         }
 
         public async Task<LoginResult> Handle(LoginQuery request, CancellationToken cancellationToken) {
@@ -44,10 +48,14 @@ namespace Application.UseCases.Authentication.Queries {
             var roleNames = roles.Select(x => x.Name).AsEnumerable();
 
             var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames);
+            var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
+
+            await _userRepository.SetRefreshToken(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
             var loginResult = new LoginResult {
                 Id = user.Id,
-                Token = token
+                Token = token,
+                RefreshToken = refreshToken
             };
 
             return loginResult;

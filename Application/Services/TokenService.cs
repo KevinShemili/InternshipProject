@@ -2,11 +2,11 @@
 using System.Security.Cryptography;
 
 namespace Application.Services {
-    public class RecoveryTokenService : IRecoveryTokenService {
+    public class TokenService : ITokenService {
 
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
 
-        public RecoveryTokenService(IUserVerificationAndResetRepository userVerificationAndResetRepository) {
+        public TokenService(IUserVerificationAndResetRepository userVerificationAndResetRepository) {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
         }
 
@@ -27,6 +27,16 @@ namespace Application.Services {
                 token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
             }
             while (await _userVerificationAndResetRepository.ContainsPasswordTokenAsync(token)); // check if such token already exists
+            return token;
+        }
+
+        public async Task<string> GenerateRefreshTokenAsync() {
+            string token;
+
+            do {
+                token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+            }
+            while (await _userVerificationAndResetRepository.ContainsRefreshTokenAsync(token)); // check if such token already exists
             return token;
         }
     }

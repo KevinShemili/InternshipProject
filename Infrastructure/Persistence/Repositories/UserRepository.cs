@@ -107,8 +107,7 @@ namespace Infrastructure.Persistence.Repositories {
 
             user.Roles.Clear();
 
-            foreach (var role in roles)
-                user.Roles.Add(role);
+            user.Roles.ToList().AddRange(roles);
 
             await _databaseContext.SaveChangesAsync();
             return true;
@@ -124,6 +123,48 @@ namespace Infrastructure.Persistence.Repositories {
 
             user.Roles.Clear();
             await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> AddRoleAsync(Guid id, Role role) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Roles)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            user.Roles.Add(role);
+            await _databaseContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> SetRefreshToken(Guid id, string token, DateTime time) {
+            var user = await _databaseContext.Users
+                .Include(x => x.UserVerificationAndReset)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            user.UserVerificationAndReset = new UserVerificationAndReset {
+                RefreshToken = token,
+                RefreshTokenExpiry = time,
+                UserEmail = user.Email
+            };
+
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ContainsIdAsync(Guid id) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
             return true;
         }
     }

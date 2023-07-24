@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Persistence.Seeds {
+﻿namespace Domain.Seeds {
     public static class Permissions {
         // Read & Write & Update & Delete Permissions
 

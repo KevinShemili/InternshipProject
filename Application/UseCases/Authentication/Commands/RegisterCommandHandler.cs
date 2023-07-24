@@ -26,11 +26,12 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IMapper _mapper;
         private readonly IHasherService _hasherService;
         private readonly IMailBodyService _mailBodyService;
-        private readonly IRecoveryTokenService _recoveryTokenService;
+        private readonly ITokenService _recoveryTokenService;
         private readonly IMailService _mailService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, IRecoveryTokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
+        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
@@ -38,6 +39,7 @@ namespace Application.UseCases.Authentication.Commands {
             _recoveryTokenService = recoveryTokenService;
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
@@ -58,6 +60,7 @@ namespace Application.UseCases.Authentication.Commands {
             user.IsEmailConfirmed = false;
 
             await _userRepository.CreateAsync(user);
+            await _userRepository.AddRoleAsync(user.Id, await _roleRepository.GetByName(Domain.Seeds.Roles.RegisteredUser));
 
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);

@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Infrastructure.Persistence.Seeds;
+using Domain.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,9 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .ToTable("Permissions")
                 .HasKey(x => x.Id);
+
+            builder
+                .HasAlternateKey(x => x.Name);
 
             builder
                 .Property(x => x.Name)
@@ -36,6 +39,16 @@ namespace Infrastructure.Persistence.Configurations {
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanAddUser });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanUpdateUser });
             builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanDeleteUser });
+
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanReadApplications });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanAddApplication });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanUpdateApplication });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanDeleteApplication });
+
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanReadLenders });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanAddLender });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanUpdateLender });
+            builder.HasData(new Permission { Id = Guid.NewGuid(), Name = Permissions.CanDeleteLender });
         }
     }
 }

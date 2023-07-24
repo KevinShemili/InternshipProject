@@ -9,5 +9,6 @@ namespace Application.Persistance {
         Task<bool> ContainsVerificationTokenAsync(string token);
         Task<bool?> SetPasswordTokenAsync(string email, string passwordToken, DateTime tokenExpiry);
         Task<bool> ContainsPasswordTokenAsync(string token);
+        Task<bool> ContainsRefreshTokenAsync(string token);
     }
 }

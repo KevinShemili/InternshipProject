@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Infrastructure.Persistence.Seeds;
+using Domain.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +11,9 @@ namespace Infrastructure.Persistence.Configurations {
 
             builder
                 .HasKey(x => x.Id);
+
+            builder
+                .HasAlternateKey(x => x.Name);
 
             builder
                 .Property(x => x.Name)

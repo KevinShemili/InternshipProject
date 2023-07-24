@@ -28,6 +28,16 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
+        public async Task<bool> ContainsRefreshTokenAsync(string token) {
+            var entity = await _databaseContext.UserVerificationAndReset
+                .Where(x => x.RefreshToken == token)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
         public async Task<bool> ContainsVerificationTokenAsync(string token) {
             var entity = await _databaseContext.UserVerificationAndReset
                 .Where(x => x.EmailVerificationToken == token)

@@ -8,10 +8,13 @@ namespace Application.Persistance {
         Task<HashSet<string>> GetPermissionsAsync(Guid userId);
         Task<HashSet<Role>> GetRolesAsync(Guid userId);
         Task<bool> ContainsUsernameAsync(string username);
+        Task<bool> ContainsIdAsync(Guid id);
         Task<bool> ContainsEmailAsync(string email);
         Task ActivateAccountAsync(string email);
         Task<bool?> ChangePasswordAsync(string email, string passwordSalt, string passwordHash);
+        Task<bool> AddRoleAsync(Guid id, Role role);
         Task<bool> UpdateRolesAsync(Guid id, IEnumerable<Role> roles);
         Task<bool> ClearRolesAsync(Guid id);
+        Task<bool> SetRefreshToken(Guid id, string token, DateTime time);
     }
 }

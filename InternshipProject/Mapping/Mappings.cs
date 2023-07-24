@@ -2,6 +2,7 @@
 using Application.UseCases.Authentication.Queries;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
+using Application.UseCases.GenerateRefreshToken;
 using Application.UseCases.Permissions.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.Roles.Commands;
@@ -25,6 +26,7 @@ namespace Application.Mapping {
             CreateMap<AssignationRequest, PermissionAssignationCommand>()
                 .ForMember(dest => dest.RoleId, opt => opt.Ignore())
                 .ReverseMap();
+            CreateMap<RefreshTokenRequest, RefreshTokenCommand>().ReverseMap();
         }
     }
 }

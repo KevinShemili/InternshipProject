@@ -7,5 +7,6 @@ namespace Application.Persistance {
         Task<bool> ClearPermissionsAsync(Guid id);
         Task<bool> UpdatePermissionsAsync(Guid id, IEnumerable<Permission> permissions);
         Task<bool> ContainsAsync(Guid id);
+        Task<Role> GetByName(string name);
     }
 }

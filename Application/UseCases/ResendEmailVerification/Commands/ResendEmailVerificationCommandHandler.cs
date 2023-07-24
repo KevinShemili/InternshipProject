@@ -16,9 +16,9 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
         private readonly IMailBodyService _mailBodyService;
         private readonly IMailService _mailService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
-        private readonly IRecoveryTokenService _recoveryTokenService;
+        private readonly ITokenService _recoveryTokenService;
 
-        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRecoveryTokenService recoveryTokenService) {
+        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, ITokenService recoveryTokenService) {
             _mailBodyService = mailBodyService;
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;

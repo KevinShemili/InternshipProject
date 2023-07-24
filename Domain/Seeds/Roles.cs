@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Persistence.Seeds {
+﻿namespace Domain.Seeds {
     public static class Roles {
 
         public const string SuperAdmin = "SuperAdmin";

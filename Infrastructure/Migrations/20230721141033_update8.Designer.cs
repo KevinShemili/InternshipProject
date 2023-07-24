@@ -4,6 +4,7 @@ using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230721141033_update8")]
+    partial class update8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -278,8 +281,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Name");
-
                     b.ToTable("Permissions", (string)null);
 
                     b.HasData(
@@ -290,87 +291,87 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5223aad9-aa30-420d-9697-d877c3ad38ee"),
+                            Id = new Guid("4c9e6c65-7869-4b18-b61a-e44656caf082"),
                             Name = "IsRegistered"
                         },
                         new
                         {
-                            Id = new Guid("12681a02-7e54-4c6e-b447-03d51fb05a61"),
+                            Id = new Guid("8f0a528b-44cb-482c-8515-733bf85e4ab2"),
                             Name = "CanReadBorrowers"
                         },
                         new
                         {
-                            Id = new Guid("b6ddd3b7-91a6-45ef-a458-8c011a518f09"),
+                            Id = new Guid("b9737497-cb87-4a16-a938-645942e65a98"),
                             Name = "CanAddBorrower"
                         },
                         new
                         {
-                            Id = new Guid("b104a3d4-f7a4-4d8b-b710-a921af70cdc8"),
+                            Id = new Guid("1ce58dbd-3daa-4c10-bb62-64acd62a3672"),
                             Name = "CanUpdateBorrower"
                         },
                         new
                         {
-                            Id = new Guid("4c2c128e-179a-4ced-96ba-081bc7a02599"),
+                            Id = new Guid("fecf7811-369f-456f-9c35-4ad319fe0c63"),
                             Name = "CanDeleteBorrower"
                         },
                         new
                         {
-                            Id = new Guid("1d0c1438-dd0c-4b05-bccd-dfccc5618ffd"),
+                            Id = new Guid("4556c848-737f-4339-bcce-6f6802560128"),
                             Name = "CanReadUsers"
                         },
                         new
                         {
-                            Id = new Guid("97398352-cb4d-44bc-b3c6-d63fc9a5f229"),
+                            Id = new Guid("7be51535-3ea5-49fe-9976-cb4c5f5426d4"),
                             Name = "CanAddUser"
                         },
                         new
                         {
-                            Id = new Guid("436d1756-3c07-4c05-9f15-b13c7c365f45"),
+                            Id = new Guid("b9fa7644-c032-4136-8dda-b4a460451f9c"),
                             Name = "CanUpdateUser"
                         },
                         new
                         {
-                            Id = new Guid("c0e2723d-3541-4ee6-a9fb-85df1f92fd6a"),
+                            Id = new Guid("713a3112-7182-4cd8-ab5c-0ab5a6aed2f4"),
                             Name = "CanDeleteUser"
                         },
                         new
                         {
-                            Id = new Guid("1b8aed2b-cd8e-4c1a-9963-548c075d72b2"),
+                            Id = new Guid("81891c16-99e0-4da4-8768-a3cc88d8bd81"),
                             Name = "CanReadApplications"
                         },
                         new
                         {
-                            Id = new Guid("eb049361-2a6b-4123-adb9-8a229196f29e"),
+                            Id = new Guid("db4edb32-9bce-4849-9f89-ce70efaaa64b"),
                             Name = "CanAddApplication"
                         },
                         new
                         {
-                            Id = new Guid("5fc6d6da-2075-4d72-896c-1d69bc9c4a84"),
+                            Id = new Guid("22621e0b-39ce-45b7-b12d-0b633ad20a03"),
                             Name = "CanUpdateApplication"
                         },
                         new
                         {
-                            Id = new Guid("3c956a6d-e675-45b1-8544-588761073fee"),
+                            Id = new Guid("c8b83f53-7b2b-4d73-b86a-de3bca2f80a4"),
                             Name = "CanDeleteApplication"
                         },
                         new
                         {
-                            Id = new Guid("5f9b10db-a5a3-4910-9c3e-a1e33613ff23"),
+                            Id = new Guid("a9fa6abe-b106-4afa-a10b-8c03ae18e3db"),
                             Name = "CanReadLenders"
                         },
                         new
                         {
-                            Id = new Guid("ba7e6beb-f980-4ff1-8d4b-ab3a5bfd99cd"),
+                            Id = new Guid("caf56ce1-7918-49ea-a33f-05c4132bedfe"),
                             Name = "CanAddLender"
                         },
                         new
                         {
-                            Id = new Guid("ed06208c-ee3f-449c-9d40-742035fa952e"),
+                            Id = new Guid("0ab1318e-464c-43a2-817c-660352a05382"),
                             Name = "CanUpdateLender"
                         },
                         new
                         {
-                            Id = new Guid("5fc35ff5-5795-4f95-a67a-25fd27f9eade"),
+                            Id = new Guid("cd204f1f-2948-417f-9c19-64bf593e6c70"),
                             Name = "CanDeleteLender"
                         });
                 });
@@ -442,8 +443,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Name");
-
                     b.ToTable("Roles", (string)null);
 
                     b.HasData(
@@ -454,22 +453,22 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c66dbc6f-b1c9-477a-bf6d-a8766f33e44f"),
+                            Id = new Guid("a29b8891-bf57-415a-8bbf-30af6222a1a6"),
                             Name = "LoanOfficerBackOffice"
                         },
                         new
                         {
-                            Id = new Guid("8660b5e6-2ca1-4c3c-91c3-5f8c366b30bb"),
+                            Id = new Guid("67758d21-af58-4dfd-834e-9b4c39549645"),
                             Name = "LoanOfficerFrontOffice"
                         },
                         new
                         {
-                            Id = new Guid("77f7c704-ea32-4a2e-9fd3-04c184d44d4c"),
+                            Id = new Guid("13160bae-98dd-40c7-bac8-cb6bdeaf91b5"),
                             Name = "Borrower"
                         },
                         new
                         {
-                            Id = new Guid("e3749037-e8b0-4208-87fd-f9d0edb25b21"),
+                            Id = new Guid("69eef54f-e725-4760-8871-69145500e2b6"),
                             Name = "RegisteredUser"
                         });
                 });
@@ -583,13 +582,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PasswordResetTokenExpiry")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserEmail")

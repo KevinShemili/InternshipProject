@@ -7,6 +7,8 @@ namespace Domain.Entities {
         public DateTime? EmailVerificationTokenExpiry { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetTokenExpiry { get; set; }
+        public string RefreshToken { get; set; } = null!;
+        public DateTime? RefreshTokenExpiry { get; set; }
         public string UserEmail { get; set; } = null!;
         public virtual User User { get; set; } = null!;
     }

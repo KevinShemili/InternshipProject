@@ -4,6 +4,7 @@ using Application.UseCases.Authentication.Queries;
 using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
+using Application.UseCases.GenerateRefreshToken;
 using Application.UseCases.ResendEmailVerification.Commands;
 using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
@@ -106,6 +107,16 @@ namespace InternshipProject.Controllers {
             await _mediator.Send(request);
 
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPatch("refresh-token")]
+        public async Task<IActionResult> GenerateRefreshToken([FromBody] RefreshTokenRequest refreshTokenRequest) {
+            var request = _mapper.Map<RefreshTokenCommand>(refreshTokenRequest);
+
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
         }
     }
 }

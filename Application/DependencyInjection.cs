@@ -18,7 +18,7 @@ namespace Application {
 
         private static void AddScopes(IServiceCollection services) {
             services.AddScoped<IHasherService, HasherService>();
-            services.AddScoped<IRecoveryTokenService, RecoveryTokenService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMailBodyService, MailBodyService>();
 
         }

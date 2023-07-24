@@ -31,6 +31,16 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
+        public async Task<Role> GetByName(string name) {
+            var entity = await _databaseContext.Roles
+                .Where(x => x.Name == name)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return null;
+            return entity;
+        }
+
         public async Task<HashSet<Permission>> GetPermissionsAsync(Guid id) {
             var permissions = await _databaseContext.Roles
                 .Include(x => x.Permissions)
@@ -51,8 +61,7 @@ namespace Infrastructure.Persistence.Repositories {
 
             role.Permissions.Clear();
 
-            foreach (var permission in permissions)
-                role.Permissions.Add(permission);
+            role.Permissions.ToList().AddRange(permissions);
 
             await _databaseContext.SaveChangesAsync();
             return true;

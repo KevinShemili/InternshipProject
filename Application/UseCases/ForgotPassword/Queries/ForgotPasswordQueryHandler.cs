@@ -16,10 +16,10 @@ namespace Application.UseCases.ForgotPassword.Queries {
         private readonly IMailBodyService _mailBodyService;
         private readonly IUserRepository _userRepository;
         private readonly IMailService _mailService;
-        private readonly IRecoveryTokenService _recoveryTokenService;
+        private readonly ITokenService _recoveryTokenService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
 
-        public ForgotPasswordQueryHandler(IMailBodyService mailBodyService, IUserRepository userRepository, IMailService mailService, IRecoveryTokenService recoveryTokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
+        public ForgotPasswordQueryHandler(IMailBodyService mailBodyService, IUserRepository userRepository, IMailService mailService, ITokenService recoveryTokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
             _mailBodyService = mailBodyService;
             _userRepository = userRepository;
             _mailService = mailService;
