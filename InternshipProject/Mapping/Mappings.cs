@@ -9,8 +9,7 @@ using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using InternshipProject.Objects.Requests.RolePermissionRequests;
 
-namespace Application.Mapping
-{
+namespace Application.Mapping {
     public class Mappings : Profile {
         public Mappings() {
             CreateMap<RegisterRequest, RegisterCommand>().ReverseMap();

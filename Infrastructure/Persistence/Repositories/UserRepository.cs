@@ -201,5 +201,13 @@ namespace Infrastructure.Persistence.Repositories {
             entity.IsBlocked = false;
             await _databaseContext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<User>> GetBlockedAccountsAsync() {
+            var entities = await _databaseContext.Users
+                .Where(x => x.IsBlocked == true)
+                .ToListAsync();
+
+            return entities.AsEnumerable();
+        }
     }
 }

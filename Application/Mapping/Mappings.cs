@@ -1,4 +1,5 @@
 ﻿using Application.UseCases.Authentication.Commands;
+using Application.UseCases.BlockedAccounts.Results;
 using Application.UseCases.Permissions.Commands;
 using Application.UseCases.Roles.Commands;
 using Application.UseCases.ViewPermissions.Results;
@@ -20,6 +21,16 @@ namespace Application.Mapping {
                 .ReverseMap();
             CreateMap<CreateRoleCommand, Role>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<BlockedAccountResult, User>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.FirstName, opt => opt.Ignore())
+                .ForMember(dest => dest.LastName, opt => opt.Ignore())
+                .ForMember(dest => dest.IsEmailConfirmed, opt => opt.Ignore())
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                .ForMember(dest => dest.LoginTries, opt => opt.Ignore())
+                .ForMember(dest => dest.IsBlocked, opt => opt.Ignore())
                 .ReverseMap();
         }
     }

@@ -20,5 +20,6 @@ namespace Application.Persistance {
         Task<bool> IncrementTriesAsync(Guid id);
         Task BlockAccountAsync(Guid id);
         Task UnblockAccountAsync(Guid id);
+        Task<IEnumerable<User>> GetBlockedAccountsAsync();
     }
 }

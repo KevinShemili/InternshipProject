@@ -1,18 +1,20 @@
 ﻿using Application.UseCases.ActivateAccount.Commands;
 using Application.UseCases.Authentication.Commands;
+using Application.UseCases.BlockedAccounts.Queries;
 using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
 using Application.UseCases.GenerateRefreshToken;
 using Application.UseCases.ResendEmailVerification.Commands;
+using Application.UseCases.UnblockAccount.Command;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InternshipProject.Controllers
-{
+namespace InternshipProject.Controllers {
     [ApiController]
     [Route("auth")]
     public class AuthController : ControllerBase {
@@ -121,6 +123,20 @@ namespace InternshipProject.Controllers
             var response = await _mediator.Send(request);
 
             return Ok(response);
+        }
+
+        [Authorize(Policy = Permissions.IsSuperAdmin)]
+        [HttpGet("blocked-accounts")]
+        public async Task<IActionResult> GetBlockedAccounts() {
+            var response = await _mediator.Send(new BlockedAccountsQuery());
+            return Ok(response);
+        }
+
+        [Authorize(Policy = Permissions.IsSuperAdmin)]
+        [HttpPatch("unblock-account/{id}")]
+        public async Task<IActionResult> UnblockAccount([FromRoute] Guid id) {
+            await _mediator.Send(new UnblockAccountCommand { Id = id });
+            return Ok();
         }
     }
 }

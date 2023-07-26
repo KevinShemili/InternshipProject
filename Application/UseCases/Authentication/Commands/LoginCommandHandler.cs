@@ -31,8 +31,7 @@ namespace Application.UseCases.Authentication.Commands {
 
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken) {
 
-            var flag = await _userRepository.ContainsUsernameAsync(request.Username);
-            if (flag is false)
+            if (await _userRepository.ContainsUsernameAsync(request.Username) is false)
                 throw new NoSuchEntityExistsException("Username doesn't exist");
 
             var user = await _userRepository.GetByUsernameAsync(request.Username);
@@ -43,7 +42,7 @@ namespace Application.UseCases.Authentication.Commands {
             if (user.IsBlocked is true)
                 throw new BlockedAccountException("Account is blocked due to multiple incorrect tries");
 
-            flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
+            var flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
 
             if (flag is false) {
                 if (await _userRepository.IncrementTriesAsync(user.Id) is false) {
