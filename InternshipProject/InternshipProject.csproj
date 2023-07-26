@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -35,6 +35,12 @@
 
   <ItemGroup>
     <Folder Include="Objects\Response\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\VerifyEmailTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

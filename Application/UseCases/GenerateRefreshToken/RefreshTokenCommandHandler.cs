@@ -54,7 +54,7 @@ namespace Application.UseCases.GenerateRefreshToken
                 throw new TokenExpiredException("Refresh token expired.");
 
             var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
-            await _userRepository.SetRefreshToken(user.Id, refreshToken, DateTime.Now.AddDays(7));
+            await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
             var roles = tokenS.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList();
 

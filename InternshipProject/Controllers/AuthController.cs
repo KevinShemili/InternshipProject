@@ -1,6 +1,5 @@
 ﻿using Application.UseCases.ActivateAccount.Commands;
 using Application.UseCases.Authentication.Commands;
-using Application.UseCases.Authentication.Queries;
 using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
@@ -12,7 +11,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InternshipProject.Controllers {
+namespace InternshipProject.Controllers
+{
     [ApiController]
     [Route("auth")]
     public class AuthController : ControllerBase {
@@ -42,7 +42,7 @@ namespace InternshipProject.Controllers {
         [HttpPost("login")]
         public async Task<IActionResult> LogIn([FromBody] LogInRequest logInRequest) {
 
-            var loginQuery = _mapper.Map<LoginQuery>(logInRequest);
+            var loginQuery = _mapper.Map<LoginCommand>(logInRequest);
 
             var result = await _mediator.Send(loginQuery);
 

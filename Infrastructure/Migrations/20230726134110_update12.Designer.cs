@@ -4,6 +4,7 @@ using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230726134110_update12")]
+    partial class update12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,87 +293,87 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a0a4208e-494e-4e96-9373-048ff77a32af"),
+                            Id = new Guid("cbf8a920-2ae3-4c26-9bd0-d4a325a25cb3"),
                             Name = "IsRegistered"
                         },
                         new
                         {
-                            Id = new Guid("ffe2234c-aba3-483b-b51a-f56d28eefe3b"),
+                            Id = new Guid("63ec58c3-9fec-432c-bc12-53d312506968"),
                             Name = "CanReadBorrowers"
                         },
                         new
                         {
-                            Id = new Guid("1646587e-3fae-4c09-8f4e-9461403af661"),
+                            Id = new Guid("09a9bad4-09af-4f79-868d-399372bce957"),
                             Name = "CanAddBorrower"
                         },
                         new
                         {
-                            Id = new Guid("db9bc4ac-0a9f-49f8-85b0-93c76bba3a01"),
+                            Id = new Guid("7f69557e-8de8-4588-ad25-ad41da56617d"),
                             Name = "CanUpdateBorrower"
                         },
                         new
                         {
-                            Id = new Guid("004f3487-9a7e-48de-85b7-53d82ed47c26"),
+                            Id = new Guid("5d29937d-b6a8-4e77-953b-25dce13681ae"),
                             Name = "CanDeleteBorrower"
                         },
                         new
                         {
-                            Id = new Guid("8eb65ae4-9ad2-4bf8-8d7a-9f483a7188a7"),
+                            Id = new Guid("c4d09b8a-e67e-40eb-a142-376c3ad6602a"),
                             Name = "CanReadUsers"
                         },
                         new
                         {
-                            Id = new Guid("6cd2d781-7022-493c-b041-65da0e710036"),
+                            Id = new Guid("23067061-c25c-4274-8f08-1bc4dfc41a66"),
                             Name = "CanAddUser"
                         },
                         new
                         {
-                            Id = new Guid("5c46dc12-3530-492f-ab38-4619d09fd9b5"),
+                            Id = new Guid("8833404a-d32a-48f0-8b42-81987e90bc32"),
                             Name = "CanUpdateUser"
                         },
                         new
                         {
-                            Id = new Guid("10bd8161-1d72-466c-b8f0-813ed5725a35"),
+                            Id = new Guid("781d185e-7bb1-4c52-8353-f7b3c1b8d886"),
                             Name = "CanDeleteUser"
                         },
                         new
                         {
-                            Id = new Guid("d3a0d13d-e6b3-41fd-9c5a-8ad200f6cc8b"),
+                            Id = new Guid("8113298f-7f4d-4f45-93a2-c4466adf59ba"),
                             Name = "CanReadApplications"
                         },
                         new
                         {
-                            Id = new Guid("4827e2de-527f-4633-af09-4a71c19648ae"),
+                            Id = new Guid("569cb42d-5e23-4637-b18e-c50aa6f278d3"),
                             Name = "CanAddApplication"
                         },
                         new
                         {
-                            Id = new Guid("566efc55-27fc-4b5b-b878-bf9cfe802be5"),
+                            Id = new Guid("64aa8499-4d40-42dc-a958-7eae64598a35"),
                             Name = "CanUpdateApplication"
                         },
                         new
                         {
-                            Id = new Guid("223d2e1d-4d96-4c1a-a550-6c2747ec1b7d"),
+                            Id = new Guid("4eee49a1-78e0-49c1-bf7b-dd28a8030250"),
                             Name = "CanDeleteApplication"
                         },
                         new
                         {
-                            Id = new Guid("f3c52792-f03f-49af-9170-1b04637fc281"),
+                            Id = new Guid("d9f453a2-ef19-4c7c-8eac-b496a4f7b41c"),
                             Name = "CanReadLenders"
                         },
                         new
                         {
-                            Id = new Guid("fbb27224-f85a-404a-ab50-47e19b05d186"),
+                            Id = new Guid("f13379d7-a19b-4895-bfd5-fd2da3077f83"),
                             Name = "CanAddLender"
                         },
                         new
                         {
-                            Id = new Guid("e029f527-8acc-45b2-b948-5b3d1323b5cc"),
+                            Id = new Guid("7510abe2-31fb-4e54-af8a-22450b80284b"),
                             Name = "CanUpdateLender"
                         },
                         new
                         {
-                            Id = new Guid("0bd97344-0f53-4c91-ab0e-08b34c31ce56"),
+                            Id = new Guid("d649c2fe-a286-4858-bf9e-a8ffadd76ccc"),
                             Name = "CanDeleteLender"
                         });
                 });
@@ -454,22 +457,22 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bfd0db81-1cc4-44bc-baa7-7178cb84100a"),
+                            Id = new Guid("2b8befb0-b466-4362-bb0b-272c8bdda417"),
                             Name = "LoanOfficerBackOffice"
                         },
                         new
                         {
-                            Id = new Guid("ef19a6c3-5efc-48de-be36-15a72da9ce74"),
+                            Id = new Guid("c3683837-987d-4be9-a0a6-ea5a6776f21c"),
                             Name = "LoanOfficerFrontOffice"
                         },
                         new
                         {
-                            Id = new Guid("4b960bf2-18d8-46b4-8e00-17b3a42da385"),
+                            Id = new Guid("bca3d5dc-c4df-4544-a30d-a656eb1916dc"),
                             Name = "Borrower"
                         },
                         new
                         {
-                            Id = new Guid("ac878782-27cb-4885-8a2b-4fdf537b01a9"),
+                            Id = new Guid("275bb2d0-0b4a-4036-aba9-4103d281a338"),
                             Name = "RegisteredUser"
                         });
                 });
@@ -546,6 +549,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("nvarchar(5)");
 
+                    b.Property<bool>("Test")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -571,6 +577,7 @@ namespace Infrastructure.Migrations
                             PasswordSalt = "jWRLoRafDBcFS72uPEqyqg==",
                             PhoneNumber = "683363203",
                             Prefix = "+355",
+                            Test = false,
                             Username = "kevinshemili1"
                         });
                 });
@@ -594,6 +601,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefreshTokenExpiry")

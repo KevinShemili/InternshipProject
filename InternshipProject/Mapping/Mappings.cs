@@ -1,5 +1,4 @@
 ﻿using Application.UseCases.Authentication.Commands;
-using Application.UseCases.Authentication.Queries;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
 using Application.UseCases.GenerateRefreshToken;
@@ -10,11 +9,12 @@ using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using InternshipProject.Objects.Requests.RolePermissionRequests;
 
-namespace Application.Mapping {
+namespace Application.Mapping
+{
     public class Mappings : Profile {
         public Mappings() {
             CreateMap<RegisterRequest, RegisterCommand>().ReverseMap();
-            CreateMap<LogInRequest, LoginQuery>().ReverseMap();
+            CreateMap<LogInRequest, LoginCommand>().ReverseMap();
             CreateMap<ResendVerificationEmailRequest, ResendEmailVerificationCommand>().ReverseMap();
             CreateMap<ForgotUsernameRequest, ForgotUsernameQuery>().ReverseMap();
             CreateMap<ForgotPasswordRequest, ForgotPasswordQuery>().ReverseMap();

@@ -36,14 +36,10 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<User?> GetByUsernameAsync(string username) {
+        public async Task<User> GetByUsernameAsync(string username) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
-
-            if (entity is null)
-                return null;
-
             return entity;
         }
 
@@ -140,7 +136,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<bool> SetRefreshToken(Guid id, string token, DateTime time) {
+        public async Task<bool> SetRefreshTokenAsync(Guid id, string token, DateTime time) {
             var user = await _databaseContext.Users
                 .Include(x => x.UserVerificationAndReset)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -166,6 +162,44 @@ namespace Infrastructure.Persistence.Repositories {
             if (entity is null)
                 return false;
             return true;
+        }
+
+        public async Task ResetTriesAsync(Guid id) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+            await _databaseContext.SaveChangesAsync();
+            entity.LoginTries = 0;
+        }
+
+        public async Task<bool> IncrementTriesAsync(Guid id) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (entity.LoginTries == 3)
+                return false;
+            entity.LoginTries += 1;
+            await _databaseContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task BlockAccountAsync(Guid id) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            entity.IsBlocked = true;
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task UnblockAccountAsync(Guid id) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            entity.IsBlocked = false;
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }

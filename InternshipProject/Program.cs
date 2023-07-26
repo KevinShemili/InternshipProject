@@ -1,8 +1,10 @@
 using Application;
 using Infrastructure;
+using Infrastructure.Persistence.Context;
 using Infrastructure.Services.Authentication.PermissionPolicyConfigurations;
 using InternshipProject.Middleware;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Exceptions;
@@ -60,11 +62,12 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Host.UseSerilog();
 }
 
-
-
 var app = builder.Build();
 
-
+using (var scope = app.Services.CreateScope()) {
+    var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    db.Database.Migrate();
+}
 
 // Middleware Scope
 {

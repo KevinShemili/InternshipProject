@@ -1,4 +1,5 @@
-﻿using Domain.Exceptions;
+﻿using Application.Exceptions;
+using Domain.Exceptions;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -42,10 +43,12 @@ namespace InternshipProject.Middleware {
             catch (AutoMapper.AutoMapperMappingException ex) {
                 await HandleExceptionAsync(context, ex);
             }
+            catch (BlockedAccountException ex) {
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex) {
                 await HandleExceptionAsync(context, ex);
             }
-
         }
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex) {
@@ -151,6 +154,17 @@ namespace InternshipProject.Middleware {
                         title = "Internal Server Error",
                         status = (int)HttpStatusCode.InternalServerError,
                         detail = automapperException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case BlockedAccountException blockedAccountException:
+                    context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/429",
+                        title = "Internal Server Error",
+                        status = (int)HttpStatusCode.TooManyRequests,
+                        detail = blockedAccountException.Message
                     });
                     return context.Response.WriteAsync(result);
 

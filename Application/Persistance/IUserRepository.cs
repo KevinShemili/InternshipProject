@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface IUserRepository : IBaseRepository<User> {
-        Task<User?> GetByUsernameAsync(string username);
+        Task<User> GetByUsernameAsync(string username);
         Task<User?> GetByEmailAsync(string email);
         Task<HashSet<string>> GetPermissionsAsync(Guid userId);
         Task<HashSet<Role>> GetRolesAsync(Guid userId);
@@ -15,6 +15,10 @@ namespace Application.Persistance {
         Task<bool> AddRoleAsync(Guid id, Role role);
         Task<bool> UpdateRolesAsync(Guid id, IEnumerable<Role> roles);
         Task<bool> ClearRolesAsync(Guid id);
-        Task<bool> SetRefreshToken(Guid id, string token, DateTime time);
+        Task<bool> SetRefreshTokenAsync(Guid id, string token, DateTime time);
+        Task ResetTriesAsync(Guid id);
+        Task<bool> IncrementTriesAsync(Guid id);
+        Task BlockAccountAsync(Guid id);
+        Task UnblockAccountAsync(Guid id);
     }
 }

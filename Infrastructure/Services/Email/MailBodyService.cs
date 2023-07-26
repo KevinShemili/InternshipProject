@@ -9,11 +9,10 @@ namespace Application.Services {
 
         public async Task<string> GetVerificationMailBodyAsync(string email, string token) {
 
-            string url = "https://localhost:44384";
+            string url = "https://localhost:58438";
 
-            string filePath = System.IO.Path.Combine(currentDirectory, @"Infrastructure\Templates\VerifyEmailTemplate.html");
-            string fullPath = Path.GetFullPath(filePath);
-            string htmlTemplate = await File.ReadAllTextAsync(fullPath);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "VerifyEmailTemplate.html");
+            string htmlTemplate = await File.ReadAllTextAsync(path);
 
             var body = htmlTemplate.Replace("ReplaceMe", $"{url}/auth/verify-email?token={token}&email={email}");
 
@@ -22,10 +21,8 @@ namespace Application.Services {
 
         public async Task<string> GetForgotUsernameMailBodyAsync(string username) {
 
-            string filePath = System.IO.Path.Combine(currentDirectory, @"Infrastructure\Templates\ForgotUsernameTemplate.html");
-            string fullPath = Path.GetFullPath(filePath);
-
-            var htmlTemplate = await File.ReadAllTextAsync(fullPath);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ForgotUsernameTemplate.html");
+            var htmlTemplate = await File.ReadAllTextAsync(path);
 
             var body = htmlTemplate.Replace("ReplaceMe", $"{username}");
 
@@ -34,12 +31,10 @@ namespace Application.Services {
 
         public async Task<string> GetForgotPasswordMailBodyAsync(string email, string token) {
 
-            string url = "https://localhost:44384";
+            string url = "https://localhost:58438";
 
-            string filePath = System.IO.Path.Combine(currentDirectory, @"Infrastructure\Templates\ForgotPasswordTemplate.html");
-            string fullPath = Path.GetFullPath(filePath);
-
-            string htmlTemplate = await File.ReadAllTextAsync(fullPath);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ForgotPasswordTemplate.html");
+            string htmlTemplate = await File.ReadAllTextAsync(path);
 
             var body = htmlTemplate.Replace("ReplaceMe", $"{url}/auth/reset-password?token={token}&email={email}");
 
@@ -48,10 +43,8 @@ namespace Application.Services {
 
         public async Task<string> GetSuccessfulPasswordChangeMailBodyAsync() {
 
-            string filePath = System.IO.Path.Combine(currentDirectory, @"Infrastructure\Templates\SuccessPasswordChange.html");
-            string fullPath = Path.GetFullPath(filePath);
-
-            string body = await File.ReadAllTextAsync(fullPath);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "SuccessPasswordChange.html");
+            string body = await File.ReadAllTextAsync(path);
 
             return body;
         }
