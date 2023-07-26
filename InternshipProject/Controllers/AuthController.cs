@@ -19,10 +19,12 @@ namespace InternshipProject.Controllers {
 
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IMediator mediator, IMapper mapper) {
+        public AuthController(IMediator mediator, IMapper mapper, ILogger<AuthController> logger) {
             _mediator = mediator;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -43,6 +45,8 @@ namespace InternshipProject.Controllers {
             var loginQuery = _mapper.Map<LoginQuery>(logInRequest);
 
             var result = await _mediator.Send(loginQuery);
+
+            _logger.LogInformation("test");
 
             return Ok(result);
         }
