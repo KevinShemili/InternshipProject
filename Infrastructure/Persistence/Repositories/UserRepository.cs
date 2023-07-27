@@ -209,5 +209,15 @@ namespace Infrastructure.Persistence.Repositories {
 
             return entities.AsEnumerable();
         }
+
+        public async Task<bool> IsAccountActivatedAsync(string email) {
+            var entity = await _databaseContext.Users
+                .Where(x => x.Email == email)
+                .FirstOrDefaultAsync();
+
+            if (entity.IsEmailConfirmed is false)
+                return false;
+            return true;
+        }
     }
 }

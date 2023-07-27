@@ -7,9 +7,11 @@ namespace InternshipProject.Middleware {
     public class ExceptionHandlingMiddleware {
 
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next) {
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger) {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context) {
@@ -17,36 +19,51 @@ namespace InternshipProject.Middleware {
                 await _next(context);
             }
             catch (NoSuchEntityExistsException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (ValidationException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (UnauthorizedException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (InvalidPasswordException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (DuplicateException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (EmailServiceException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (TokenExpiredException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (ForbiddenException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (AutoMapper.AutoMapperMappingException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (BlockedAccountException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (EmailAlreadyVerifiedException ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (Exception ex) {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -129,7 +146,7 @@ namespace InternshipProject.Middleware {
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
                         type = "https://httpstatuses.io/502",
-                        title = "BadGateway",
+                        title = "Bad Gateway",
                         status = (int)HttpStatusCode.BadGateway,
                         detail = emailServiceException.Message
                     });
@@ -140,7 +157,7 @@ namespace InternshipProject.Middleware {
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
                         type = "https://httpstatuses.io/400",
-                        title = "BadGateway",
+                        title = "Bad Request",
                         status = (int)HttpStatusCode.BadRequest,
                         detail = tokenExpiredException.Message
                     });
@@ -162,9 +179,20 @@ namespace InternshipProject.Middleware {
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
                         type = "https://httpstatuses.io/429",
-                        title = "Internal Server Error",
+                        title = "Too Many Requests",
                         status = (int)HttpStatusCode.TooManyRequests,
                         detail = blockedAccountException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case EmailAlreadyVerifiedException emailAlreadyVerifiedException:
+                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/422",
+                        title = "Unprocessable Entity",
+                        status = (int)HttpStatusCode.UnprocessableEntity,
+                        detail = emailAlreadyVerifiedException.Message
                     });
                     return context.Response.WriteAsync(result);
 

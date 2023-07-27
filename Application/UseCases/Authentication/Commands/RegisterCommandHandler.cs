@@ -8,8 +8,7 @@ using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
-namespace Application.UseCases.Authentication.Commands
-{
+namespace Application.UseCases.Authentication.Commands {
 
     public class RegisterCommand : IRequest<RegisterResult> {
         public string FirstName { get; set; } = null!;
@@ -61,7 +60,7 @@ namespace Application.UseCases.Authentication.Commands
             user.IsEmailConfirmed = false;
 
             await _userRepository.CreateAsync(user);
-            await _userRepository.AddRoleAsync(user.Id, await _roleRepository.GetByName(Domain.Seeds.Roles.RegisteredUser));
+            await _userRepository.AddRoleAsync(user.Id, await _roleRepository.GetByNameAsync(Domain.Seeds.Roles.RegisteredUser));
 
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);

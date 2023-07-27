@@ -31,7 +31,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<Role> GetByName(string name) {
+        public async Task<Role> GetByNameAsync(string name) {
             var entity = await _databaseContext.Roles
                 .Where(x => x.Name == name)
                 .FirstOrDefaultAsync();

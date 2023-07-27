@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface IUserVerificationAndResetRepository : IBaseRepository<UserVerificationAndReset> {
-        Task<UserVerificationAndReset?> GetByEmailAsync(string email);
+        Task<UserVerificationAndReset> GetByEmailAsync(string email);
         Task<bool> ContainsEmailAsync(string email);
         Task<bool?> UpdateVerificationTokenAsync(string email, string verificationToken, DateTime tokenExpiry);
         Task<bool> ContainsVerificationTokenAsync(string token);

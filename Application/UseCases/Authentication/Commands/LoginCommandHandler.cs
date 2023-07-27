@@ -19,14 +19,12 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IJwtToken _jwtToken;
         private readonly IHasherService _hasherService;
         private readonly ITokenService _tokenService;
-        private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
 
-        public LoginCommandHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
+        public LoginCommandHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService) {
             _userRepository = userRepository;
             _jwtToken = jwtToken;
             _hasherService = hasherService;
             _tokenService = tokenService;
-            _userVerificationAndResetRepository = userVerificationAndResetRepository;
         }
 
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken) {

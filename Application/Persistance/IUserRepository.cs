@@ -11,6 +11,7 @@ namespace Application.Persistance {
         Task<bool> ContainsIdAsync(Guid id);
         Task<bool> ContainsEmailAsync(string email);
         Task ActivateAccountAsync(string email);
+        Task<bool> IsAccountActivatedAsync(string email);
         Task<bool?> ChangePasswordAsync(string email, string passwordSalt, string passwordHash);
         Task<bool> AddRoleAsync(Guid id, Role role);
         Task<bool> UpdateRolesAsync(Guid id, IEnumerable<Role> roles);

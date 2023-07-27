@@ -43,12 +43,13 @@ namespace InternshipProject.Controllers {
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> LogIn([FromBody] LogInRequest logInRequest) {
+            _logger.LogInformation("testing");
+
 
             var loginQuery = _mapper.Map<LoginCommand>(logInRequest);
 
             var result = await _mediator.Send(loginQuery);
 
-            _logger.LogInformation("test");
 
             return Ok(result);
         }

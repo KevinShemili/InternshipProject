@@ -42,13 +42,9 @@ var builder = WebApplication.CreateBuilder(args);
             Scheme = "bearer"
         });
 
-        opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
+        opt.AddSecurityRequirement(new OpenApiSecurityRequirement { {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
                     Type=ReferenceType.SecurityScheme,
                     Id="Bearer"
                 }
@@ -97,20 +93,29 @@ void ConfigureLogging() {
         .AddJsonFile($"appsettings.{environment}.json", optional: true)
         .Build();
 
-    Log.Logger = new LoggerConfiguration()
-        .Enrich.FromLogContext()
-        .Enrich.WithEnvironmentName()
-        .Enrich.WithMachineName()
-        .Enrich.WithExceptionDetails()
-        .WriteTo.Debug()
-        .WriteTo.Console()
-        .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticConfiguration:Uri"])) {
-            AutoRegisterTemplate = true,
-            IndexFormat = $"{Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-")}-{environment?.ToLower()}-{DateTime.UtcNow:yyyy-MM-dd}",
-            NumberOfReplicas = 1,
-            NumberOfShards = 2
-        })
-        .Enrich.WithProperty("Environment", environment)
-        .ReadFrom.Configuration(config)
-        .CreateLogger();
+    var test = Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-");
+
+    try {
+
+
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .Enrich.WithEnvironmentName()
+            .Enrich.WithMachineName()
+            .Enrich.WithExceptionDetails()
+            .WriteTo.Debug()
+            .WriteTo.Console()
+            .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticConfiguration:Uri"])) {
+                AutoRegisterTemplate = true,
+                IndexFormat = $"{Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-")}-{environment?.ToLower()}-{DateTime.UtcNow:yyyy-MM-dd}",
+                NumberOfReplicas = 1,
+                NumberOfShards = 2
+            })
+            .Enrich.WithProperty("Environment", environment)
+            .ReadFrom.Configuration(config)
+            .CreateLogger();
+    }
+    catch (Exception ex) {
+        var msg = ex.Message;
+    }
 }
