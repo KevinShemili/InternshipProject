@@ -35,10 +35,10 @@ namespace Application.UseCases.Permissions.Commands {
     public class CreatePermissionCommandValidator : AbstractValidator<CreatePermissionCommand> {
         public CreatePermissionCommandValidator() {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name cannot be empty");
+                .NotEmpty().WithMessage("EmptyPermissionName");
 
             RuleFor(x => x.Description)
-                .MaximumLength(250).WithMessage("Description cannot exceed 250 characters.");
+                .MaximumLength(250).WithMessage("PermissionDescriptionRestriction");
         }
     }
 }

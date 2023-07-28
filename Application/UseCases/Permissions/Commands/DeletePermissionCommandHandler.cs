@@ -1,7 +1,9 @@
 ﻿using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.Permissions.Commands {
 
@@ -12,14 +14,16 @@ namespace Application.UseCases.Permissions.Commands {
     public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCommand> {
 
         private readonly IPermissionRepository _permissionRepository;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public DeletePermissionCommandHandler(IPermissionRepository permissionRepository) {
+        public DeletePermissionCommandHandler(IPermissionRepository permissionRepository, IStringLocalizer<LocalizationResources> localizer) {
             _permissionRepository = permissionRepository;
+            _localizer = localizer;
         }
 
         public async Task Handle(DeletePermissionCommand request, CancellationToken cancellationToken) {
             if (await _permissionRepository.ContainsAsync(request.Id) is false)
-                throw new NoSuchEntityExistsException("Permission does not exist.");
+                throw new NoSuchEntityExistsException(_localizer.GetString("PermissionDoesntExist").Value);
 
             await _permissionRepository.DeleteAsync(request.Id);
         }
@@ -28,7 +32,7 @@ namespace Application.UseCases.Permissions.Commands {
     public class DeletePermissionCommandValidator : AbstractValidator<DeletePermissionCommand> {
         public DeletePermissionCommandValidator() {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Permission ID cannot be empty");
+                .NotEmpty().WithMessage("EmptyId");
         }
     }
 

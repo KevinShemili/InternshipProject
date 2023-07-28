@@ -3,10 +3,11 @@ using Application.Interfaces.Email;
 using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
-namespace Application.UseCases.ForgotPassword.Queries
-{
+namespace Application.UseCases.ForgotPassword.Queries {
 
     public class ForgotPasswordQuery : IRequest {
         public string Email { get; set; } = null!;
@@ -19,20 +20,22 @@ namespace Application.UseCases.ForgotPassword.Queries
         private readonly IMailService _mailService;
         private readonly ITokenService _recoveryTokenService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public ForgotPasswordQueryHandler(IMailBodyService mailBodyService, IUserRepository userRepository, IMailService mailService, ITokenService recoveryTokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository) {
+        public ForgotPasswordQueryHandler(IMailBodyService mailBodyService, IUserRepository userRepository, IMailService mailService, ITokenService recoveryTokenService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IStringLocalizer<LocalizationResources> localizer) {
             _mailBodyService = mailBodyService;
             _userRepository = userRepository;
             _mailService = mailService;
             _recoveryTokenService = recoveryTokenService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
+            _localizer = localizer;
         }
 
         public async Task Handle(ForgotPasswordQuery request, CancellationToken cancellationToken) {
             var entity = await _userRepository.ContainsEmailAsync(request.Email);
 
             if (entity is false)
-                throw new NoSuchEntityExistsException("User does not exist");
+                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
 
             var token = await _recoveryTokenService.GeneratePasswordTokenAsync();
 
@@ -50,8 +53,8 @@ namespace Application.UseCases.ForgotPassword.Queries
     public class ForgotPasswordQueryValidator : AbstractValidator<ForgotPasswordQuery> {
         public ForgotPasswordQueryValidator() {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+                .NotEmpty().WithMessage("EmptyEmail")
+                .EmailAddress().WithMessage("EmailFormatRestriction");
         }
     }
 }

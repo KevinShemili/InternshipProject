@@ -2,7 +2,9 @@
 using Domain.Entities;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.Roles.Commands {
 
@@ -15,10 +17,12 @@ namespace Application.UseCases.Roles.Commands {
 
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public RoleAssignationCommandHandler(IUserRepository userRepository, IRoleRepository roleRepository) {
+        public RoleAssignationCommandHandler(IUserRepository userRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer) {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _localizer = localizer;
         }
 
         public async Task Handle(RoleAssignationCommand request, CancellationToken cancellationToken) {
@@ -33,7 +37,7 @@ namespace Application.UseCases.Roles.Commands {
             var flag = request.Ids.All(item => roleIds.Contains(item));
 
             if (flag is false)
-                throw new NoSuchEntityExistsException($"Invalid roles list");
+                throw new NoSuchEntityExistsException(_localizer.GetString("InvalidRoles").Value);
 
             await _userRepository.UpdateRolesAsync(request.UserId, GetRoles(request.Ids, roles));
         }
@@ -51,7 +55,7 @@ namespace Application.UseCases.Roles.Commands {
     public class RoleAssignationCommandValidator : AbstractValidator<RoleAssignationCommand> {
         public RoleAssignationCommandValidator() {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User ID cannot be empty");
+                .NotEmpty().WithMessage("EmptyId");
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Application.UseCases.Roles.Commands {
     public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand> {
         public CreateRoleCommandValidator() {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name cannot be empty");
+                .NotEmpty().WithMessage("EmptyRoleName");
         }
     }
 }

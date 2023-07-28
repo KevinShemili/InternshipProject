@@ -2,8 +2,9 @@
 using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.ActivateAccount.Commands {
 
@@ -16,51 +17,51 @@ namespace Application.UseCases.ActivateAccount.Commands {
 
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ILogger<ActivateAccountCommandHandler> _logger;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository, IUserRepository userRepository, ILogger<ActivateAccountCommandHandler> logger) {
+        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository, IUserRepository userRepository, IStringLocalizer<LocalizationResources> localizer) {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _userRepository = userRepository;
-            _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task Handle(ActivateAccountCommand request, CancellationToken cancellationToken) {
 
             if (await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email) is false)
-                throw new NoSuchEntityExistsException($"No user with email {request.Email} exists");
+                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
 
             if (await _userRepository.IsAccountActivatedAsync(request.Email) is true)
-                throw new EmailAlreadyVerifiedException("Email already verified");
+                throw new EmailAlreadyVerifiedException(_localizer.GetString("EmailAlreadyVerified").Value);
 
             var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
             var VerificationToken = entity.EmailVerificationToken;
             var VerificationTokenExpiry = entity.EmailVerificationTokenExpiry;
 
             if (VerificationToken is null)
-                throw new ForbiddenException("Token not found");
+                throw new ForbiddenException(_localizer.GetString("EmptyVerificationTokens").Value);
 
             if (VerificationTokenExpiry is null)
-                throw new ForbiddenException("Token expiry not found");
+                throw new ForbiddenException(_localizer.GetString("EmptyVerificationTokens").Value);
 
             if (VerificationToken == request.Token
                 && VerificationTokenExpiry > DateTime.Now)
                 await _userRepository.ActivateAccountAsync(request.Email);
             else if (VerificationToken == request.Token
                 && VerificationTokenExpiry < DateTime.Now)
-                throw new TokenExpiredException("Token has expired");
+                throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
             else
-                throw new ForbiddenException("Invalid token");
+                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
         }
     }
 
     public class ActivateCommandValidator : AbstractValidator<ActivateAccountCommand> {
         public ActivateCommandValidator() {
             RuleFor(x => x.Token)
-                .NotEmpty().WithMessage("Token cannot be empty");
+                .NotEmpty().WithMessage("EmptyToken");
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+                .NotEmpty().WithMessage("EmptyEmail")
+                .EmailAddress().WithMessage("EmailFormatRestriction");
         }
     }
 }

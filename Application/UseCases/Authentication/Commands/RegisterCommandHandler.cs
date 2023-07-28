@@ -6,7 +6,9 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.Authentication.Commands {
 
@@ -30,8 +32,9 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IMailService _mailService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository) {
+        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
@@ -40,15 +43,16 @@ namespace Application.UseCases.Authentication.Commands {
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _roleRepository = roleRepository;
+            _localizer = localizer;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsEmailAsync(request.Email) is true)
-                throw new DuplicateException("Email already exists");
+                throw new DuplicateException(_localizer.GetString("DuplicateEmail").Value);
 
             if (await _userRepository.ContainsUsernameAsync(request.Username) is true)
-                throw new DuplicateException("Username already exists");
+                throw new DuplicateException(_localizer.GetString("DuplicateUsername").Value);
 
             var tuple = _hasherService.HashPassword(request.Password);
             var hash = tuple.Item1;
@@ -89,40 +93,38 @@ namespace Application.UseCases.Authentication.Commands {
     public class RegisterCommandValidator : AbstractValidator<RegisterCommand> {
         public RegisterCommandValidator() {
             RuleFor(x => x.Username)
-                .NotEmpty().WithMessage("Username cannot be empty")
-                .MinimumLength(8).WithMessage("Your username length must be at least 8 characters.")
-                .Matches(@"[0-9]+").WithMessage("Your username must contain at least one number.");
+                .NotEmpty().WithMessage("EmptyUsername")
+                .MinimumLength(8).WithMessage("UsernameMinimumLengthRestriction")
+                .Matches(@"[0-9]+").WithMessage("UsernameNumberRestriction");
 
             RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First name cannot be empty")
-                .MaximumLength(25).WithMessage("Your first name length must not exceed 25 characters.");
+                .NotEmpty().WithMessage("EmptyFirstName")
+                .MaximumLength(25).WithMessage("FirstNameMaximumLengthRestriction");
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name cannot be empty")
-                .MaximumLength(25).WithMessage("Your last name length must not exceed 25 characters.");
+                .NotEmpty().WithMessage("EmptyLastName")
+                .MaximumLength(25).WithMessage("LastNameMaximumLengthRestriction");
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+                .NotEmpty().WithMessage("EmptyEmail")
+                .EmailAddress().WithMessage("EmailFormatRestriction");
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Your password cannot be empty")
-                .MinimumLength(8).WithMessage("Your password length must be at least 8.")
-                .MaximumLength(14).WithMessage("Your password length must not exceed 16.")
-                .Matches(@"[A-Z]+").WithMessage("Your password must contain at least one uppercase letter.")
-                .Matches(@"[a-z]+").WithMessage("Your password must contain at least one lowercase letter.")
-                .Matches(@"[0-9]+").WithMessage("Your password must contain at least one number.");
+                .NotEmpty().WithMessage("EmptyPassword")
+                .MinimumLength(8).WithMessage("PasswordMinimumLengthRestriction")
+                .MaximumLength(14).WithMessage("PasswordMaximumLengthRestriction")
+                .Matches(@"[A-Z]+").WithMessage("PasswordUppercaseLetterRestriction")
+                .Matches(@"[a-z]+").WithMessage("PasswordLowercaseLetterRestriction")
+                .Matches(@"[0-9]+").WithMessage("PasswordNumberRestriction");
 
             RuleFor(x => x.Prefix)
-                .NotEmpty()
-                .WithMessage("Prefix cannot be empty")
-                .Matches(@"^\+\d{2,3}$")
-                .WithMessage("Prefix format +XX/+XXX");
+                .NotEmpty().WithMessage("EmptyPrefix")
+                .Matches(@"^\+\d{2,3}$").WithMessage("PrefixFormatRestriction");
 
             RuleFor(x => x.Phone)
-                .NotEmpty().WithMessage("Phone Number cannot be empty")
-                .MinimumLength(8).WithMessage("More 8 characters required")
-                .MaximumLength(20).WithMessage("PhoneNumber must not exceed 20 characters.");
+                .NotEmpty().WithMessage("EmptyPhoneNumber")
+                .MinimumLength(8).WithMessage("PhoneNumberMinimumLengthRestriction")
+                .MaximumLength(20).WithMessage("PhoneNumberMaximumLengthRestriction");
         }
     }
 }

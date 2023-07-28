@@ -3,10 +3,11 @@ using Application.Interfaces.Email;
 using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
-namespace Application.UseCases.ForgotPassword.Commands
-{
+namespace Application.UseCases.ForgotPassword.Commands {
 
     public class ResetPasswordCommand : IRequest {
         public string Email { get; set; } = null!;
@@ -22,13 +23,15 @@ namespace Application.UseCases.ForgotPassword.Commands
         private readonly IMailBodyService _mailBodyService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IHasherService _hasherService;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public ResetPasswordCommandHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IHasherService hasherService) {
+        public ResetPasswordCommandHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IHasherService hasherService, IStringLocalizer<LocalizationResources> localizer) {
             _userRepository = userRepository;
             _mailService = mailService;
             _mailBodyService = mailBodyService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _hasherService = hasherService;
+            _localizer = localizer;
         }
 
         public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
@@ -39,10 +42,10 @@ namespace Application.UseCases.ForgotPassword.Commands
             var passwordTokenExpiry = entity.PasswordResetTokenExpiry;
 
             if (passwordToken is null)
-                throw new ForbiddenException("Invalid token");
+                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
 
             if (passwordTokenExpiry is null)
-                throw new ForbiddenException("Invalid token");
+                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
 
             if (passwordToken == request.Token
                 && passwordTokenExpiry > DateTime.Now) {
@@ -59,9 +62,9 @@ namespace Application.UseCases.ForgotPassword.Commands
             }
             else if (passwordToken == request.Token
                 && passwordTokenExpiry < DateTime.Now)
-                throw new TokenExpiredException("Token has expired");
+                throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
             else
-                throw new ForbiddenException("Invalid token");
+                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
 
 
         }
@@ -70,23 +73,23 @@ namespace Application.UseCases.ForgotPassword.Commands
     public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand> {
         public ResetPasswordCommandValidator() {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+                .NotEmpty().WithMessage("EmptyEmail")
+                .EmailAddress().WithMessage("EmailFormatRestriction");
 
             RuleFor(x => x.Token)
-                .NotEmpty().WithMessage("Invalid token");
+                .NotEmpty().WithMessage("EmptyToken");
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Your password cannot be empty")
-                .MinimumLength(8).WithMessage("Your password length must be at least 8.")
-                .MaximumLength(14).WithMessage("Your password length must not exceed 16.")
-                .Matches(@"[A-Z]+").WithMessage("Your password must contain at least one uppercase letter.")
-                .Matches(@"[a-z]+").WithMessage("Your password must contain at least one lowercase letter.")
-                .Matches(@"[0-9]+").WithMessage("Your password must contain at least one number.");
+                .NotEmpty().WithMessage("EmptyPassword")
+                .MinimumLength(8).WithMessage("PasswordMinimumLengthRestriction")
+                .MaximumLength(16).WithMessage("PasswordMaximumLengthRestriction")
+                .Matches(@"[A-Z]+").WithMessage("PasswordUppercaseLetterRestriction")
+                .Matches(@"[a-z]+").WithMessage("PasswordLowercaseLetterRestriction")
+                .Matches(@"[0-9]+").WithMessage("PasswordNumberRestriction");
 
             RuleFor(x => x.ConfirmPassword)
                 .Equal(x => x.Password)
-                .WithMessage("Passwords do not match");
+                .WithMessage("PasswordsDontMatch");
         }
     }
 }

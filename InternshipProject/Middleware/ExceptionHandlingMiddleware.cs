@@ -72,7 +72,7 @@ namespace InternshipProject.Middleware {
 
             // Handle Exception by Defining the status code and the errror message.
 
-            string? result = null;
+            string? result;
 
             switch (ex) {
                 case NoSuchEntityExistsException noSuchUserExistsException:
@@ -82,11 +82,11 @@ namespace InternshipProject.Middleware {
                         type = "https://httpstatuses.io/404",
                         title = "Not Found",
                         status = (int)HttpStatusCode.NotFound,
-                        detail = noSuchUserExistsException.message
+                        detail = noSuchUserExistsException.Message
                     });
                     return context.Response.WriteAsync(result);
 
-                case ValidationException validationException:
+                case ValidationException:
                     context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {

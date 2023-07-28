@@ -2,7 +2,9 @@
 using Domain.Entities;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.Permissions.Commands {
 
@@ -15,10 +17,12 @@ namespace Application.UseCases.Permissions.Commands {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IPermissionRepository _permissionRepository;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public PermissionAssignationCommandHandler(IPermissionRepository permissionRepository, IRoleRepository roleRepository) {
+        public PermissionAssignationCommandHandler(IPermissionRepository permissionRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer) {
             _permissionRepository = permissionRepository;
             _roleRepository = roleRepository;
+            _localizer = localizer;
         }
 
         public async Task Handle(PermissionAssignationCommand request, CancellationToken cancellationToken) {
@@ -33,7 +37,7 @@ namespace Application.UseCases.Permissions.Commands {
             var flag = request.Ids.All(item => permissionIds.Contains(item));
 
             if (flag is false)
-                throw new NoSuchEntityExistsException($"Invalid permissions list");
+                throw new NoSuchEntityExistsException(_localizer.GetString("InvalidPermissions").Value);
 
             await _roleRepository.UpdatePermissionsAsync(request.RoleId, GetPermissions(request.Ids, permissions));
         }
@@ -51,7 +55,7 @@ namespace Application.UseCases.Permissions.Commands {
     public class PermissionAssignationCommandValidator : AbstractValidator<PermissionAssignationCommand> {
         public PermissionAssignationCommandValidator() {
             RuleFor(x => x.RoleId)
-                .NotEmpty().WithMessage("Role ID cannot be empty");
+                .NotEmpty().WithMessage("EmptyId");
         }
     }
 }

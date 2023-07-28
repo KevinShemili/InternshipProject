@@ -31,7 +31,7 @@ namespace Application.UseCases.Permissions.Queries {
     public class RolePermissionsQueryValidator : AbstractValidator<RolePermissionsQuery> {
         public RolePermissionsQueryValidator() {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Role ID cannot be empty");
+                .NotEmpty().WithMessage("EmptyId");
         }
     }
 }

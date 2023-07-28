@@ -1,6 +1,7 @@
 ﻿using Application.Persistance;
 using Application.UseCases.ViewRoles.Results;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.ViewPermissions.Queries {
@@ -24,5 +25,9 @@ namespace Application.UseCases.ViewPermissions.Queries {
             var permissionsResult = _mapper.Map<List<RoleResult>>(permissions);
             return permissionsResult;
         }
+    }
+
+    public class GetRoleQueryValidator : AbstractValidator<GetRoleQuery> {
+        public GetRoleQueryValidator() { }
     }
 }

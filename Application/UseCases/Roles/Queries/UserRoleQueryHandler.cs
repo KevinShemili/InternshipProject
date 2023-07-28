@@ -31,7 +31,7 @@ namespace Application.UseCases.Roles.Queries {
     public class UserRoleQueryValidator : AbstractValidator<UserRoleQuery> {
         public UserRoleQueryValidator() {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("User ID cannot be empty");
+                .NotEmpty().WithMessage("EmptyId");
         }
     }
 }

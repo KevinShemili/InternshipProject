@@ -7,19 +7,25 @@ using System.Reflection;
 namespace Application {
     public static class DependencyInjection {
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services) {
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
-            AddMediatR(services);
-            AddFluentValidation(services);
+            ConfigureAutoMapper(services);
+            ConfigureMediatR(services);
+            ConfigureFluentValidation(services);
+
+
             return services;
         }
 
-        private static void AddMediatR(IServiceCollection services) {
+        private static void ConfigureMediatR(IServiceCollection services) {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         }
 
-        private static void AddFluentValidation(IServiceCollection services) {
+        private static void ConfigureFluentValidation(IServiceCollection services) {
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        }
+
+        private static void ConfigureAutoMapper(IServiceCollection services) {
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
         }
     }
 }

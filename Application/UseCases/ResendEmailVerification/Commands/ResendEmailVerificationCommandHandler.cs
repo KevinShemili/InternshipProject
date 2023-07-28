@@ -3,10 +3,11 @@ using Application.Interfaces.Email;
 using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
-namespace Application.UseCases.ResendEmailVerification.Commands
-{
+namespace Application.UseCases.ResendEmailVerification.Commands {
 
     public class ResendEmailVerificationCommand : IRequest {
         public string Email { get; set; } = null!;
@@ -18,12 +19,14 @@ namespace Application.UseCases.ResendEmailVerification.Commands
         private readonly IMailService _mailService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly ITokenService _recoveryTokenService;
+        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, ITokenService recoveryTokenService) {
+        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, ITokenService recoveryTokenService, IStringLocalizer<LocalizationResources> localizer) {
             _mailBodyService = mailBodyService;
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _recoveryTokenService = recoveryTokenService;
+            _localizer = localizer;
         }
 
         public async Task Handle(ResendEmailVerificationCommand request, CancellationToken cancellationToken) {
@@ -31,7 +34,7 @@ namespace Application.UseCases.ResendEmailVerification.Commands
             var flag = await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email);
 
             if (flag is false)
-                throw new NoSuchEntityExistsException("Invalid email");
+                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
 
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);
@@ -50,8 +53,8 @@ namespace Application.UseCases.ResendEmailVerification.Commands
     public class ResendEmailVerificationCommandValidator : AbstractValidator<ResendEmailVerificationCommand> {
         public ResendEmailVerificationCommandValidator() {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Email format johndoe@mail.com");
+                .NotEmpty().WithMessage("EmptyEmail")
+                .EmailAddress().WithMessage("EmailFormatRestriction");
         }
     }
 }
