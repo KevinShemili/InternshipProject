@@ -61,7 +61,8 @@ namespace Infrastructure.Persistence.Repositories {
 
             role.Permissions.Clear();
 
-            role.Permissions.ToList().AddRange(permissions);
+            foreach (var item in permissions)
+                role.Permissions.Add(item);
 
             await _databaseContext.SaveChangesAsync();
             return true;

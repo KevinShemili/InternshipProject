@@ -36,6 +36,8 @@ namespace Infrastructure {
             services.AddScoped<IHasherService, HasherService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMailBodyService, MailBodyService>();
+            services.AddScoped<ICompanyTypeRepository, CompanyTypeRepository>();
+            services.AddScoped<IBorrowerRepository, BorrowerRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

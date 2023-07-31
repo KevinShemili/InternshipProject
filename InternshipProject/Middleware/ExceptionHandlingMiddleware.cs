@@ -62,6 +62,10 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
+            catch (HttpRequestException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
@@ -193,6 +197,17 @@ namespace InternshipProject.Middleware {
                         title = "Unprocessable Entity",
                         status = (int)HttpStatusCode.UnprocessableEntity,
                         detail = emailAlreadyVerifiedException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case HttpRequestException httpRequestException:
+                    context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/503",
+                        title = "Service Unavailable",
+                        status = (int)HttpStatusCode.ServiceUnavailable,
+                        detail = httpRequestException.Message
                     });
                     return context.Response.WriteAsync(result);
 

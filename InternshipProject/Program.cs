@@ -37,6 +37,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();

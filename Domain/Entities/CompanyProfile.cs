@@ -7,7 +7,7 @@ namespace Domain.Entities {
         public string Currency { get; set; } = null!;
         public string Exchange { get; set; } = null!;
         public string IPO { get; set; } = null!;
-        public int MarketCapitalization { get; set; }
+        public decimal MarketCapitalization { get; set; }
         public string Name { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public decimal ShareOutstanding { get; set; }

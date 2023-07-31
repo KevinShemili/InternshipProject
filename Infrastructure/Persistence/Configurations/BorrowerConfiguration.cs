@@ -35,6 +35,13 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasForeignKey(x => x.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasOne(x => x.CompanyType)
+                .WithMany(y => y.Borrowers)
+                .HasForeignKey(x => x.CompanyTypeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

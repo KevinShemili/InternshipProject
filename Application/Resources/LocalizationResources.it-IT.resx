@@ -120,6 +120,9 @@
   <data name="BlockedAccount" xml:space="preserve">
     <value>L'account è bloccato a causa di più tentativi errati</value>
   </data>
+  <data name="CompanyTypeDoesntExist" xml:space="preserve">
+    <value>Il tipo di società fornito non esiste.</value>
+  </data>
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email già esistente.</value>
   </data>
@@ -137,6 +140,12 @@
   </data>
   <data name="EmptyAccessToken" xml:space="preserve">
     <value>Fornisci il token di accesso.</value>
+  </data>
+  <data name="EmptyCompanyName" xml:space="preserve">
+    <value>Il nome dell'azienda non può essere vuoto. Fornisci un valore.</value>
+  </data>
+  <data name="EmptyCompanyType" xml:space="preserve">
+    <value>Il campo Tipo azienda non può essere vuoto. Fornisci un valore.</value>
   </data>
   <data name="EmptyEmail" xml:space="preserve">
     <value>L'e-mail non può essere vuota. Fornisci un valore.</value>
@@ -174,11 +183,17 @@
   <data name="EmptyUsername" xml:space="preserve">
     <value>Il nome utente non può essere vuoto. Fornisci un valore.</value>
   </data>
+  <data name="EmptyVATNumber" xml:space="preserve">
+    <value>Il numero di partita IVA non può essere vuoto. Fornisci un valore.</value>
+  </data>
   <data name="EmptyVerificationTokens" xml:space="preserve">
     <value>Richiesta non valida.</value>
   </data>
   <data name="FirstNameMaximumLengthRestriction" xml:space="preserve">
     <value>La lunghezza del tuo nome non deve superare i 25 caratteri.</value>
+  </data>
+  <data name="FiscalCodeLengthRestriction" xml:space="preserve">
+    <value>Lunghezza del codice fiscale non valida in base al tipo di società fornito.</value>
   </data>
   <data name="IncorrectPassword" xml:space="preserve">
     <value>La password inserita non è corretta.</value>
@@ -197,6 +212,9 @@
   </data>
   <data name="LastNameMaximumLengthRestriction" xml:space="preserve">
     <value>La lunghezza del tuo cognome non deve superare i 25 caratteri.</value>
+  </data>
+  <data name="LoginExpired" xml:space="preserve">
+    <value>La tua sessione è scaduta. Per favore esegui l'accesso di nuovo.</value>
   </data>
   <data name="MissingPermission" xml:space="preserve">
     <value>Lei non dispone delle autorizzazioni necessarie per accedere a questa risorsa.</value>
@@ -254,5 +272,8 @@
   </data>
   <data name="UsernameNumberRestriction" xml:space="preserve">
     <value>Il tuo nome utente deve contenere almeno un numero.</value>
+  </data>
+  <data name="VATNumberLengthRestriction" xml:space="preserve">
+    <value>La tua partita IVA deve avere una lunghezza di 11 caratteri.</value>
   </data>
 </root>

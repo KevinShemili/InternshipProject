@@ -1,4 +1,5 @@
 ﻿using Application.UseCases.Authentication.Commands;
+using Application.UseCases.BorrowerJourney.Commands;
 using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
 using Application.UseCases.GenerateRefreshToken;
@@ -7,6 +8,7 @@ using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.Roles.Commands;
 using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
+using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
 using InternshipProject.Objects.Requests.RolePermissionRequests;
 
 namespace Application.Mapping {
@@ -26,6 +28,7 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.RoleId, opt => opt.Ignore())
                 .ReverseMap();
             CreateMap<RefreshTokenRequest, RefreshTokenCommand>().ReverseMap();
+            CreateMap<BorrowerRequest, CreateBorrowerCommmand>().ReverseMap();
         }
     }
 }

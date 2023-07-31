@@ -1,6 +1,7 @@
-﻿using Domain.Entities;
+﻿using Domain.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using CompanyType = Domain.Entities.CompanyType;
 
 namespace Infrastructure.Persistence.Configurations {
     public class CompanyTypeConfiguration : IEntityTypeConfiguration<CompanyType> {
@@ -10,6 +11,9 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasKey(x => x.Id);
 
             builder
+                .HasAlternateKey(x => x.Type);
+
+            builder
                 .Property(x => x.Type)
                 .HasMaxLength(50)
                 .IsRequired();
@@ -17,13 +21,23 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .Property(x => x.Description)
                 .HasMaxLength(100)
-                .IsRequired();
+                .IsRequired(false);
 
             builder
-                .HasOne(x => x.Borrower)
+                .HasMany(x => x.Borrowers)
                 .WithOne(y => y.CompanyType)
-                .HasForeignKey<CompanyType>(x => x.BorrowerId)
                 .IsRequired();
+
+            SeedData(builder);
+        }
+
+        private void SeedData(EntityTypeBuilder<CompanyType> builder) {
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.SoleProprietorship });
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.Other });
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.PartnershipLimitedByShares });
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.LimitedPartnership });
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.CooperativeSociety });
+            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.GeneralPartnership });
         }
     }
 }

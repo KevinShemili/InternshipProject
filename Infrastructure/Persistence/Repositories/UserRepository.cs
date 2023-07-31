@@ -219,5 +219,19 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
             return true;
         }
+
+        public async Task<bool> AddBorrowerAsync(Guid id, Borrower borrower) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Borrowers)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return false;
+
+            user.Borrowers?.Add(borrower);
+            await _databaseContext.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

@@ -22,5 +22,6 @@ namespace Application.Persistance {
         Task BlockAccountAsync(Guid id);
         Task UnblockAccountAsync(Guid id);
         Task<IEnumerable<User>> GetBlockedAccountsAsync();
+        Task<bool> AddBorrowerAsync(Guid id, Borrower borrower);
     }
 }
