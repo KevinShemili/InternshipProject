@@ -1,6 +1,7 @@
 ﻿using Application.Persistance;
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories {
@@ -103,7 +104,8 @@ namespace Infrastructure.Persistence.Repositories {
 
             user.Roles.Clear();
 
-            user.Roles.ToList().AddRange(roles);
+            foreach (var role in roles)
+                user.Roles.Add(role);
 
             await _databaseContext.SaveChangesAsync();
             return true;
@@ -228,9 +230,7 @@ namespace Infrastructure.Persistence.Repositories {
             if (user is null)
                 return false;
 
-            user.Borrowers?.Add(borrower);
-            await _databaseContext.SaveChangesAsync();
-
+            user.Borrowers.Add(borrower);
             return true;
         }
     }

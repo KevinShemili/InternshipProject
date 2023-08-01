@@ -1,5 +1,7 @@
 ﻿using Application.Exceptions;
 using Domain.Exceptions;
+using InternshipProject.Localizations;
+using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -8,10 +10,12 @@ namespace InternshipProject.Middleware {
 
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger) {
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger, IStringLocalizer<LocalizationResources> localization) {
             _next = next;
             _logger = logger;
+            _localization = localization;
         }
 
         public async Task Invoke(HttpContext context) {
@@ -72,7 +76,7 @@ namespace InternshipProject.Middleware {
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception ex) {
+        private Task HandleExceptionAsync(HttpContext context, Exception ex) {
 
             // Handle Exception by Defining the status code and the errror message.
 
@@ -218,7 +222,7 @@ namespace InternshipProject.Middleware {
                         type = "https://httpstatuses.io/500",
                         title = "Internal Server Error",
                         status = (int)HttpStatusCode.InternalServerError,
-                        detail = "There was an internal server error. Please try again later."
+                        detail = _localization.GetString("InternalError").Value
                     });
                     return context.Response.WriteAsync(result);
             }

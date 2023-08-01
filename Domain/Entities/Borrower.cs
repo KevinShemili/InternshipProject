@@ -5,7 +5,7 @@ namespace Domain.Entities {
         public Guid Id { get; set; }
         public string CompanyName { get; set; } = null!;
         public string VATNumber { get; set; } = null!;
-        public int FiscalCode { get; set; }
+        public string FiscalCode { get; set; } = null!;
         public Guid UserId { get; set; }
         public Guid CompanyTypeId { get; set; }
         public virtual User User { get; set; } = null!;

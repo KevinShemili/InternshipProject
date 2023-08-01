@@ -26,7 +26,9 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .HasMany(x => x.Borrowers)
                 .WithOne(y => y.CompanyType)
-                .IsRequired();
+                .HasForeignKey(x => x.CompanyTypeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             SeedData(builder);
         }

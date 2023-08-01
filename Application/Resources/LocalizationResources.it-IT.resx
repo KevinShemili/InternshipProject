@@ -126,6 +126,9 @@
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email già esistente.</value>
   </data>
+  <data name="DuplicateFiscalCode" xml:space="preserve">
+    <value>Per ciascuna delle società gestite deve essere fornito un codice fiscale univoco.</value>
+  </data>
   <data name="DuplicateUsername" xml:space="preserve">
     <value>Il nome utente esiste già.</value>
   </data>
@@ -197,6 +200,9 @@
   </data>
   <data name="IncorrectPassword" xml:space="preserve">
     <value>La password inserita non è corretta.</value>
+  </data>
+  <data name="InternalError" xml:space="preserve">
+    <value>Si è verificato un errore interno del server. Per favore riprova più tardi.</value>
   </data>
   <data name="InvalidPermissions" xml:space="preserve">
     <value>L'autorizzazione/le autorizzazioni fornite non sono corrette.</value>

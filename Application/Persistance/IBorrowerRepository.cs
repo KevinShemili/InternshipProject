@@ -3,6 +3,6 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface IBorrowerRepository : IBaseRepository<Borrower> {
-        Task<bool> AddCompanyTypeAsync(Guid id, CompanyType companyType);
+        Task<bool> IsFiscalCodeUniqueAsync(Guid userId, string fiscalCode);
     }
 }

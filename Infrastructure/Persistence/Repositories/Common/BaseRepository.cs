@@ -3,7 +3,7 @@ using Domain.Common;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.Repositories {
+namespace Infrastructure.Persistence.Repositories.Common {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity {
 
         protected readonly DatabaseContext _databaseContext;

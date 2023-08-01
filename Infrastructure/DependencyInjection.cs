@@ -1,9 +1,11 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Application.Services;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Persistence.Repositories.Common;
 using Infrastructure.Services.Authentication;
 using Infrastructure.Services.Common;
 using Infrastructure.Services.Email;
@@ -38,6 +40,7 @@ namespace Infrastructure {
             services.AddScoped<IMailBodyService, MailBodyService>();
             services.AddScoped<ICompanyTypeRepository, CompanyTypeRepository>();
             services.AddScoped<IBorrowerRepository, BorrowerRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

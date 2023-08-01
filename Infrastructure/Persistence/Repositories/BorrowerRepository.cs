@@ -1,6 +1,7 @@
 ﻿using Application.Persistance;
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories {
@@ -8,18 +9,20 @@ namespace Infrastructure.Persistence.Repositories {
         public BorrowerRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task<bool> AddCompanyTypeAsync(Guid id, CompanyType companyType) {
-            var borrower = await _databaseContext.Borrowers
-                .Include(x => x.CompanyType)
-                .FirstOrDefaultAsync(x => x.Id == id);
+        public async Task<bool> IsFiscalCodeUniqueAsync(Guid id, string fiscalCode) {
+            var borrowers = await _databaseContext.Borrowers
+                .Where(x => x.UserId == id)
+                .ToListAsync();
 
-            if (borrower is null)
+            if (borrowers.Any() is false)
+                return true;
+
+            var flag = borrowers.Any(x => x.FiscalCode == fiscalCode);
+
+            if (flag is false)
+                return true;
+            else
                 return false;
-
-            borrower.CompanyType = companyType;
-            await _databaseContext.SaveChangesAsync();
-
-            return true;
         }
     }
 }

@@ -3,18 +3,18 @@
 namespace Domain.Entities {
     public class CompanyProfile : BaseEntity {
         public Guid Id { get; set; }
-        public string Country { get; set; } = null!;
-        public string Currency { get; set; } = null!;
-        public string Exchange { get; set; } = null!;
-        public string IPO { get; set; } = null!;
-        public decimal MarketCapitalization { get; set; }
-        public string Name { get; set; } = null!;
-        public string Phone { get; set; } = null!;
-        public decimal ShareOutstanding { get; set; }
-        public string Ticker { get; set; } = null!;
-        public string WebUrl { get; set; } = null!;
-        public string Logo { get; set; } = null!;
-        public string FinnhubIndustry { get; set; } = null!;
+        public string? Country { get; set; }
+        public string? Currency { get; set; }
+        public string? Exchange { get; set; }
+        public string? IPO { get; set; }
+        public decimal? MarketCapitalization { get; set; }
+        public string? Name { get; set; }
+        public string? Phone { get; set; }
+        public decimal? ShareOutstanding { get; set; }
+        public string? Ticker { get; set; }
+        public string? WebUrl { get; set; }
+        public string? Logo { get; set; }
+        public string? FinnhubIndustry { get; set; }
         public Guid BorrowerId { get; set; }
         public virtual Borrower Borrower { get; set; } = null!;
     }
