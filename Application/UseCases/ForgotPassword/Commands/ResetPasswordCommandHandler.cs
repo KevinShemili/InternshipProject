@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -9,14 +10,14 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.ForgotPassword.Commands {
 
-    public class ResetPasswordCommand : IRequest {
+    public class ResetPasswordCommand : IRequest<bool> {
         public string Email { get; set; } = null!;
         public string Token { get; set; } = null!;
         public string Password { get; set; } = null!;
         public string ConfirmPassword { get; set; } = null!;
     }
 
-    public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand> {
+    public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, bool> {
 
         private readonly IUserRepository _userRepository;
         private readonly IMailService _mailService;
@@ -24,17 +25,19 @@ namespace Application.UseCases.ForgotPassword.Commands {
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IHasherService _hasherService;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ResetPasswordCommandHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IHasherService hasherService, IStringLocalizer<LocalizationResources> localizer) {
+        public ResetPasswordCommandHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IHasherService hasherService, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _mailService = mailService;
             _mailBodyService = mailBodyService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _hasherService = hasherService;
             _localizer = localizer;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
+        public async Task<bool> Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
 
             var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
 
@@ -55,18 +58,19 @@ namespace Application.UseCases.ForgotPassword.Commands {
 
                 await _userRepository.ChangePasswordAsync(request.Email, passwordHash, passwordSalt);
 
+                await _unitOfWork.SaveChangesAsync();
+
                 var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBodyAsync();
                 var subject = "Password Reset";
                 var mailData = new MailData(request.Email, subject, body);
                 await _mailService.SendAsync(mailData, cancellationToken);
+                return true;
             }
             else if (passwordToken == request.Token
                 && passwordTokenExpiry < DateTime.Now)
                 throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
             else
                 throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
-
-
         }
     }
 

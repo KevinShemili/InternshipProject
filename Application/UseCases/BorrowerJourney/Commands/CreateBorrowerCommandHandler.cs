@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace Application.UseCases.BorrowerJourney.Commands {
 
-    public class CreateBorrowerCommmand : IRequest<BorrowerResult> {
+    public class CreateBorrowerCommmand : IRequest<BorrowerCommandResult> {
         public string AccessToken { get; set; } = null!;
         public string CompanyName { get; set; } = null!;
         public string CompanyType { get; set; } = null!;
@@ -21,7 +21,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         public string FiscalCode { get; set; } = null!;
     }
 
-    public class CreateBorrowerCommandHandler : IRequestHandler<CreateBorrowerCommmand, BorrowerResult> {
+    public class CreateBorrowerCommandHandler : IRequestHandler<CreateBorrowerCommmand, BorrowerCommandResult> {
 
         private readonly IUserRepository _userRepository;
         private readonly IStringLocalizer<LocalizationResources> _localization;
@@ -30,8 +30,9 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IJwtToken _jwtToken;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRoleRepository _roleRepository;
 
-        public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization, IUserRepository userRepository, IMapper mapper, ICompanyTypeRepository companyTypeRepository, IBorrowerRepository borrowerRepository, IJwtToken jwtToken, IUnitOfWork unitOfWork) {
+        public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization, IUserRepository userRepository, IMapper mapper, ICompanyTypeRepository companyTypeRepository, IBorrowerRepository borrowerRepository, IJwtToken jwtToken, IUnitOfWork unitOfWork, IRoleRepository roleRepository) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -39,9 +40,10 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             _borrowerRepository = borrowerRepository;
             _jwtToken = jwtToken;
             _unitOfWork = unitOfWork;
+            _roleRepository = roleRepository;
         }
 
-        public async Task<BorrowerResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
+        public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
 
             if (_jwtToken.IsExpired(request.AccessToken) is true)
                 throw new ForbiddenException(_localization.GetString("LoginExpired").Value);
@@ -66,9 +68,11 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
             await _borrowerRepository.CreateAsync(borrower);
 
+            await _userRepository.AddRoleAsync(userId, await _roleRepository.GetByNameAsync(Domain.Seeds.Roles.Borrower));
+
             await _unitOfWork.SaveChangesAsync();
 
-            return new BorrowerResult {
+            return new BorrowerCommandResult {
                 Id = borrowerId,
                 CompanyName = borrower.CompanyName,
                 CompanyType = request.CompanyType

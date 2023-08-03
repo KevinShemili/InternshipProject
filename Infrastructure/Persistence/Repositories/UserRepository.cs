@@ -14,7 +14,6 @@ namespace Infrastructure.Persistence.Repositories {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsEmailConfirmed = true;
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
-            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<bool> ContainsEmailAsync(string email) {
@@ -80,7 +79,6 @@ namespace Infrastructure.Persistence.Repositories {
 
             entity.PasswordHash = passwordHash;
             entity.PasswordSalt = passwordSalt;
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -106,8 +104,6 @@ namespace Infrastructure.Persistence.Repositories {
 
             foreach (var role in roles)
                 user.Roles.Add(role);
-
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -120,7 +116,6 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
 
             user.Roles.Clear();
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -133,8 +128,6 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
 
             user.Roles.Add(role);
-            await _databaseContext.SaveChangesAsync();
-
             return true;
         }
 
@@ -151,8 +144,6 @@ namespace Infrastructure.Persistence.Repositories {
                 RefreshTokenExpiry = time,
                 UserEmail = user.Email
             };
-
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -170,7 +161,6 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.Users
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
-            await _databaseContext.SaveChangesAsync();
             entity.LoginTries = 0;
         }
 
@@ -199,9 +189,7 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.Users
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
-
             entity.IsBlocked = false;
-            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<User>> GetBlockedAccountsAsync() {

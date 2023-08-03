@@ -1,6 +1,7 @@
 ﻿using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BlockedAccounts.Results;
 using Application.UseCases.BorrowerJourney.Commands;
+using Application.UseCases.BorrowerJourney.Results;
 using Application.UseCases.Permissions.Commands;
 using Application.UseCases.Roles.Commands;
 using Application.UseCases.ViewPermissions.Results;
@@ -41,6 +42,10 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.CompanyProfile, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())
                 .ReverseMap();
+            CreateMap<BorrowerCommandResult, Borrower>().ReverseMap();
+            CreateMap<BorrowerQueryResult, Borrower>().ReverseMap();
+            CreateMap<UpdateBorrowerCommand, Borrower>().ReverseMap()
+                .ForMember(dest => dest.CompanyType, opt => opt.Ignore());
         }
     }
 }

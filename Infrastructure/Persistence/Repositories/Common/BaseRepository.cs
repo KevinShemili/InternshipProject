@@ -14,7 +14,6 @@ namespace Infrastructure.Persistence.Repositories.Common {
 
         public async Task CreateAsync(T entity) {
             await _databaseContext.Set<T>().AddAsync(entity);
-            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid id) {
@@ -22,13 +21,11 @@ namespace Infrastructure.Persistence.Repositories.Common {
 #pragma warning disable CS8604 // Possible null reference argument.
             var _ = _databaseContext.Set<T>().Remove(toBeDeleted);
 #pragma warning restore CS8604 // Possible null reference argument.
-            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<List<T>> GetAllAsync() {
             return await _databaseContext.Set<T>().ToListAsync();
         }
-
 
         public async Task<T?> GetByIdAsync(Guid id) {
             var entity = await _databaseContext.Set<T>().FindAsync(id);

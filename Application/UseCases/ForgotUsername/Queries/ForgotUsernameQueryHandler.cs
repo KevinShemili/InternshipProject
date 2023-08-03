@@ -8,11 +8,11 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.ForgotUsername.Queries {
 
-    public class ForgotUsernameQuery : IRequest {
+    public class ForgotUsernameQuery : IRequest<bool> {
         public string Email { get; set; } = null!;
     }
 
-    public class ForgotUsernameQueryHandler : IRequestHandler<ForgotUsernameQuery> {
+    public class ForgotUsernameQueryHandler : IRequestHandler<ForgotUsernameQuery, bool> {
 
         private readonly IUserRepository _userRepository;
         private readonly IMailService _mailService;
@@ -26,7 +26,7 @@ namespace Application.UseCases.ForgotUsername.Queries {
             _localizer = localizer;
         }
 
-        public async Task Handle(ForgotUsernameQuery request, CancellationToken cancellationToken) {
+        public async Task<bool> Handle(ForgotUsernameQuery request, CancellationToken cancellationToken) {
 
             var entity = await _userRepository.GetByEmailAsync(request.Email);
 
@@ -39,6 +39,7 @@ namespace Application.UseCases.ForgotUsername.Queries {
             var mailData = new MailData(request.Email, subject, body);
 
             await _mailService.SendAsync(mailData, cancellationToken);
+            return true;
         }
     }
 

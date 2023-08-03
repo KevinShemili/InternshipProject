@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Application.UseCases.Authentication.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -33,8 +34,9 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer) {
+        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
@@ -44,6 +46,7 @@ namespace Application.UseCases.Authentication.Commands {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _roleRepository = roleRepository;
             _localizer = localizer;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
@@ -80,6 +83,8 @@ namespace Application.UseCases.Authentication.Commands {
             var subject = "Verify Your Email";
             var mailData = new MailData(request.Email, subject, body);
             await _mailService.SendAsync(mailData, cancellationToken);
+
+            await _unitOfWork.SaveChangesAsync();
 
             var returnResult = new RegisterResult {
                 Id = user.Id,

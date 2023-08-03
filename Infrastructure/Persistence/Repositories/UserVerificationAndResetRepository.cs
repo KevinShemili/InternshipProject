@@ -4,8 +4,7 @@ using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.Repositories
-{
+namespace Infrastructure.Persistence.Repositories {
     public class UserVerificationAndResetRepository : BaseRepository<UserVerificationAndReset>, IUserVerificationAndResetRepository {
         public UserVerificationAndResetRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
@@ -65,7 +64,6 @@ namespace Infrastructure.Persistence.Repositories
 
             entity.PasswordResetToken = passwordToken;
             entity.PasswordResetTokenExpiry = tokenExpiry;
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -77,7 +75,6 @@ namespace Infrastructure.Persistence.Repositories
 
             entity.EmailVerificationToken = verificationToken;
             entity.EmailVerificationTokenExpiry = tokenExpiry;
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
     }

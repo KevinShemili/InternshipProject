@@ -41,6 +41,7 @@ namespace Infrastructure {
             services.AddScoped<ICompanyTypeRepository, CompanyTypeRepository>();
             services.AddScoped<IBorrowerRepository, BorrowerRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

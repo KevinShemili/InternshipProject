@@ -1,4 +1,5 @@
 ﻿using Application.Persistance;
+using Application.Persistance.Common;
 using Application.UseCases.ViewRoles.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -15,10 +16,12 @@ namespace Application.UseCases.Roles.Commands {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateRoleCommandHandler(IMapper mapper, IRoleRepository roleRepository) {
+        public CreateRoleCommandHandler(IMapper mapper, IRoleRepository roleRepository, IUnitOfWork unitOfWork) {
             _mapper = mapper;
             _roleRepository = roleRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<RoleResult> Handle(CreateRoleCommand request, CancellationToken cancellationToken) {
@@ -26,7 +29,7 @@ namespace Application.UseCases.Roles.Commands {
             role.Id = Guid.NewGuid();
 
             await _roleRepository.CreateAsync(role);
-
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<RoleResult>(role);
         }
     }

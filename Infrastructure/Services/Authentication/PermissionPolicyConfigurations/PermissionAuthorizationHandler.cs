@@ -27,10 +27,14 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
 
             var permissions = await _userRepository.GetPermissionsAsync(parsedUserId);
 
-            if (permissions.Contains(requirement.Permission))
-                context.Succeed(requirement);
-            else
-                throw new ForbiddenException(_localizer.GetString("MissingPermission").Value);
+            var requestPermissions = requirement.Permission.Split(',').ToList();
+
+            foreach (var requestPermission in requestPermissions)
+                if (permissions.Contains(requestPermission.Trim())) {
+                    context.Succeed(requirement);
+                    return;
+                }
+            throw new ForbiddenException(_localizer.GetString("MissingPermission").Value);
         }
     }
 }

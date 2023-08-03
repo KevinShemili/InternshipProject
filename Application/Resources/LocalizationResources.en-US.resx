@@ -120,6 +120,9 @@
   <data name="BlockedAccount" xml:space="preserve">
     <value>Account is blocked due to multiple incorrect tries.</value>
   </data>
+  <data name="BorrowerDoesntExist" xml:space="preserve">
+    <value>The provided borrower does not exist.</value>
+  </data>
   <data name="CompanyTypeDoesntExist" xml:space="preserve">
     <value>The provided company type does not exist.</value>
   </data>

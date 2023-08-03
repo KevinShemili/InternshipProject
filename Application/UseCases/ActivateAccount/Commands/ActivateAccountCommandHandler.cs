@@ -1,5 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -8,24 +9,26 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.ActivateAccount.Commands {
 
-    public class ActivateAccountCommand : IRequest {
+    public class ActivateAccountCommand : IRequest<bool> {
         public string Token { get; set; } = null!;
         public string Email { get; set; } = null!;
     }
 
-    public class ActivateAccountCommandHandler : IRequestHandler<ActivateAccountCommand> {
+    public class ActivateAccountCommandHandler : IRequestHandler<ActivateAccountCommand, bool> {
 
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IUserRepository _userRepository;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository, IUserRepository userRepository, IStringLocalizer<LocalizationResources> localizer) {
+        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository, IUserRepository userRepository, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _userRepository = userRepository;
             _localizer = localizer;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(ActivateAccountCommand request, CancellationToken cancellationToken) {
+        public async Task<bool> Handle(ActivateAccountCommand request, CancellationToken cancellationToken) {
 
             if (await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email) is false)
                 throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
@@ -51,6 +54,9 @@ namespace Application.UseCases.ActivateAccount.Commands {
                 throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
             else
                 throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
     }
 

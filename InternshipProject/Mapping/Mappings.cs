@@ -1,8 +1,8 @@
 ﻿using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BorrowerJourney.Commands;
-using Application.UseCases.ForgotPassword.Queries;
+using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.ForgotUsername.Queries;
-using Application.UseCases.GenerateRefreshToken;
+using Application.UseCases.GenerateRefreshToken.Commands;
 using Application.UseCases.Permissions.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.Roles.Commands;
@@ -18,7 +18,7 @@ namespace Application.Mapping {
             CreateMap<LogInRequest, LoginCommand>().ReverseMap();
             CreateMap<ResendVerificationEmailRequest, ResendEmailVerificationCommand>().ReverseMap();
             CreateMap<ForgotUsernameRequest, ForgotUsernameQuery>().ReverseMap();
-            CreateMap<ForgotPasswordRequest, ForgotPasswordQuery>().ReverseMap();
+            CreateMap<ForgotPasswordRequest, ForgotPasswordCommand>().ReverseMap();
             CreateMap<PermissionRequest, CreatePermissionCommand>().ReverseMap();
             CreateMap<RoleRequest, CreateRoleCommand>().ReverseMap();
             CreateMap<AssignationRequest, RoleAssignationCommand>()
@@ -29,6 +29,8 @@ namespace Application.Mapping {
                 .ReverseMap();
             CreateMap<RefreshTokenRequest, RefreshTokenCommand>().ReverseMap();
             CreateMap<BorrowerRequest, CreateBorrowerCommmand>().ReverseMap();
+            CreateMap<BorrowerRequest, UpdateBorrowerCommand>().ReverseMap();
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Persistance;
+using Application.Persistance.Common;
 using Application.UseCases.ViewPermissions.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -16,10 +17,12 @@ namespace Application.UseCases.Permissions.Commands {
 
         private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreatePermissionCommandHandler(IPermissionRepository permissionRepository, IMapper mapper) {
+        public CreatePermissionCommandHandler(IPermissionRepository permissionRepository, IMapper mapper, IUnitOfWork unitOfWork) {
             _permissionRepository = permissionRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<PermissionsResult> Handle(CreatePermissionCommand request, CancellationToken cancellationToken) {
@@ -27,7 +30,7 @@ namespace Application.UseCases.Permissions.Commands {
             permission.Id = Guid.NewGuid();
 
             await _permissionRepository.CreateAsync(permission);
-
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<PermissionsResult>(permission);
         }
     }

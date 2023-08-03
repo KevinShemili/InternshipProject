@@ -4,6 +4,7 @@ using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230802080048_update25")]
+    partial class update25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,32 +197,32 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("57bfbc8c-65be-439c-9e2a-ae70da76de56"),
+                            Id = new Guid("8f295d84-4dbf-46e1-9da4-8ba0942e8bfc"),
                             Type = "Sole Proprietorship"
                         },
                         new
                         {
-                            Id = new Guid("823608ba-e335-4609-a20e-df056ab11fac"),
+                            Id = new Guid("2cb846a7-efc2-4284-a45d-80e1eaeaaeed"),
                             Type = "Other"
                         },
                         new
                         {
-                            Id = new Guid("61cdf1ba-f36a-4a43-9d96-00972a01af69"),
+                            Id = new Guid("8d7b51cf-68d3-446d-a876-bb152bb42418"),
                             Type = "Partnership Limited by Shares"
                         },
                         new
                         {
-                            Id = new Guid("f58bc7c6-7e02-429a-9b7c-b9603027d188"),
+                            Id = new Guid("1d8a3990-65e2-41a1-a945-27c33538c2d0"),
                             Type = "Limited Partnership"
                         },
                         new
                         {
-                            Id = new Guid("c770623f-4b2f-482e-a095-f131a06772a8"),
+                            Id = new Guid("2ac68895-b708-440f-9263-ed45d1d7e811"),
                             Type = "Cooperative Society"
                         },
                         new
                         {
-                            Id = new Guid("615f9214-ed3f-4d6e-8d64-b53b16db9314"),
+                            Id = new Guid("a50c1ba3-fba7-4b40-832c-1c4890b20207"),
                             Type = "General Partnership"
                         });
                 });
@@ -315,87 +318,87 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("93861c13-cfca-4cdd-8557-bf9691ee39e8"),
+                            Id = new Guid("8e61be6e-9b1d-488c-8e39-dc2fd5a41136"),
                             Name = "IsRegistered"
                         },
                         new
                         {
-                            Id = new Guid("97c3bf1b-a904-4ef6-9480-65aeb4df5ff4"),
+                            Id = new Guid("3cdb1929-13c0-4d5f-ae98-7b75133d6b6a"),
                             Name = "CanReadBorrowers"
                         },
                         new
                         {
-                            Id = new Guid("a7c28070-d8d4-49b5-a335-7db6a8a333d4"),
+                            Id = new Guid("05866ec1-50ea-4131-83aa-5eeccd1ba5f4"),
                             Name = "CanAddBorrower"
                         },
                         new
                         {
-                            Id = new Guid("2caa5a39-addf-4287-b0f4-d22f9632854a"),
+                            Id = new Guid("9b005453-9788-4491-9f8d-7c1ddf1eb28b"),
                             Name = "CanUpdateBorrower"
                         },
                         new
                         {
-                            Id = new Guid("21691200-623c-4d56-a1e1-d07a494ca719"),
+                            Id = new Guid("251eb681-bcdf-4fed-8367-756784648abc"),
                             Name = "CanDeleteBorrower"
                         },
                         new
                         {
-                            Id = new Guid("ac06dc01-b959-4178-9df1-6bcdce1d6ddf"),
+                            Id = new Guid("b1b21e07-91be-47bc-89d2-0ebb0f5aa7a4"),
                             Name = "CanReadUsers"
                         },
                         new
                         {
-                            Id = new Guid("f0dcfa1c-361a-4edc-b170-ccc4a66d1ecb"),
+                            Id = new Guid("38008a26-b6d4-4f02-906d-32c28474bcf1"),
                             Name = "CanAddUser"
                         },
                         new
                         {
-                            Id = new Guid("3bb759b4-c8a4-4881-9c33-26b5869c0178"),
+                            Id = new Guid("84fb7159-99a0-4149-b033-86b7a9ba225b"),
                             Name = "CanUpdateUser"
                         },
                         new
                         {
-                            Id = new Guid("78c619ca-2ef0-4a6c-a0ed-fd4937222f7f"),
+                            Id = new Guid("f08083c7-a707-44bb-a02f-c1179d6eb880"),
                             Name = "CanDeleteUser"
                         },
                         new
                         {
-                            Id = new Guid("6d15a350-ceff-45af-8665-0bf7734296bc"),
+                            Id = new Guid("da2cfd7f-8cf1-47ff-a0c9-2aff1e65edb3"),
                             Name = "CanReadApplications"
                         },
                         new
                         {
-                            Id = new Guid("ac139aa9-9861-4fd0-8259-a1c78c950cd2"),
+                            Id = new Guid("8fe1796a-e4a2-40c8-b361-43643cdadf37"),
                             Name = "CanAddApplication"
                         },
                         new
                         {
-                            Id = new Guid("584bbd44-097c-4617-960c-e0bac67061cb"),
+                            Id = new Guid("312d331a-1369-43d4-98a7-a1708810d2cf"),
                             Name = "CanUpdateApplication"
                         },
                         new
                         {
-                            Id = new Guid("ebf459d4-f05c-4a8b-98da-0f3245a96818"),
+                            Id = new Guid("c22b32f5-c92b-4769-9e0b-898fb59f41e1"),
                             Name = "CanDeleteApplication"
                         },
                         new
                         {
-                            Id = new Guid("9abb9915-4d64-4cbf-a12d-225b68139111"),
+                            Id = new Guid("16aa1bb6-a4ca-4e19-b3b7-0df413575d0b"),
                             Name = "CanReadLenders"
                         },
                         new
                         {
-                            Id = new Guid("050a88b0-f33e-4bda-8395-b7f32323f82f"),
+                            Id = new Guid("b92de386-76b5-4017-8747-e93cb07a73b8"),
                             Name = "CanAddLender"
                         },
                         new
                         {
-                            Id = new Guid("c93f8051-9ef6-494f-bec3-db8abf2bf60a"),
+                            Id = new Guid("add42ab6-2d16-454e-a2a5-4ad93e362808"),
                             Name = "CanUpdateLender"
                         },
                         new
                         {
-                            Id = new Guid("59579e9b-4a7f-47da-90a1-372c5abdc4e8"),
+                            Id = new Guid("2ba21d63-fb81-4a58-ad04-8d4e12889a9e"),
                             Name = "CanDeleteLender"
                         });
                 });
@@ -479,22 +482,22 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("1663e44e-2af2-44db-92fc-e5198440479f"),
+                            Id = new Guid("dedea1d1-7a43-41d8-932a-2404a3c62fc2"),
                             Name = "LoanOfficerBackOffice"
                         },
                         new
                         {
-                            Id = new Guid("7bcc0b21-a420-442b-8b13-1574a3f536d4"),
+                            Id = new Guid("bddf71fc-7493-4f0a-8c1f-2995875cbf9b"),
                             Name = "LoanOfficerFrontOffice"
                         },
                         new
                         {
-                            Id = new Guid("bd53d1c8-7df1-4da6-a0e5-64469efe37b0"),
+                            Id = new Guid("a13ffd79-74c9-4cb4-a933-018c8c775f2a"),
                             Name = "Borrower"
                         },
                         new
                         {
-                            Id = new Guid("d0819de3-bbb1-480c-b597-f5e628d5cac2"),
+                            Id = new Guid("3c982587-3d6b-475d-85a4-f7e7026bc6e3"),
                             Name = "RegisteredUser"
                         });
                 });
@@ -518,16 +521,6 @@ namespace Infrastructure.Migrations
                         {
                             RoleId = new Guid("6b8f8ee8-d394-487a-847a-cd9e40df4fcf"),
                             PermissionId = new Guid("445248ae-bc8b-4a7e-90ce-1636f8206fa5")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("3c982587-3d6b-475d-85a4-f7e7026bc6e3"),
-                            PermissionId = new Guid("8e61be6e-9b1d-488c-8e39-dc2fd5a41136")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("3c982587-3d6b-475d-85a4-f7e7026bc6e3"),
-                            PermissionId = new Guid("05866ec1-50ea-4131-83aa-5eeccd1ba5f4")
                         });
                 });
 

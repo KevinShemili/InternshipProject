@@ -4,8 +4,7 @@ using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.Repositories
-{
+namespace Infrastructure.Persistence.Repositories {
     public class RoleRepository : BaseRepository<Role>, IRoleRepository {
         public RoleRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
@@ -19,7 +18,6 @@ namespace Infrastructure.Persistence.Repositories
                 return false;
 
             role.Permissions.Clear();
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
 
@@ -65,8 +63,6 @@ namespace Infrastructure.Persistence.Repositories
 
             foreach (var item in permissions)
                 role.Permissions.Add(item);
-
-            await _databaseContext.SaveChangesAsync();
             return true;
         }
     }

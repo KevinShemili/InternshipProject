@@ -2,9 +2,8 @@
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BlockedAccounts.Queries;
 using Application.UseCases.ForgotPassword.Commands;
-using Application.UseCases.ForgotPassword.Queries;
 using Application.UseCases.ForgotUsername.Queries;
-using Application.UseCases.GenerateRefreshToken;
+using Application.UseCases.GenerateRefreshToken.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.UnblockAccount.Command;
 using AutoMapper;
@@ -14,7 +13,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InternshipProject.Controllers {
+namespace InternshipProject.Controllers
+{
     [ApiController]
     [Route("auth")]
     public class AuthController : ControllerBase {
@@ -88,7 +88,7 @@ namespace InternshipProject.Controllers {
         [AllowAnonymous]
         [HttpGet("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromQuery] ForgotPasswordRequest forgotPasswordRequest) {
-            var request = _mapper.Map<ForgotPasswordQuery>(forgotPasswordRequest);
+            var request = _mapper.Map<ForgotPasswordCommand>(forgotPasswordRequest);
 
             await _mediator.Send(request);
 

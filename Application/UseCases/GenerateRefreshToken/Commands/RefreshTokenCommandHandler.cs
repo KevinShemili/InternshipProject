@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Application.UseCases.GenerateRefreshToken.Results;
 using Domain.Exceptions;
 using FluentValidation;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Localization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Application.UseCases.GenerateRefreshToken {
+namespace Application.UseCases.GenerateRefreshToken.Commands {
 
     public class RefreshTokenCommand : IRequest<RefreshTokenResult> {
         public string AccessToken { get; set; } = null!;
@@ -23,13 +24,15 @@ namespace Application.UseCases.GenerateRefreshToken {
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IJwtToken _jwtToken;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RefreshTokenCommandHandler(ITokenService tokenService, IUserRepository userRepository, IUserVerificationAndResetRepository userVerificationAndResetRepository, IJwtToken jwtToken, IStringLocalizer<LocalizationResources> localizer) {
+        public RefreshTokenCommandHandler(ITokenService tokenService, IUserRepository userRepository, IUserVerificationAndResetRepository userVerificationAndResetRepository, IJwtToken jwtToken, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
             _tokenService = tokenService;
             _userRepository = userRepository;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _jwtToken = jwtToken;
             _localizer = localizer;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<RefreshTokenResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken) {
@@ -63,11 +66,12 @@ namespace Application.UseCases.GenerateRefreshToken {
 
             var accessToken = _jwtToken.GenerateToken(userId, user.Username, roles.AsEnumerable());
 
+            await _unitOfWork.SaveChangesAsync();
+
             return new RefreshTokenResult {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
-
         }
     }
 

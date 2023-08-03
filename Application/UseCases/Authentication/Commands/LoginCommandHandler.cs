@@ -1,6 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces.Authentication;
 using Application.Persistance;
+using Application.Persistance.Common;
 using Application.UseCases.Authentication.Results;
 using Domain.Exceptions;
 using FluentValidation;
@@ -22,13 +23,15 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IHasherService _hasherService;
         private readonly ITokenService _tokenService;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public LoginCommandHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService, IStringLocalizer<LocalizationResources> localizer) {
+        public LoginCommandHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _jwtToken = jwtToken;
             _hasherService = hasherService;
             _tokenService = tokenService;
             _localizer = localizer;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken) {
@@ -63,6 +66,8 @@ namespace Application.UseCases.Authentication.Commands {
 
             await _userRepository.ResetTriesAsync(user.Id);
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
+
+            await _unitOfWork.SaveChangesAsync();
 
             var loginResult = new LoginResult {
                 Id = user.Id,
