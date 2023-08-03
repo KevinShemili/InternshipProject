@@ -5,9 +5,9 @@ namespace Domain.Entities {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public decimal ReferenceRate { get; set; } 
+        public decimal ReferenceRate { get; set; }
         public int FinanceMaxAmount { get; set; }
         public int FinanceMinAmount { get; set; }
-        public virtual ApplicationEntity Application { get; set; } = null!;
+        public virtual ICollection<ApplicationEntity>? Applications { get; set; }
     }
 }

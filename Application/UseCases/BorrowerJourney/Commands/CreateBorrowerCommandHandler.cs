@@ -68,7 +68,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
             await _borrowerRepository.CreateAsync(borrower);
 
-            await _userRepository.AddRoleAsync(userId, await _roleRepository.GetByNameAsync(Domain.Seeds.Roles.Borrower));
+            await _userRepository.AddRoleAsync(userId, await _roleRepository.GetByNameAsync(Domain.Seeds.RoleSeeds.Borrower));
 
             await _unitOfWork.SaveChangesAsync();
 

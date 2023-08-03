@@ -1,5 +1,4 @@
-﻿using Domain.Seeds;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using CompanyType = Domain.Entities.CompanyType;
 
@@ -29,17 +28,6 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasForeignKey(x => x.CompanyTypeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-
-            SeedData(builder);
-        }
-
-        private void SeedData(EntityTypeBuilder<CompanyType> builder) {
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.SoleProprietorship });
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.Other });
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.PartnershipLimitedByShares });
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.LimitedPartnership });
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.CooperativeSociety });
-            builder.HasData(new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypes.GeneralPartnership });
         }
     }
 }

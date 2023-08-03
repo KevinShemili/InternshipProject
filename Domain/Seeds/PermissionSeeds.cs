@@ -1,5 +1,5 @@
 ﻿namespace Domain.Seeds {
-    public static class Permissions {
+    public static class PermissionSeeds {
         // Read & Write & Update & Delete Permissions
 
         public const string IsRegistered = "IsRegistered";

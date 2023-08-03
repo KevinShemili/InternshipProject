@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230726134110_update12")]
-    partial class update12
+    [Migration("20230803130554_update1")]
+    partial class update1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.8")
+                .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -68,8 +68,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("LoanId")
                         .IsUnique();
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Applications", (string)null);
                 });
@@ -85,16 +84,23 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("FiscalCode")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CompanyTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FiscalCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("VATNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("VATNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyTypeId");
 
                     b.HasIndex("UserId");
 
@@ -111,59 +117,50 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Currency")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Exchange")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FinnhubIndustry")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("IPO")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Logo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("MarketCapitalization")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("MarketCapitalization")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal>("ShareOutstanding")
+                    b.Property<decimal?>("ShareOutstanding")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("Ticker")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("WebUrl")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
@@ -181,11 +178,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("BorrowerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -196,10 +189,41 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BorrowerId")
-                        .IsUnique();
+                    b.HasAlternateKey("Type");
 
                     b.ToTable("CompanyTypes", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("082692da-3b38-400a-a98f-b9ee67c19433"),
+                            Type = "Sole Proprietorship"
+                        },
+                        new
+                        {
+                            Id = new Guid("db3c566d-26a4-483b-b23f-dd606e0424f9"),
+                            Type = "Other"
+                        },
+                        new
+                        {
+                            Id = new Guid("dd2c5f94-7be2-4cba-a48a-9fc540375ac9"),
+                            Type = "Partnership Limited by Shares"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f96605e-ee07-45f1-83c3-fa4c91263393"),
+                            Type = "Limited Partnership"
+                        },
+                        new
+                        {
+                            Id = new Guid("b6956a5b-67b6-45a5-b431-f5ee303c4739"),
+                            Type = "Cooperative Society"
+                        },
+                        new
+                        {
+                            Id = new Guid("66e2fafa-ae81-4f1c-a24e-39f6e4033e4b"),
+                            Type = "General Partnership"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Lender", b =>
@@ -293,87 +317,87 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("cbf8a920-2ae3-4c26-9bd0-d4a325a25cb3"),
+                            Id = new Guid("fe22425b-6672-4b33-9332-00f4532f6395"),
                             Name = "IsRegistered"
                         },
                         new
                         {
-                            Id = new Guid("63ec58c3-9fec-432c-bc12-53d312506968"),
+                            Id = new Guid("f96392e4-cac7-4e4c-a21b-c41b1e443318"),
                             Name = "CanReadBorrowers"
                         },
                         new
                         {
-                            Id = new Guid("09a9bad4-09af-4f79-868d-399372bce957"),
+                            Id = new Guid("72d11591-ee3c-4efd-a6b0-60949f0db094"),
                             Name = "CanAddBorrower"
                         },
                         new
                         {
-                            Id = new Guid("7f69557e-8de8-4588-ad25-ad41da56617d"),
+                            Id = new Guid("467dd1e7-dfb9-40e0-a8a8-a298cd93a230"),
                             Name = "CanUpdateBorrower"
                         },
                         new
                         {
-                            Id = new Guid("5d29937d-b6a8-4e77-953b-25dce13681ae"),
+                            Id = new Guid("681c10d0-3dd3-4575-9240-1811ba33a4e5"),
                             Name = "CanDeleteBorrower"
                         },
                         new
                         {
-                            Id = new Guid("c4d09b8a-e67e-40eb-a142-376c3ad6602a"),
+                            Id = new Guid("74544db4-1b55-4d8d-8a71-ddd045f7e612"),
                             Name = "CanReadUsers"
                         },
                         new
                         {
-                            Id = new Guid("23067061-c25c-4274-8f08-1bc4dfc41a66"),
+                            Id = new Guid("08e59584-1f81-4569-87cd-80d1489a39f5"),
                             Name = "CanAddUser"
                         },
                         new
                         {
-                            Id = new Guid("8833404a-d32a-48f0-8b42-81987e90bc32"),
+                            Id = new Guid("31f69544-7656-404d-b5ea-11492078ca2c"),
                             Name = "CanUpdateUser"
                         },
                         new
                         {
-                            Id = new Guid("781d185e-7bb1-4c52-8353-f7b3c1b8d886"),
+                            Id = new Guid("829d5b02-07e3-4ce4-bb12-1db04ecf7b2c"),
                             Name = "CanDeleteUser"
                         },
                         new
                         {
-                            Id = new Guid("8113298f-7f4d-4f45-93a2-c4466adf59ba"),
+                            Id = new Guid("58e8e4bd-c677-4f3a-b597-ed56b431efa4"),
                             Name = "CanReadApplications"
                         },
                         new
                         {
-                            Id = new Guid("569cb42d-5e23-4637-b18e-c50aa6f278d3"),
+                            Id = new Guid("a1bd9f5e-f62a-46e9-a437-827279617732"),
                             Name = "CanAddApplication"
                         },
                         new
                         {
-                            Id = new Guid("64aa8499-4d40-42dc-a958-7eae64598a35"),
+                            Id = new Guid("e7d606c5-bfc8-44eb-a4c0-b2d7545f32f4"),
                             Name = "CanUpdateApplication"
                         },
                         new
                         {
-                            Id = new Guid("4eee49a1-78e0-49c1-bf7b-dd28a8030250"),
+                            Id = new Guid("9cd86dab-b4df-4120-bad1-aa448d877f93"),
                             Name = "CanDeleteApplication"
                         },
                         new
                         {
-                            Id = new Guid("d9f453a2-ef19-4c7c-8eac-b496a4f7b41c"),
+                            Id = new Guid("86de7c1a-381f-473a-9ae7-cd2c57d891d7"),
                             Name = "CanReadLenders"
                         },
                         new
                         {
-                            Id = new Guid("f13379d7-a19b-4895-bfd5-fd2da3077f83"),
+                            Id = new Guid("9891aaaf-302d-4f5d-8885-7db67c60eb52"),
                             Name = "CanAddLender"
                         },
                         new
                         {
-                            Id = new Guid("7510abe2-31fb-4e54-af8a-22450b80284b"),
+                            Id = new Guid("1ada15a4-ed51-40da-b4e4-c25e4c270866"),
                             Name = "CanUpdateLender"
                         },
                         new
                         {
-                            Id = new Guid("d649c2fe-a286-4858-bf9e-a8ffadd76ccc"),
+                            Id = new Guid("806ec9e1-41bb-4520-ab87-9a19956713d0"),
                             Name = "CanDeleteLender"
                         });
                 });
@@ -457,22 +481,22 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2b8befb0-b466-4362-bb0b-272c8bdda417"),
+                            Id = new Guid("16511fe5-73b9-49a8-8902-097757c4993a"),
                             Name = "LoanOfficerBackOffice"
                         },
                         new
                         {
-                            Id = new Guid("c3683837-987d-4be9-a0a6-ea5a6776f21c"),
+                            Id = new Guid("bf653a8f-c325-4c17-bed2-646feb8ac9ea"),
                             Name = "LoanOfficerFrontOffice"
                         },
                         new
                         {
-                            Id = new Guid("bca3d5dc-c4df-4544-a30d-a656eb1916dc"),
+                            Id = new Guid("d0101d00-8144-4664-82a5-0d7ef4ec95fb"),
                             Name = "Borrower"
                         },
                         new
                         {
-                            Id = new Guid("275bb2d0-0b4a-4036-aba9-4103d281a338"),
+                            Id = new Guid("283a02ba-4751-476e-a4f9-6bf9b436fc25"),
                             Name = "RegisteredUser"
                         });
                 });
@@ -549,9 +573,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("nvarchar(5)");
 
-                    b.Property<bool>("Test")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -577,7 +598,6 @@ namespace Infrastructure.Migrations
                             PasswordSalt = "jWRLoRafDBcFS72uPEqyqg==",
                             PhoneNumber = "683363203",
                             Prefix = "+355",
-                            Test = false,
                             Username = "kevinshemili1"
                         });
                 });
@@ -601,7 +621,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefreshTokenExpiry")
@@ -655,8 +674,8 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Domain.Entities.Product", "Product")
-                        .WithOne("Application")
-                        .HasForeignKey("Domain.Entities.ApplicationEntity", "ProductId")
+                        .WithMany("Applications")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -669,11 +688,19 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Borrower", b =>
                 {
+                    b.HasOne("Domain.Entities.CompanyType", "CompanyType")
+                        .WithMany("Borrowers")
+                        .HasForeignKey("CompanyTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Borrowers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CompanyType");
 
                     b.Navigation("User");
                 });
@@ -683,17 +710,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Borrower", "Borrower")
                         .WithOne("CompanyProfile")
                         .HasForeignKey("Domain.Entities.CompanyProfile", "BorrowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Borrower");
-                });
-
-            modelBuilder.Entity("Domain.Entities.CompanyType", b =>
-                {
-                    b.HasOne("Domain.Entities.Borrower", "Borrower")
-                        .WithOne("CompanyType")
-                        .HasForeignKey("Domain.Entities.CompanyType", "BorrowerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -775,9 +791,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("CompanyProfile")
                         .IsRequired();
+                });
 
-                    b.Navigation("CompanyType")
-                        .IsRequired();
+            modelBuilder.Entity("Domain.Entities.CompanyType", b =>
+                {
+                    b.Navigation("Borrowers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Lender", b =>
@@ -793,8 +811,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
-                    b.Navigation("Application")
-                        .IsRequired();
+                    b.Navigation("Applications");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

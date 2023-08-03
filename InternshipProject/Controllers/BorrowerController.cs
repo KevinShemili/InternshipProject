@@ -20,7 +20,7 @@ namespace InternshipProject.Controllers {
             _mediator = mediator;
         }
 
-        [Authorize(Policy = Permissions.CanAddBorrower)]
+        [Authorize(Policy = PermissionSeeds.CanAddBorrower)]
         [HttpPost("borrowers")]
         public async Task<IActionResult> CreateBorrower([FromHeader] string AccessToken, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<CreateBorrowerCommmand>(borrowerRequest);
@@ -30,7 +30,7 @@ namespace InternshipProject.Controllers {
             return Ok(result);
         }
 
-        [Authorize(Policy = $"{Permissions.CanReadBorrowers}, {Permissions.IsSuperAdmin}")]
+        [Authorize(Policy = $"{PermissionSeeds.CanReadBorrowers}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}")]
         public async Task<IActionResult> GetBorrower([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetBorrowerQuery {
@@ -39,7 +39,7 @@ namespace InternshipProject.Controllers {
             return Ok(result);
         }
 
-        [Authorize(Policy = $"{Permissions.CanUpdateBorrower}, {Permissions.IsSuperAdmin}")]
+        [Authorize(Policy = $"{PermissionSeeds.CanUpdateBorrower}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpPut("borrowers/{id}")]
         public async Task<IActionResult> UpdateBorrower([FromRoute] Guid id, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<UpdateBorrowerCommand>(borrowerRequest);
@@ -49,7 +49,7 @@ namespace InternshipProject.Controllers {
             return Ok();
         }
 
-        [Authorize(Policy = $"{Permissions.CanDeleteBorrower}, {Permissions.IsSuperAdmin}")]
+        [Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpDelete("borrowers/{id}")]
         public async Task<IActionResult> DeleteBorrower([FromRoute] Guid id) {
 

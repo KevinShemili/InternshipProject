@@ -1,5 +1,5 @@
 ﻿namespace Domain.Seeds {
-    public static class CompanyTypes {
+    public static class CompanyTypeSeeds {
         public const string SoleProprietorship = "Sole Proprietorship";
         public const string Other = "Other";
         public const string PartnershipLimitedByShares = "Partnership Limited by Shares";

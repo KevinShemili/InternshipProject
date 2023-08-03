@@ -13,8 +13,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InternshipProject.Controllers
-{
+namespace InternshipProject.Controllers {
     [ApiController]
     [Route("auth")]
     public class AuthController : ControllerBase {
@@ -121,14 +120,14 @@ namespace InternshipProject.Controllers
             return Ok(response);
         }
 
-        [Authorize(Policy = Permissions.IsSuperAdmin)]
+        [Authorize(Policy = PermissionSeeds.IsSuperAdmin)]
         [HttpGet("blocked-accounts")]
         public async Task<IActionResult> GetBlockedAccounts() {
             var response = await _mediator.Send(new BlockedAccountsQuery());
             return Ok(response);
         }
 
-        [Authorize(Policy = Permissions.IsSuperAdmin)]
+        [Authorize(Policy = PermissionSeeds.IsSuperAdmin)]
         [HttpPatch("unblock-account/{id}")]
         public async Task<IActionResult> UnblockAccount([FromRoute] Guid id) {
             await _mediator.Send(new UnblockAccountCommand { Id = id });

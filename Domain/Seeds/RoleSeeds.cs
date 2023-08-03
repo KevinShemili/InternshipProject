@@ -1,5 +1,5 @@
 ﻿namespace Domain.Seeds {
-    public static class Roles {
+    public static class RoleSeeds {
 
         public const string SuperAdmin = "SuperAdmin";
 

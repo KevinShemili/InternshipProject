@@ -34,8 +34,8 @@ namespace Infrastructure.Persistence.Configurations {
 
             builder
                 .HasOne(x => x.Product)
-                .WithOne(y => y.Application)
-                .HasForeignKey<ApplicationEntity>(x => x.ProductId)
+                .WithMany(y => y.Applications)
+                .HasForeignKey(x => x.ProductId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 

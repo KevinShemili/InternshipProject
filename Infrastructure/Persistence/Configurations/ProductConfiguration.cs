@@ -32,6 +32,12 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .Property(x => x.FinanceMinAmount)
                 .IsRequired();
-            }
+            builder
+                .HasMany(x => x.Applications)
+                .WithOne(y => y.Product)
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }
