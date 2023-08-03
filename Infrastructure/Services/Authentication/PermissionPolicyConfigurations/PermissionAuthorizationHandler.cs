@@ -18,6 +18,15 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement) {
+            string? dateTimeString = context.User.Claims
+                               .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp)?.Value;
+
+            _ = long.TryParse(dateTimeString, out var exp);
+
+            var dateTime = DateTimeOffset.FromUnixTimeSeconds(exp);
+
+            if (dateTime <= DateTime.Now)
+                throw new ForbiddenException(_localizer.GetString("LoginExpired").Value);
 
             string? UserId = context.User.Claims
                                .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;

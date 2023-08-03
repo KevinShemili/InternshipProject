@@ -94,6 +94,25 @@ namespace Infrastructure.Persistence.Context {
                     RoleId = Guid.Parse("6b8f8ee8-d394-487a-847a-cd9e40df4fcf")
                 }
             );
+
+            modelBuilder.Entity<Product>().HasData(
+                new Product {
+                    Id = Guid.NewGuid(),
+                    Name = ProductSeeds.FixedRatePreAmortization,
+                    Description = ProductSeeds.FixedRatePreAmortization,
+                    ReferenceRate = 0.0025M,
+                    FinanceMinAmount = 10000.00M,
+                    FinanceMaxAmount = 2000000.00M,
+                },
+                new Product {
+                    Id = Guid.NewGuid(),
+                    Name = ProductSeeds.VariableRatePreAmortization,
+                    Description = ProductSeeds.VariableRatePreAmortization,
+                    ReferenceRate = 0.03M,
+                    FinanceMinAmount = 10000.00M,
+                    FinanceMaxAmount = 2000000.00M,
+                }
+            );
         }
     }
 }

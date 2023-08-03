@@ -21,17 +21,19 @@ namespace Infrastructure.Persistence.Configurations {
 
             builder
                 .Property(x => x.ReferenceRate)
-                .HasMaxLength(50)
                 .HasPrecision(18, 4)
                 .IsRequired();
 
             builder
                 .Property(x => x.FinanceMaxAmount)
+                .HasPrecision(18, 4)
                 .IsRequired();
 
             builder
                 .Property(x => x.FinanceMinAmount)
+                .HasPrecision(18, 4)
                 .IsRequired();
+
             builder
                 .HasMany(x => x.Applications)
                 .WithOne(y => y.Product)
