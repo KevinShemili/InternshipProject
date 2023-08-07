@@ -43,6 +43,7 @@ namespace Infrastructure {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
             services.AddScoped<IApplicationRepository, ApplicationRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

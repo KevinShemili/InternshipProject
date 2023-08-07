@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ApplicationDoesntExist" xml:space="preserve">
+    <value>The provided application does not exist.</value>
+  </data>
+  <data name="BiggerRequestAmount" xml:space="preserve">
+    <value>The requested application amount exceeds the maximum financing amount for the chosen product type.</value>
+  </data>
   <data name="BlockedAccount" xml:space="preserve">
     <value>Account is blocked due to multiple incorrect tries.</value>
   </data>
@@ -156,6 +162,9 @@
   <data name="EmptyEmail" xml:space="preserve">
     <value>The email can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyFinancePurposeDefinition" xml:space="preserve">
+    <value>You must provide a purpose for the application request.</value>
+  </data>
   <data name="EmptyFirstName" xml:space="preserve">
     <value>The first name can not be empty. Please provide a value.</value>
   </data>
@@ -177,8 +186,17 @@
   <data name="EmptyPrefix" xml:space="preserve">
     <value>The prefix can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyProductType" xml:space="preserve">
+    <value>The product type cannot be empty. Please provide a value.</value>
+  </data>
   <data name="EmptyRefreshToken" xml:space="preserve">
     <value>Please provide the refresh token.</value>
+  </data>
+  <data name="EmptyRequestAmount" xml:space="preserve">
+    <value>The requested amount cannot be empty. Please provide a value.</value>
+  </data>
+  <data name="EmptyRequestTenor" xml:space="preserve">
+    <value>The request tenor cannot be empty. Please provide a value.</value>
   </data>
   <data name="EmptyRoleName" xml:space="preserve">
     <value>The name of the role can not be empty. Please provide a value.</value>
@@ -194,6 +212,9 @@
   </data>
   <data name="EmptyVerificationTokens" xml:space="preserve">
     <value>Invalid request.</value>
+  </data>
+  <data name="FinancePurposeMaximumLengthRestriction" xml:space="preserve">
+    <value>Your finance purpose description length must not exceed 25 characters.</value>
   </data>
   <data name="FirstNameMaximumLengthRestriction" xml:space="preserve">
     <value>Your first name length must not exceed 25 characters.</value>
@@ -261,8 +282,14 @@
   <data name="PrefixFormatRestriction" xml:space="preserve">
     <value>Please follow the given prefix format "+XX/+XXX"</value>
   </data>
+  <data name="ProductTypeDoesntExist" xml:space="preserve">
+    <value>Please provide a valid product type for the associated application.</value>
+  </data>
   <data name="RoleDoesntExist" xml:space="preserve">
     <value>The provided role does not exist.</value>
+  </data>
+  <data name="SmallerRequestAmount" xml:space="preserve">
+    <value>The requested application amount is below the minimal financing amount for the chosen product type.</value>
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Link has expired.</value>

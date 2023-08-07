@@ -2,10 +2,28 @@
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories {
     public class ApplicationRepository : BaseRepository<ApplicationEntity>, IApplicationRepository {
         public ApplicationRepository(DatabaseContext databaseContext) : base(databaseContext) {
+        }
+
+        public async Task<bool> ContainsAsync(Guid id) {
+            var application = await _databaseContext.Applications
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return application != null;
+        }
+
+        public async Task UpdateAsync(Guid id, ApplicationEntity entity) {
+            var application = await base.GetByIdAsync(id);
+            application.Product = entity.Product;
+            application.RequestedAmount = entity.RequestedAmount;
+            application.RequestedTenor = entity.RequestedTenor;
+            application.FinancePurposeDefinition = entity.FinancePurposeDefinition;
+            application.Name = entity.Name;
         }
     }
 }

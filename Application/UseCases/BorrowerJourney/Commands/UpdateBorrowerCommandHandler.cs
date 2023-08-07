@@ -104,7 +104,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             .WithMessage("FiscalCodeLengthRestriction");
         }
 
-        private bool ValidateFiscalCodeLength(string companyType, string fiscalCode) {
+        private static bool ValidateFiscalCodeLength(string companyType, string fiscalCode) {
             if (companyType == "Sole Proprietorship")
                 return fiscalCode.Length == 16;
             else if (companyType == "Other")

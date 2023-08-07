@@ -45,9 +45,6 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
         public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
 
-            if (_jwtToken.IsExpired(request.AccessToken) is true)
-                throw new ForbiddenException(_localization.GetString("LoginExpired").Value);
-
             var userId = _jwtToken.GetUserId(request.AccessToken);
 
             if (await _userRepository.ContainsIdAsync(userId) is false)

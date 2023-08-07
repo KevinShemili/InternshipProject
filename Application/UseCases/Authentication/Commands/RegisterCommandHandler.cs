@@ -65,9 +65,11 @@ namespace Application.UseCases.Authentication.Commands {
             user.PasswordHash = hash;
             user.PasswordSalt = salt;
             user.IsEmailConfirmed = false;
+            user.Roles = new List<Role> {
+                await _roleRepository.GetByNameAsync(Domain.Seeds.RoleSeeds.RegisteredUser)
+            };
 
             await _userRepository.CreateAsync(user);
-            await _userRepository.AddRoleAsync(user.Id, await _roleRepository.GetByNameAsync(Domain.Seeds.RoleSeeds.RegisteredUser));
 
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);

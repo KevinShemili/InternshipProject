@@ -10,6 +10,9 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasKey(x => x.Id);
 
             builder
+                .HasAlternateKey(x => x.Name);
+
+            builder
                 .Property(x => x.Name)
                 .HasMaxLength(50)
                 .IsRequired();

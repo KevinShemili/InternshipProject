@@ -5,7 +5,6 @@ using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
-using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -13,69 +12,67 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.ApplicationJourney.Commands {
 
-    public class CreateApplicationCommand : IRequest<ApplicationCommandResult> {
-        public Guid BorrowerId { get; set; }
+    public class UpdateApplicationCommand : IRequest<ApplicationCommandResult> {
+        public Guid Id { get; set; }
         public int RequestedAmount { get; set; }
         public int RequestedTenor { get; set; }
         public string FinancePurposeDefinition { get; set; } = null!;
+        public string ProductType { get; set; } = null!;
     }
 
-    public class CreateApplicationCommandHandler : IRequestHandler<CreateApplicationCommand, ApplicationCommandResult> {
+    public class UpdateApplicationCommandHandler : IRequestHandler<UpdateApplicationCommand, ApplicationCommandResult> {
 
         private readonly IApplicationRepository _applicationRepository;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
-        private readonly IBorrowerRepository _borrowerRepository;
 
-        public CreateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
-            IApplicationRepository applicationRepository,
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IProductRepository productRepository,
-            IBorrowerRepository borrowerRepository) {
+        public UpdateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer, IApplicationRepository applicationRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _productRepository = productRepository;
-            _borrowerRepository = borrowerRepository;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request, CancellationToken cancellationToken) {
+        public async Task<ApplicationCommandResult> Handle(UpdateApplicationCommand request, CancellationToken cancellationToken) {
 
-            var product = await _productRepository.GetByNameAsync(ProductSeeds.FixedRatePreAmortization);
+            if (await _applicationRepository.ContainsAsync(request.Id) is false)
+                throw new NoSuchEntityExistsException(_localizer.GetString("ApplicationDoesntExist").Value);
+
+            var application = await _applicationRepository.GetByIdAsync(request.Id);
+
+            if (await _productRepository.ContainsAsync(request.ProductType) is false)
+                throw new NoSuchEntityExistsException(_localizer.GetString("ProductTypeDoesntExist").Value);
+
+            var product = await _productRepository.GetByNameAsync(request.ProductType);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
                 throw new InvalidInputException(_localizer.GetString("BiggerRequestAmount").Value);
             else if (product.FinanceMinAmount > request.RequestedAmount)
                 throw new InvalidInputException(_localizer.GetString("SmallerRequestAmount").Value);
 
-            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new ForbiddenException(_localizer.GetString("BorrowerDoesntExist").Value);
+            var newApplication = _mapper.Map<ApplicationEntity>(request);
+            newApplication.Product = product;
+            var parts = application.Name.Split(" - ");
+            parts[0] = request.RequestedAmount.ToString();
+            newApplication.Name = string.Join(" - ", parts);
 
-            var application = _mapper.Map<ApplicationEntity>(request);
-            application.Id = Guid.NewGuid();
-            application.BorrowerId = request.BorrowerId;
-            application.Name = request.RequestedAmount.ToString() + " - " + DateTime.UtcNow.ToString("d");
-            application.Status = ApplicationStatuses.InCharge;
-            application.Product = product;
-
-            await _applicationRepository.CreateAsync(application);
+            await _applicationRepository.UpdateAsync(request.Id, newApplication);
             await _unitOfWork.SaveChangesAsync();
 
             return new ApplicationCommandResult {
                 Id = application.Id,
-                Name = application.Name,
-                Description = application.FinancePurposeDefinition
+                Name = newApplication.Name,
+                Description = request.FinancePurposeDefinition
             };
         }
     }
 
-    public class CreateApplicationCommandValidator : AbstractValidator<CreateApplicationCommand> {
-        public CreateApplicationCommandValidator() {
-            RuleFor(x => x.BorrowerId)
+    public class UpdateApplicationCommandValidator : AbstractValidator<UpdateApplicationCommand> {
+        public UpdateApplicationCommandValidator() {
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("EmptyId");
 
             RuleFor(x => x.RequestedAmount)
@@ -83,6 +80,9 @@ namespace Application.UseCases.ApplicationJourney.Commands {
 
             RuleFor(x => x.RequestedTenor)
                 .NotEmpty().WithMessage("EmptyRequestTenor");
+
+            RuleFor(x => x.ProductType)
+                .NotEmpty().WithMessage("EmptyProductType");
 
             RuleFor(x => x.FinancePurposeDefinition)
                 .NotEmpty().WithMessage("EmptyFinancePurposeDefinition.")

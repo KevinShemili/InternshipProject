@@ -42,8 +42,8 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .HasOne(x => x.Loan)
                 .WithOne(y => y.Application)
-                .HasForeignKey<ApplicationEntity>(x => x.LoanId)
-                .IsRequired(false)
+                .HasForeignKey<Loan>(x => x.ApplicationId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder

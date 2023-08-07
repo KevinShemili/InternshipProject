@@ -28,89 +28,159 @@ namespace Infrastructure.Persistence.Context {
                 .ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
             base.OnModelCreating(modelBuilder);
 
+            // CompanyTypes
+            var soleProprietorship = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.SoleProprietorship };
+            var other = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.Other };
+            var partnershipLimitedByShares = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.PartnershipLimitedByShares };
+            var limitedPartnership = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.LimitedPartnership };
+            var cooperativeSociety = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.CooperativeSociety };
+            var generalPartnership = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.GeneralPartnership };
+
+            // Permissions
+            var canReadBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadBorrowers };
+            var isSuperAdmin = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.IsSuperAdmin };
+            var isRegistered = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.IsRegistered };
+            var canAddBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddBorrower };
+            var canUpdateBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateBorrower };
+            var canDeleteBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteBorrower };
+            var canReadApplicants = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadApplications };
+            var canAddApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddApplication };
+            var canUpdateApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateApplication };
+            var canDeleteApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteApplication };
+
+            // Roles
+            var superAdmin = new Role { Id = Guid.NewGuid(), Name = RoleSeeds.SuperAdmin };
+            var loanOfficer = new Role { Id = Guid.NewGuid(), Name = RoleSeeds.LoanOfficer };
+            var registeredUser = new Role { Id = Guid.NewGuid(), Name = RoleSeeds.RegisteredUser };
+            var borrower = new Role { Id = Guid.NewGuid(), Name = RoleSeeds.Borrower };
+
+            // Products
+            var fixedRatePreAmortization = new Product {
+                Id = Guid.NewGuid(),
+                Name = ProductSeeds.FixedRatePreAmortization,
+                Description = ProductSeeds.FixedRatePreAmortization,
+                ReferenceRate = 0.0025M,
+                FinanceMinAmount = 10000.00M,
+                FinanceMaxAmount = 2000000.00M,
+            };
+            var variableRatePreAmortization = new Product {
+                Id = Guid.NewGuid(),
+                Name = ProductSeeds.VariableRatePreAmortization,
+                Description = ProductSeeds.VariableRatePreAmortization,
+                ReferenceRate = 0.03M,
+                FinanceMinAmount = 10000.00M,
+                FinanceMaxAmount = 2000000.00M,
+            };
+
+            // Users
+            var sa = new User {
+                Id = Guid.NewGuid(),
+                FirstName = "Kevin",
+                LastName = "Shemili",
+                Username = "kevinshemili1",
+                Email = "kevin.shemili@cardoai.com",
+                IsEmailConfirmed = true,
+                PhoneNumber = "683363203",
+                Prefix = "+355",
+                PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=",
+                PasswordSalt = "jWRLoRafDBcFS72uPEqyqg=="
+            };
+
+
+            // Seeds
             modelBuilder.Entity<CompanyType>().HasData(
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.SoleProprietorship },
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.Other },
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.PartnershipLimitedByShares },
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.LimitedPartnership },
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.CooperativeSociety },
-                new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.GeneralPartnership }
+                soleProprietorship,
+                other,
+                partnershipLimitedByShares,
+                limitedPartnership,
+                cooperativeSociety,
+                generalPartnership
             );
 
             modelBuilder.Entity<Permission>().HasData(
-                new Permission { Id = Guid.Parse("445248ae-bc8b-4a7e-90ce-1636f8206fa5"), Name = PermissionSeeds.IsSuperAdmin },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.IsRegistered },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadBorrowers },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddBorrower },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateBorrower },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteBorrower },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadUsers },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddUser },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateUser },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteUser },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadApplications },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddApplication },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateApplication },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteApplication },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadLenders },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddLender },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateLender },
-                new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteLender }
+                isSuperAdmin,
+                canReadBorrower,
+                isRegistered,
+                canAddBorrower,
+                canUpdateBorrower,
+                canDeleteBorrower,
+                canReadApplicants,
+                canUpdateApplication,
+                canAddApplication,
+                canDeleteApplication
             );
 
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = Guid.Parse("6b8f8ee8-d394-487a-847a-cd9e40df4fcf"), Name = RoleSeeds.SuperAdmin },
-                new Role { Id = Guid.NewGuid(), Name = RoleSeeds.LoanOfficerBackOffice },
-                new Role { Id = Guid.NewGuid(), Name = RoleSeeds.LoanOfficerFrontOffice },
-                new Role { Id = Guid.NewGuid(), Name = RoleSeeds.Borrower },
-                new Role { Id = Guid.NewGuid(), Name = RoleSeeds.RegisteredUser }
+                superAdmin,
+                loanOfficer,
+                registeredUser,
+                borrower
+            );
+
+            modelBuilder.Entity<User>().HasData(
+                sa
+             );
+
+            modelBuilder.Entity<Product>().HasData(
+                fixedRatePreAmortization,
+                variableRatePreAmortization
+            );
+
+            modelBuilder.Entity<User_Role>().HasData(
+                new User_Role {
+                    UserId = sa.Id,
+                    RoleId = superAdmin.Id
+                }
             );
 
             modelBuilder.Entity<Role_Permission>().HasData(
                 new Role_Permission {
-                    RoleId = Guid.Parse("6b8f8ee8-d394-487a-847a-cd9e40df4fcf"),
-                    PermissionId = Guid.Parse("445248ae-bc8b-4a7e-90ce-1636f8206fa5")
-                }
-            );
-
-            modelBuilder.Entity<User>().HasData(
-                new User {
-                    Id = Guid.Parse("0f7195df-de82-429c-a430-dc0742edf721"),
-                    FirstName = "Kevin",
-                    LastName = "Shemili",
-                    Username = "kevinshemili1",
-                    Email = "kevin.shemili@cardoai.com",
-                    IsEmailConfirmed = true,
-                    PhoneNumber = "683363203",
-                    Prefix = "+355",
-                    PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=",
-                    PasswordSalt = "jWRLoRafDBcFS72uPEqyqg=="
-                }
-             );
-
-            modelBuilder.Entity<User_Role>().HasData(
-                new User_Role {
-                    UserId = Guid.Parse("0f7195df-de82-429c-a430-dc0742edf721"),
-                    RoleId = Guid.Parse("6b8f8ee8-d394-487a-847a-cd9e40df4fcf")
-                }
-            );
-
-            modelBuilder.Entity<Product>().HasData(
-                new Product {
-                    Id = Guid.NewGuid(),
-                    Name = ProductSeeds.FixedRatePreAmortization,
-                    Description = ProductSeeds.FixedRatePreAmortization,
-                    ReferenceRate = 0.0025M,
-                    FinanceMinAmount = 10000.00M,
-                    FinanceMaxAmount = 2000000.00M,
+                    RoleId = superAdmin.Id,
+                    PermissionId = isSuperAdmin.Id
                 },
-                new Product {
-                    Id = Guid.NewGuid(),
-                    Name = ProductSeeds.VariableRatePreAmortization,
-                    Description = ProductSeeds.VariableRatePreAmortization,
-                    ReferenceRate = 0.03M,
-                    FinanceMinAmount = 10000.00M,
-                    FinanceMaxAmount = 2000000.00M,
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canReadBorrower.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canAddBorrower.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canDeleteBorrower.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canUpdateBorrower.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canAddApplication.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canReadApplicants.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canUpdateApplication.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canDeleteApplication.Id,
+                },
+                new Role_Permission {
+                    RoleId = registeredUser.Id,
+                    PermissionId = isRegistered.Id,
+                },
+                new Role_Permission {
+                    RoleId = registeredUser.Id,
+                    PermissionId = canAddBorrower.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canUpdateApplication.Id,
                 }
             );
         }

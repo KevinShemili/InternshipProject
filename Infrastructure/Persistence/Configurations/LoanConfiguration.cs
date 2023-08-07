@@ -38,6 +38,13 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasForeignKey(x => x.LenderId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasOne(x => x.Application)
+                .WithOne(y => y.Loan)
+                .HasForeignKey<Loan>(x => x.ApplicationId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
