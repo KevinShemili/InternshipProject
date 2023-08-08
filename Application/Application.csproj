@@ -21,7 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="UseCases\Authentication\Queries\" />
     <Folder Include="UseCases\BorrowerJourney\Queries\" />
+    <Folder Include="UseCases\LoanJourney\NewFolder1\" />
+    <Folder Include="UseCases\LoanJourney\Results\" />
+    <Folder Include="UseCases\LoanJourney\Queries\" />
   </ItemGroup>
 
 </Project>

@@ -18,6 +18,15 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement) {
+
+            // 1. Check if user is logged in
+            string? UserId = context.User.Claims
+                               .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (!Guid.TryParse(UserId, out Guid parsedUserId))
+                throw new UnauthorizedException(_localizer.GetString("UnathorizedAccess").Value);
+
+            // 2. Check if user's session is expired
             string? dateTimeString = context.User.Claims
                                .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp)?.Value;
 
@@ -28,22 +37,18 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
             if (dateTime <= DateTime.Now)
                 throw new ForbiddenException(_localizer.GetString("LoginExpired").Value);
 
-            string? UserId = context.User.Claims
-                               .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
-
-            if (!Guid.TryParse(UserId, out Guid parsedUserId))
-                throw new UnauthorizedException(_localizer.GetString("UnathorizedAccess").Value);
-
+            // 3. Check his permissions
             var permissions = await _userRepository.GetPermissionsAsync(parsedUserId);
 
             var requestPermissions = requirement.Permission.Split(',').ToList();
 
             foreach (var requestPermission in requestPermissions)
                 if (permissions.Contains(requestPermission.Trim())) {
-                    context.Succeed(requirement);
+                    context.Succeed(requirement); // a) has the permissions
                     return;
                 }
-            throw new ForbiddenException(_localizer.GetString("MissingPermission").Value);
+            throw new ForbiddenException(_localizer
+                .GetString("MissingPermission").Value); // b) doesn't have the permissions
         }
     }
 }

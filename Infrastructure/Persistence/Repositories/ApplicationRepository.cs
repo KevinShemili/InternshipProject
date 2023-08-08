@@ -17,6 +17,23 @@ namespace Infrastructure.Persistence.Repositories {
             return application != null;
         }
 
+        public async Task<ApplicationEntity> GetApplicationByBorrower(Guid borrowerId, Guid applicationId) {
+            var application = await _databaseContext.Applications
+                .Where(x => x.BorrowerId == borrowerId
+                            && x.Id == applicationId)
+                .FirstOrDefaultAsync();
+
+            return application;
+        }
+
+        public async Task<List<ApplicationEntity>> GetApplications(Guid borrowerId) {
+            var applications = await _databaseContext.Applications
+                .Where(x => x.BorrowerId == borrowerId)
+                .ToListAsync();
+
+            return applications;
+        }
+
         public async Task UpdateAsync(Guid id, ApplicationEntity entity) {
             var application = await base.GetByIdAsync(id);
             application.Product = entity.Product;

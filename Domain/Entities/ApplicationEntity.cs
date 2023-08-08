@@ -11,7 +11,6 @@ namespace Domain.Entities {
         public Guid BorrowerId { get; set; }
         public Guid ProductId { get; set; }
         public virtual Borrower Borrower { get; set; } = null!;
-        public virtual ProductMatrix? ProductMatrix { get; set; }
         public virtual Product Product { get; set; } = null!;
         public virtual Loan? Loan { get; set; }
     }

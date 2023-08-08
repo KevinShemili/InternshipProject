@@ -50,11 +50,6 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasOne(a => a.Borrower)
                 .WithMany(b => b.Applications)
                 .IsRequired(false);
-
-            builder
-                .HasOne(x => x.ProductMatrix)
-                .WithOne(y => y.Application)
-                .IsRequired();
         }
     }
 }

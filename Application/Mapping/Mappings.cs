@@ -1,4 +1,5 @@
 ﻿using Application.UseCases.ApplicationJourney.Commands;
+using Application.UseCases.ApplicationJourney.Results;
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BlockedAccounts.Results;
 using Application.UseCases.BorrowerJourney.Commands;
@@ -49,6 +50,7 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.CompanyType, opt => opt.Ignore());
             CreateMap<CreateApplicationCommand, ApplicationEntity>().ReverseMap();
             CreateMap<UpdateApplicationCommand, ApplicationEntity>().ReverseMap();
+            CreateMap<ApplicationQueryResult, ApplicationEntity>().ReverseMap();
         }
     }
 }

@@ -19,7 +19,11 @@ namespace Infrastructure.Persistence.Configurations {
                 .IsRequired();
 
             builder
-                .Property(x => x.Tenor)
+                .Property(x => x.MinTenor)
+                .IsRequired();
+
+            builder
+                .Property(x => x.MaxTenor)
                 .IsRequired();
 
             builder
@@ -30,7 +34,9 @@ namespace Infrastructure.Persistence.Configurations {
             builder
                 .HasMany(x => x.Loans)
                 .WithOne(y => y.Lender)
-                .IsRequired(false);
+                .HasForeignKey(x => x.LenderId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

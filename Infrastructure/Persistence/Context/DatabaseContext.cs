@@ -16,7 +16,7 @@ namespace Infrastructure.Persistence.Context {
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<ProductMatrix> ProductMatrices { get; set; }
+        public DbSet<LenderMatrix> LenderMatrices { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<User_Role> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
@@ -37,13 +37,15 @@ namespace Infrastructure.Persistence.Context {
             var generalPartnership = new CompanyType { Id = Guid.NewGuid(), Type = CompanyTypeSeeds.GeneralPartnership };
 
             // Permissions
-            var canReadBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadBorrowers };
+            var canReadBorrowers = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadBorrowers };
+            var canReadOwnBorrowers = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadOwnBorrowers };
             var isSuperAdmin = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.IsSuperAdmin };
             var isRegistered = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.IsRegistered };
             var canAddBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddBorrower };
             var canUpdateBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateBorrower };
             var canDeleteBorrower = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteBorrower };
-            var canReadApplicants = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadApplications };
+            var canReadApplications = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadApplications };
+            var canReadOwnApplications = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanReadOwnApplications };
             var canAddApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanAddApplication };
             var canUpdateApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanUpdateApplication };
             var canDeleteApplication = new Permission { Id = Guid.NewGuid(), Name = PermissionSeeds.CanDeleteApplication };
@@ -86,6 +88,31 @@ namespace Infrastructure.Persistence.Context {
                 PasswordSalt = "jWRLoRafDBcFS72uPEqyqg=="
             };
 
+            // Lenders
+            var pmiBtech = new Lender {
+                Id = Guid.NewGuid(),
+                Name = "PMI BTECH",
+                RequestedAmount = 100000,
+                BorrowerCompanyType = CompanyTypeSeeds.CooperativeSociety,
+                MinTenor = 30,
+                MaxTenor = 0
+            };
+            var azif = new Lender {
+                Id = Guid.NewGuid(),
+                Name = "AZIF",
+                RequestedAmount = 400000,
+                BorrowerCompanyType = CompanyTypeSeeds.PartnershipLimitedByShares,
+                MinTenor = 40,
+                MaxTenor = 60
+            };
+            var logitech = new Lender {
+                Id = Guid.NewGuid(),
+                Name = "PMI BTECH",
+                RequestedAmount = 100000,
+                BorrowerCompanyType = CompanyTypeSeeds.SoleProprietorship,
+                MinTenor = 30,
+                MaxTenor = 60
+            };
 
             // Seeds
             modelBuilder.Entity<CompanyType>().HasData(
@@ -99,15 +126,17 @@ namespace Infrastructure.Persistence.Context {
 
             modelBuilder.Entity<Permission>().HasData(
                 isSuperAdmin,
-                canReadBorrower,
+                canReadBorrowers,
                 isRegistered,
                 canAddBorrower,
                 canUpdateBorrower,
                 canDeleteBorrower,
-                canReadApplicants,
+                canReadApplications,
                 canUpdateApplication,
                 canAddApplication,
-                canDeleteApplication
+                canDeleteApplication,
+                canReadOwnApplications,
+                canReadOwnBorrowers
             );
 
             modelBuilder.Entity<Role>().HasData(
@@ -126,6 +155,12 @@ namespace Infrastructure.Persistence.Context {
                 variableRatePreAmortization
             );
 
+            modelBuilder.Entity<Lender>().HasData(
+                pmiBtech,
+                azif,
+                logitech
+            );
+
             modelBuilder.Entity<User_Role>().HasData(
                 new User_Role {
                     UserId = sa.Id,
@@ -140,7 +175,7 @@ namespace Infrastructure.Persistence.Context {
                 },
                 new Role_Permission {
                     RoleId = borrower.Id,
-                    PermissionId = canReadBorrower.Id,
+                    PermissionId = canReadOwnBorrowers.Id,
                 },
                 new Role_Permission {
                     RoleId = borrower.Id,
@@ -160,11 +195,7 @@ namespace Infrastructure.Persistence.Context {
                 },
                 new Role_Permission {
                     RoleId = borrower.Id,
-                    PermissionId = canReadApplicants.Id,
-                },
-                new Role_Permission {
-                    RoleId = borrower.Id,
-                    PermissionId = canUpdateApplication.Id,
+                    PermissionId = canReadOwnApplications.Id,
                 },
                 new Role_Permission {
                     RoleId = borrower.Id,
@@ -181,6 +212,14 @@ namespace Infrastructure.Persistence.Context {
                 new Role_Permission {
                     RoleId = loanOfficer.Id,
                     PermissionId = canUpdateApplication.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadApplications.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadBorrowers.Id,
                 }
             );
         }
