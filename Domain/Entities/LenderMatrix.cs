@@ -3,6 +3,9 @@
 namespace Domain.Entities {
     public class LenderMatrix : BaseEntity {
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+        public Guid LenderId { get; set; }
+        public Guid ProductId { get; set; }
+        public int Tenor { get; set; }
+        public int Spread { get; set; }
     }
 }

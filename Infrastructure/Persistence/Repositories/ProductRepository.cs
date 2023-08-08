@@ -19,6 +19,16 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
+        public async Task<bool> ContainsAsync(Guid id) {
+            var entity = await _databaseContext.Products
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (entity is null)
+                return false;
+            return true;
+        }
+
         public async Task<Product> GetByNameAsync(string name) {
             var entity = await _databaseContext.Products
                 .Where(x => x.Name == name)

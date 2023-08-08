@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
+using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.Services;
@@ -9,6 +10,7 @@ using Infrastructure.Persistence.Repositories.Common;
 using Infrastructure.Services.Authentication;
 using Infrastructure.Services.Common;
 using Infrastructure.Services.Email;
+using Infrastructure.Services.Excel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,6 +46,9 @@ namespace Infrastructure {
             services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
             services.AddScoped<IApplicationRepository, ApplicationRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IExcelService, ExcelService>();
+            services.AddScoped<ILenderMatrixRepository, LenderMatrixRepository>();
+            services.AddScoped<ILenderRepository, LenderRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

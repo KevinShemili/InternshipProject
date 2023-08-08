@@ -162,6 +162,9 @@
   <data name="EmptyEmail" xml:space="preserve">
     <value>The email can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyExcelCells" xml:space="preserve">
+    <value>Please fill out all the required cells in order to proceed.</value>
+  </data>
   <data name="EmptyFinancePurposeDefinition" xml:space="preserve">
     <value>You must provide a purpose for the application request.</value>
   </data>
@@ -222,6 +225,9 @@
   <data name="FiscalCodeLengthRestriction" xml:space="preserve">
     <value>Invalid fiscal code length based on the provided company type company type.</value>
   </data>
+  <data name="IncorrectExcelFormat" xml:space="preserve">
+    <value>Please upload a valid excel file. Formats supported (.xlsx , .xlsm).</value>
+  </data>
   <data name="IncorrectPassword" xml:space="preserve">
     <value>The entered password is not correct.</value>
   </data>
@@ -242,6 +248,9 @@
   </data>
   <data name="LastNameMaximumLengthRestriction" xml:space="preserve">
     <value>Your last name length must not exceed 25 characters.</value>
+  </data>
+  <data name="LenderDoesntExist" xml:space="preserve">
+    <value>Lender with ID: {0} does not exist. Please provide a valid lender.</value>
   </data>
   <data name="LoginExpired" xml:space="preserve">
     <value>Your session has expired. Please login again.</value>
@@ -283,7 +292,7 @@
     <value>Please follow the given prefix format "+XX/+XXX"</value>
   </data>
   <data name="ProductTypeDoesntExist" xml:space="preserve">
-    <value>Please provide a valid product type for the associated application.</value>
+    <value>Product with ID: {0} does not exist. Please provide a valid product type.</value>
   </data>
   <data name="RoleDoesntExist" xml:space="preserve">
     <value>The provided role does not exist.</value>

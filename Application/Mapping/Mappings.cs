@@ -1,4 +1,5 @@
-﻿using Application.UseCases.ApplicationJourney.Commands;
+﻿using Application.Interfaces.Excel;
+using Application.UseCases.ApplicationJourney.Commands;
 using Application.UseCases.ApplicationJourney.Results;
 using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BlockedAccounts.Results;
@@ -51,6 +52,7 @@ namespace Application.Mapping {
             CreateMap<CreateApplicationCommand, ApplicationEntity>().ReverseMap();
             CreateMap<UpdateApplicationCommand, ApplicationEntity>().ReverseMap();
             CreateMap<ApplicationQueryResult, ApplicationEntity>().ReverseMap();
+            CreateMap<MatrixInfo, LenderMatrix>().ReverseMap();
         }
     }
 }

@@ -3,6 +3,7 @@ using Infrastructure;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Services.Authentication.PermissionPolicyConfigurations;
 using InternshipProject.Middleware;
+using InternshipProject.SwaggerConfig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt => {
     opt.EnableAnnotations();
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.OperationFilter<AcceptLanguageOperationFilter>();
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         In = ParameterLocation.Header,
         Description = "Please enter token",

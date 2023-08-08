@@ -10,8 +10,19 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasKey(x => x.Id);
 
             builder
-                .Property(x => x.Name)
-                .HasMaxLength(50)
+                .Property(x => x.LenderId)
+                .IsRequired();
+
+            builder
+                .Property(x => x.ProductId)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Tenor)
+                .IsRequired();
+
+            builder
+                .Property(x => x.Spread)
                 .IsRequired();
         }
     }

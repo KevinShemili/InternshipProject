@@ -107,7 +107,7 @@ namespace Infrastructure.Persistence.Context {
             };
             var logitech = new Lender {
                 Id = Guid.NewGuid(),
-                Name = "PMI BTECH",
+                Name = "LOGITECH",
                 RequestedAmount = 100000,
                 BorrowerCompanyType = CompanyTypeSeeds.SoleProprietorship,
                 MinTenor = 30,
