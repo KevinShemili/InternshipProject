@@ -258,6 +258,12 @@
   <data name="MissingPermission" xml:space="preserve">
     <value>Lei non dispone delle autorizzazioni necessarie per accedere a questa risorsa.</value>
   </data>
+  <data name="NoEligibleLendersFound" xml:space="preserve">
+    <value>Nessun prestatore idoneo è stato trovato.</value>
+  </data>
+  <data name="NoExcelRowExists" xml:space="preserve">
+    <value>Non esiste alcuna riga con l'ID prestatore {0} corrispondente e l'ID prodotto {1}.</value>
+  </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>La tua password deve contenere almeno una lettera minuscola.</value>
   </data>

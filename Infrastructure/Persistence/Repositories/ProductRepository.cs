@@ -38,5 +38,10 @@ namespace Infrastructure.Persistence.Repositories {
                 return null;
             return entity;
         }
+
+        public async Task<List<Guid>> GetIdsAsync() {
+            var ids = await _databaseContext.Products.Select(x => x.Id).ToListAsync();
+            return ids;
+        }
     }
 }

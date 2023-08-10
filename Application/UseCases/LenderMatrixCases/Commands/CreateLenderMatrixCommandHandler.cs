@@ -1,9 +1,6 @@
 ﻿using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
-using AutoMapper;
-using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -13,6 +10,9 @@ using Microsoft.Extensions.Localization;
 namespace Application.UseCases.LenderMatrixCases.Commands {
 
     public class CreateLenderMatrixCommand : IRequest<bool> {
+        public Guid LenderId { get; set; }
+        public Guid ProductId { get; set; }
+
         public IFormFile File = null!;
     }
 
@@ -22,7 +22,6 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
         private readonly ILenderMatrixRepository _lenderMatrixRepository;
         private readonly IProductRepository _productRepository;
         private readonly ILenderRepository _lenderRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStringLocalizer<LocalizationResources> _localization;
 
@@ -30,36 +29,34 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
                                                 ILenderMatrixRepository lenderMatrixRepository,
                                                 IProductRepository productRepository,
                                                 ILenderRepository lenderRepository,
-                                                IMapper mapper,
                                                 IUnitOfWork unitOfWork,
                                                 IStringLocalizer<LocalizationResources> localization) {
             _excelService = excelService;
             _lenderMatrixRepository = lenderMatrixRepository;
             _productRepository = productRepository;
             _lenderRepository = lenderRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _localization = localization;
         }
 
         public async Task<bool> Handle(CreateLenderMatrixCommand request, CancellationToken cancellationToken) {
 
-            var matrices = _mapper.Map<List<LenderMatrix>>(await _excelService.ReadMatrix(request.File));
+            var matrix = await _excelService.ReadMatrix(request.File, request.LenderId, request.ProductId);
 
-            foreach (var matrix in matrices) {
-                if (await _productRepository.ContainsAsync(matrix.ProductId) is false)
-                    throw new NoSuchEntityExistsException(string.Format(_localization.GetString("ProductTypeDoesntExist").Value,
-                                                                        matrix.ProductId));
+            /*if (await _productRepository.ContainsAsync(matrix.ProductId) is false)
+                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("ProductTypeDoesntExist").Value,
+                                                                    matrix.ProductId));
 
-                else if (await _lenderRepository.ContainsAsync(matrix.LenderId) is false)
-                    throw new NoSuchEntityExistsException(string.Format(_localization.GetString("LenderDoesntExist").Value,
-                                                                        matrix.LenderId));
+            else if (await _lenderRepository.ContainsAsync(matrix.LenderId) is false)
+                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("LenderDoesntExist").Value,
+                                                                    matrix.LenderId));
 
-                await _lenderMatrixRepository.UploadAsync(matrix);
-            }
-
+            await _lenderMatrixRepository.UploadAsync(matrix);
             await _unitOfWork.SaveChangesAsync();
-            return true;
+
+            return true;*/
+
+            throw new Exception();
         }
     }
 
@@ -70,7 +67,7 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
                 .WithMessage("IncorrectExcelFormat");
         }
 
-        private bool IsSupported(string fileName) {
+        private static bool IsSupported(string fileName) {
             var supported = new List<string> { ".xlsx", ".xlsm" };
 
             var fileExtension = Path.GetExtension(fileName);

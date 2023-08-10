@@ -258,6 +258,12 @@
   <data name="MissingPermission" xml:space="preserve">
     <value>You do not have the required permissions in order to access this resource.</value>
   </data>
+  <data name="NoEligibleLendersFound" xml:space="preserve">
+    <value>No eligible lenders where found.</value>
+  </data>
+  <data name="NoExcelRowExists" xml:space="preserve">
+    <value>There is no row that has the corresponding {0} lender ID and {1} product ID.</value>
+  </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>Your password must contain at least one lowercase letter.</value>
   </data>

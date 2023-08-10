@@ -7,5 +7,7 @@ namespace Application.Persistance {
         Task UpdateAsync(Guid id, ApplicationEntity entity);
         Task<List<ApplicationEntity>> GetApplications(Guid borrowerId);
         Task<ApplicationEntity> GetApplicationByBorrower(Guid borrowerId, Guid applicationId);
+        Task<string> GetCompanyTypeAsync(Guid id);
+        Task<ApplicationEntity> GetByIdWithProductAsync(Guid id);
     }
 }

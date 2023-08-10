@@ -6,5 +6,6 @@ namespace Application.Persistance {
         Task<Product> GetByNameAsync(string name);
         Task<bool> ContainsAsync(string name);
         Task<bool> ContainsAsync(Guid id);
+        Task<List<Guid>> GetIdsAsync();
     }
 }

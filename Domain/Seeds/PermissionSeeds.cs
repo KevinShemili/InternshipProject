@@ -16,5 +16,12 @@
         public const string CanAddApplication = "CanAddApplication";
         public const string CanUpdateApplication = "CanUpdateApplication";
         public const string CanDeleteApplication = "CanDeleteApplication";
+
+        public const string CanGenerateMatrix = "CanGenerateMatrix";
+        public const string CanUploadMatrix = "CanUploadMatrix";
+
+        public const string CanAddLoan = "CanAddLoan";
+        public const string CanDeleteLoan = "CanDeleteLoan";
+        public const string CanUpdateLoan = "CanUpdateLoan";
     }
 }

@@ -6,6 +6,6 @@ namespace Domain.Entities {
         public Guid LenderId { get; set; }
         public Guid ProductId { get; set; }
         public int Tenor { get; set; }
-        public int Spread { get; set; }
+        public decimal Spread { get; set; }
     }
 }

@@ -24,7 +24,7 @@
   <ItemGroup>
     <Folder Include="UseCases\Authentication\Queries\" />
     <Folder Include="UseCases\BorrowerJourney\Queries\" />
-    <Folder Include="UseCases\LenderMatrixCases\Queries\" />
+    <Folder Include="UseCases\LenderCases\Commands\" />
     <Folder Include="UseCases\LenderMatrixCases\Results\" />
     <Folder Include="UseCases\LoanJourney\Commands\" />
     <Folder Include="UseCases\LoanJourney\Results\" />

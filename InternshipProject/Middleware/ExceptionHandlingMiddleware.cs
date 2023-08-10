@@ -78,6 +78,10 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
+            catch (FormatException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
@@ -242,6 +246,17 @@ namespace InternshipProject.Middleware {
                         title = "Unprocessable Entity",
                         status = (int)HttpStatusCode.UnprocessableEntity,
                         detail = wrongExcelFormatException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case FormatException formatException:
+                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/422",
+                        title = "Unprocessable Entity",
+                        status = (int)HttpStatusCode.UnprocessableEntity,
+                        detail = formatException.Message
                     });
                     return context.Response.WriteAsync(result);
 

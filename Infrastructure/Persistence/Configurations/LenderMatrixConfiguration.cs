@@ -23,6 +23,7 @@ namespace Infrastructure.Persistence.Configurations {
 
             builder
                 .Property(x => x.Spread)
+                .HasPrecision(3, 2) // 0.02 -> 2%
                 .IsRequired();
         }
     }

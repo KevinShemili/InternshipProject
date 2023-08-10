@@ -1,5 +1,5 @@
-﻿using Application.Interfaces.Excel;
-using Application.UseCases.LenderMatrixCases.Commands;
+﻿using Application.UseCases.LenderMatrixCases.Commands;
+using Application.UseCases.LenderMatrixCases.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,28 +10,31 @@ namespace InternshipProject.Controllers {
     public class LenderMatrixController : ControllerBase {
 
         private readonly IMediator _mediator;
-        private readonly IExcelService _excelService;
 
-        public LenderMatrixController(IMediator mediator, IExcelService excelService) {
+        public LenderMatrixController(IMediator mediator) {
             _mediator = mediator;
-            _excelService = excelService;
         }
 
         [SwaggerOperation(Summary = "Create lender matrix")]
         [HttpPost("lender-matrix")]
-        public async Task<IActionResult> CreateLenderMatrix(IFormFile file) {
+        public async Task<IActionResult> CreateLenderMatrix([FromQuery] Guid lenderId, [FromQuery] Guid productId, IFormFile file) {
             var flag = await _mediator.Send(new CreateLenderMatrixCommand {
+                LenderId = lenderId,
+                ProductId = productId,
                 File = file
             });
-
 
             return Ok(flag);
         }
 
         [SwaggerOperation(Summary = "Generate lender matrix template")]
         [HttpGet("lender-matrix/generate")]
-        public IActionResult GenerateLenderMatrix() {
-            return _excelService.GenerateMatrixTemplate();
+        public async Task<IActionResult> GenerateLenderMatrix([FromQuery] Guid lenderId, [FromQuery] Guid productId) {
+
+            return await _mediator.Send(new GenerateLenderMatrixQuery {
+                LenderId = lenderId,
+                ProductId = productId
+            });
         }
     }
 }

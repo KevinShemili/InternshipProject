@@ -18,5 +18,18 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
             return true;
         }
+
+        public async Task<List<Guid>> GetIdsAsync() {
+            var ids = await _databaseContext.Lenders.Select(x => x.Id).ToListAsync();
+            return ids;
+        }
+
+        public async Task<List<Lender>> GetLendersAsync(List<Guid> ids) {
+            var lenders = await _databaseContext.Lenders
+                .Where(lender => ids.Contains(lender.Id))
+                .ToListAsync();
+
+            return lenders;
+        }
     }
 }

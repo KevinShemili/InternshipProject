@@ -34,6 +34,26 @@ namespace Infrastructure.Persistence.Repositories {
             return applications;
         }
 
+        public async Task<ApplicationEntity> GetByIdWithProductAsync(Guid id) {
+            var application = await _databaseContext.Applications
+                .Include(x => x.Product)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return application;
+        }
+
+        public async Task<string> GetCompanyTypeAsync(Guid id) {
+            var application = await _databaseContext.Applications
+                .Include(x => x.Borrower)
+                .ThenInclude(x => x.CompanyType)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            var companyType = application.Borrower.CompanyType.Type;
+            return companyType;
+        }
+
         public async Task UpdateAsync(Guid id, ApplicationEntity entity) {
             var application = await base.GetByIdAsync(id);
             application.Product = entity.Product;

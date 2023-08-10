@@ -1,6 +1,8 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces.Excel;
 using ClosedXML.Excel;
+using Domain.Entities;
+using Domain.Exceptions;
 using InternshipProject.Localizations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +17,15 @@ namespace Infrastructure.Services.Excel {
             _localization = localization;
         }
 
-        public FileStreamResult GenerateMatrixTemplate() {
+        public FileStreamResult GenerateMatrixTemplate(Lender lender, Product product) {
 
             using (var workBook = new XLWorkbook()) {
 
                 // declare headers
                 var workSheet = workBook.AddWorksheet("Matrix");
+
+                workSheet.Protect();
+
                 workSheet.Cell(1, 1).Value = "LenderId";
                 workSheet.Cell(1, 2).Value = "LenderName";
                 workSheet.Cell(1, 3).Value = "ProductId";
@@ -28,9 +33,24 @@ namespace Infrastructure.Services.Excel {
                 workSheet.Cell(1, 5).Value = "Tenor";
                 workSheet.Cell(1, 6).Value = "Spread";
 
+                workSheet.Row(1).Style.Fill.SetBackgroundColor(XLColor.BabyBlue);
+
+                for (int i = 2, tenor = 11; i <= 56; i++, tenor++) {
+                    workSheet.Cell(i, 1).Value = lender.Id.ToString();
+                    workSheet.Cell(i, 2).Value = lender.Name;
+                    workSheet.Cell(i, 3).Value = product.Id.ToString();
+                    workSheet.Cell(i, 4).Value = product.Name;
+                    workSheet.Cell(i, 5).Value = tenor;
+                    workSheet.Cell(i, 6).Value = "";
+                }
+
                 for (int i = 1; i <= 6; i++) {
                     workSheet.Column(i).AdjustToContents();
                 }
+
+                workSheet.Column(6).Style.Protection.SetLocked(false);
+
+                workSheet.Cell(2, 6).Style.Fill.SetBackgroundColor(XLColor.Red);
 
                 // download file
                 var stream = new MemoryStream();
@@ -43,11 +63,10 @@ namespace Infrastructure.Services.Excel {
             }
         }
 
-        public async Task<List<MatrixInfo>> ReadMatrix(IFormFile file) {
+        public async Task<List<LenderMatrix>> ReadMatrix(IFormFile file, Guid lenderId, Guid productId) {
 
-            var list = new List<MatrixInfo>();
             using var stream = new MemoryStream();
-
+            var list = new List<LenderMatrix>();
             await file.CopyToAsync(stream);
             stream.Position = 0;
 
@@ -56,29 +75,65 @@ namespace Infrastructure.Services.Excel {
 
             var rows = workSheet.RangeUsed().RowsUsed().Skip(1);
 
+            if (rows.Count() < 55)
+                throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
+
+            if (workSheet.Columns().Count() < 6)
+                throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
+
             foreach (var row in rows) {
-                var lenderIdCell = row.Cell(1);
-                var productIdCell = row.Cell(3);
-                var tenorCell = row.Cell(5);
-                var spreadCell = row.Cell(6);
 
-                if (IsCellNullOrEmpty(lenderIdCell) || IsCellNullOrEmpty(productIdCell) || IsCellNullOrEmpty(tenorCell) || IsCellNullOrEmpty(spreadCell)) {
+                var lenderIdCell = row.Cell(1).Value;
+                var productIdCell = row.Cell(3).Value;
+                var tenorCell = row.Cell(5).Value;
+                var spreadCell = row.Cell(6).Value;
+
+                if (IsCellNullOrEmpty(lenderIdCell) || IsCellNullOrEmpty(productIdCell) || IsCellNullOrEmpty(tenorCell) || IsCellNullOrEmpty(spreadCell))
                     throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
-                }
 
-                list.Add(new MatrixInfo {
-                    LenderId = Guid.Parse(lenderIdCell.Value.ToString()),
-                    ProductId = Guid.Parse(productIdCell.Value.ToString()),
-                    Tenor = int.Parse(tenorCell.Value.ToString()),
-                    Spread = int.Parse(spreadCell.Value.ToString())
-                });
+                if (Guid.Parse(lenderIdCell.ToString()) == lenderId && Guid.Parse(productIdCell.ToString()) == productId) {
+                    decimal spread;
+                    int tenor;
+
+                    try {
+                        spread = decimal.Parse(spreadCell.ToString());
+                    }
+                    catch (FormatException ex) {
+                        throw new CastException("");
+                    }
+
+                    if (spread < 0.03M || spread > 0.08M)
+                        throw new WrongExcelFormatException("Spread should be between 3% - 8%");
+
+                    try {
+                        tenor = int.Parse(tenorCell.ToString());
+                    }
+                    catch (FormatException ex) {
+                        throw new CastException("");
+                    }
+
+                    if (tenor < 11 || tenor > 65)
+                        throw new WrongExcelFormatException("Tenor should be between 11 - 65");
+
+                    list.Add(new LenderMatrix {
+                        Id = Guid.NewGuid(),
+                        LenderId = lenderId,
+                        ProductId = productId,
+                        Spread = spread,
+                        Tenor = tenor
+                    });
+                }
             }
+
+            if (list.Any() is false)
+                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("NoExcelRowExists").Value,
+                                                                          lenderId, productId));
 
             return list;
         }
 
-        private static bool IsCellNullOrEmpty(IXLCell cell) {
-            return cell.IsEmpty() || cell.Value.ToString() == null || string.IsNullOrWhiteSpace(cell.Value.ToString());
+        private static bool IsCellNullOrEmpty(XLCellValue cell) {
+            return cell.IsBlank || cell.ToString() == null || string.IsNullOrWhiteSpace(cell.ToString());
         }
     }
 }
