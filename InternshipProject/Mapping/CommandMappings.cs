@@ -3,6 +3,7 @@ using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BorrowerJourney.Commands;
 using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.GenerateRefreshToken.Commands;
+using Application.UseCases.LoanJourney.Commands;
 using Application.UseCases.Permissions.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.Roles.Commands;
@@ -10,6 +11,7 @@ using AutoMapper;
 using InternshipProject.Objects.Requests.ApplicationJourneyRequests;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
+using InternshipProject.Objects.Requests.LoanRequests;
 using InternshipProject.Objects.Requests.RolePermissionRequests;
 
 namespace InternshipProject.Mapping {
@@ -44,6 +46,8 @@ namespace InternshipProject.Mapping {
             CreateMap<UpdateApplicationRequest, UpdateApplicationCommand>().ReverseMap();
 
             CreateMap<CreateApplicationRequest, CreateApplicationCommand>().ReverseMap();
+
+            CreateMap<CreateLoanRequest, CreateLoanCommand>().ReverseMap();
         }
     }
 }

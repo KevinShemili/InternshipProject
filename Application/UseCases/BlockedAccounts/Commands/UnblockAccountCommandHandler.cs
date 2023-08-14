@@ -25,7 +25,7 @@ namespace Application.UseCases.UnblockAccount.Command {
         }
 
         public async Task<bool> Handle(UnblockAccountCommand request, CancellationToken cancellationToken) {
-            if (await _userRepository.ContainsIdAsync(request.Id) is false)
+            if (await _userRepository.ContainsAsync(request.Id) is false)
                 throw new NoSuchEntityExistsException(_localizer.GetString("UsernameDoesntExist").Value);
 
             await _userRepository.ResetTriesAsync(request.Id);

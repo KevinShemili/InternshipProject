@@ -63,6 +63,56 @@ namespace Infrastructure.Services.Excel {
             }
         }
 
+        public FileStreamResult GenerateMatrixTemplate(List<LenderMatrix> matrices, string lenderName, string productName) {
+
+            using (var workBook = new XLWorkbook()) {
+
+                // declare headers
+                var workSheet = workBook.AddWorksheet("Matrix");
+
+                workSheet.Protect();
+
+                workSheet.Cell(1, 1).Value = "LenderId";
+                workSheet.Cell(1, 2).Value = "LenderName";
+                workSheet.Cell(1, 3).Value = "ProductId";
+                workSheet.Cell(1, 4).Value = "ProductName";
+                workSheet.Cell(1, 5).Value = "Tenor";
+                workSheet.Cell(1, 6).Value = "Spread";
+
+                workSheet.Row(1).Style.Fill.SetBackgroundColor(XLColor.BabyBlue);
+
+                var i = 2;
+
+                matrices = matrices.OrderBy(x => x.Tenor).ToList();
+
+                foreach (var matrix in matrices) {
+                    workSheet.Cell(i, 1).Value = matrix.LenderId.ToString();
+                    workSheet.Cell(i, 2).Value = lenderName;
+                    workSheet.Cell(i, 3).Value = matrix.ProductId.ToString();
+                    workSheet.Cell(i, 4).Value = productName;
+                    workSheet.Cell(i, 5).Value = matrix.Tenor;
+                    workSheet.Cell(i, 6).Value = matrix.Spread;
+                    i++;
+                }
+
+                for (i = 1; i <= 6; i++)
+                    workSheet.Column(i).AdjustToContents();
+
+                workSheet.Column(6).Style.Protection.SetLocked(false);
+
+                workSheet.Cell(2, 6).Style.Fill.SetBackgroundColor(XLColor.Red);
+
+                // download file
+                var stream = new MemoryStream();
+                workBook.SaveAs(stream);
+                stream.Position = 0;
+
+                return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                    FileDownloadName = "Lender Matrix.xlsx"
+                };
+            }
+        }
+
         public async Task<List<LenderMatrix>> ReadMatrix(IFormFile file, Guid lenderId, Guid productId) {
 
             using var stream = new MemoryStream();
@@ -103,7 +153,7 @@ namespace Infrastructure.Services.Excel {
                     }
 
                     if (spread < 0.03M || spread > 0.08M)
-                        throw new WrongExcelFormatException("Spread should be between 3% - 8%");
+                        throw new WrongExcelFormatException(_localization.GetString("SpreadConstraint").Value);
 
                     try {
                         tenor = int.Parse(tenorCell.ToString());
@@ -113,7 +163,7 @@ namespace Infrastructure.Services.Excel {
                     }
 
                     if (tenor < 11 || tenor > 65)
-                        throw new WrongExcelFormatException("Tenor should be between 11 - 65");
+                        throw new WrongExcelFormatException(_localization.GetString("TenorConstraint").Value);
 
                     list.Add(new LenderMatrix {
                         Id = Guid.NewGuid(),

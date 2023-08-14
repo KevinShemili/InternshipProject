@@ -9,43 +9,71 @@ namespace Infrastructure.Persistence.Repositories {
         public LenderMatrixRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
+        public async Task DeleteAsync(Guid productId, Guid lenderId) {
+            var matrices = await _databaseContext.LenderMatrices
+            .Where(x => x.LenderId == lenderId
+                        && x.ProductId == productId
+                        && x.IsDeleted != true) // to not mark as deleted dtwice
+            .ToListAsync();
+
+            matrices.ForEach(x => x.IsDeleted = true);
+        }
+
         public async Task<bool> ContainsAsync(Guid lenderId, Guid productId) {
             var matrix = await _databaseContext.LenderMatrices
-            .Where(e => e.LenderId == lenderId && e.ProductId == productId)
+            .Where(x => x.LenderId == lenderId
+                        && x.ProductId == productId && x.IsDeleted == false)
             .FirstOrDefaultAsync();
 
             return matrix != null;
         }
 
-        public async Task<List<Guid>> GetLenderIdsAsync(Guid productId) {
-            var lenderIds = await _databaseContext.LenderMatrices
-                .Where(x => x.ProductId == productId)
-                .Select(x => x.LenderId)
-                .ToListAsync();
-
-            return lenderIds;
-        }
-
-        public async Task<int> GetTenorAsync(Guid lenderId, Guid productId) {
+        public async Task<bool> ContainsAsync(Guid lenderId, Guid productId, int tenor) {
             var matrix = await _databaseContext.LenderMatrices
-            .Where(e => e.LenderId == lenderId && e.ProductId == productId)
+            .Where(x => x.LenderId == lenderId
+                        && x.ProductId == productId
+                        && x.Tenor == tenor
+                        && x.IsDeleted == false)
             .FirstOrDefaultAsync();
 
-            return matrix.Tenor;
+            return matrix != null;
         }
 
-        public async Task UploadAsync(LenderMatrix entity) {
-            var existingEntity = await _databaseContext.LenderMatrices
-                .Where(e => e.LenderId == entity.LenderId && e.ProductId == entity.ProductId) // check if row already exists & just update Tenor & Spread
-                .FirstOrDefaultAsync();
+        public async Task<LenderMatrix> GetByIdAsync(Guid lenderId, Guid productId, int tenor) {
+            var matrix = await _databaseContext.LenderMatrices
+            .Where(x => x.LenderId == lenderId
+                        && x.ProductId == productId
+                        && x.Tenor == tenor
+                        && x.IsDeleted == false)
+            .FirstOrDefaultAsync();
 
-            // else create a new entry
-            if (existingEntity == null)
-                await base.CreateAsync(entity);
-            else {
-                existingEntity.Tenor = entity.Tenor;
-                existingEntity.Spread = entity.Spread;
-            }
+            return matrix;
+        }
+
+        public async Task<List<LenderMatrix>> GetMatricesAsync(Guid lenderId, Guid productId) {
+            var matrices = await _databaseContext.LenderMatrices
+                .Where(x => x.LenderId == lenderId
+                            && x.ProductId == productId
+                            && x.IsDeleted == false)
+                .ToListAsync();
+
+            return matrices;
+        }
+
+        public async Task UpdateAsync(LenderMatrix entity) {
+            var matrix = await _databaseContext.LenderMatrices
+            .Where(x => x.LenderId == entity.LenderId
+                        && x.ProductId == entity.ProductId
+                        && x.Tenor == entity.Tenor
+                        && x.IsDeleted == false)
+            .FirstOrDefaultAsync();
+
+            matrix.Spread = entity.Spread;
+        }
+
+        public async Task CreateAsync(List<LenderMatrix> matrices) {
+            foreach (var matrix in matrices)
+                await base.CreateAsync(matrix);
         }
     }
 }

@@ -31,6 +31,9 @@ namespace Application.UseCases.ApplicationJourney.Queries {
             if (await _borrowerRepository.ContainsAsync(request.Id) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("BorrowerDoesntExist").Value);
 
+            if (await _borrowerRepository.HasApplicationsAsync(request.Id) is false)
+                return new List<ApplicationQueryResult>();
+
             var applications = await _applicationRepository.GetApplications(request.Id);
 
             return _mapper.Map<List<ApplicationQueryResult>>(applications);

@@ -42,7 +42,7 @@ namespace Application.UseCases.GenerateRefreshToken.Commands {
 
             var userId = Guid.Parse(tokenS.Claims.First(x => x.Type == "sub").Value);
 
-            if (await _userRepository.ContainsIdAsync(userId) is false)
+            if (await _userRepository.ContainsAsync(userId) is false)
                 throw new NoSuchEntityExistsException(_localizer.GetString("InvalidToken").Value);
 
             var user = await _userRepository.GetByIdAsync(userId);

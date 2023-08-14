@@ -2,10 +2,21 @@
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories {
     public class CompanyProfileRepository : BaseRepository<CompanyProfile>, ICompanyProfileRepository {
         public CompanyProfileRepository(DatabaseContext databaseContext) : base(databaseContext) {
+        }
+
+        public async Task<CompanyProfile> GetByBorrower(Guid id) {
+            var borrower = await _databaseContext.Borrowers
+                .Include(x => x.CompanyProfile)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            var companyProfile = borrower.CompanyProfile;
+            return companyProfile;
         }
 
         public async Task UpdateAsync(Guid id, CompanyProfile companyProfile) {

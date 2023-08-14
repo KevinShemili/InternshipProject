@@ -10,12 +10,11 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.LenderCases.Queries {
 
-    public class GetEligibleLendersQuery : IRequest<List<EligibleLenderQueryResult>> {
+    public class GetEligibleLendersQuery : IRequest<List<LenderQueryResult>> {
         public Guid Id { get; set; }
     }
 
-
-    public class GetEligibleLendersQueryHandler : IRequestHandler<GetEligibleLendersQuery, List<EligibleLenderQueryResult>> {
+    public class GetEligibleLendersQueryHandler : IRequestHandler<GetEligibleLendersQuery, List<LenderQueryResult>> {
 
         private readonly ILenderRepository _lenderRepository;
         private readonly IApplicationRepository _applicationRepository;
@@ -33,7 +32,7 @@ namespace Application.UseCases.LenderCases.Queries {
             _mapper = mapper;
         }
 
-        public async Task<List<EligibleLenderQueryResult>> Handle(GetEligibleLendersQuery request, CancellationToken cancellationToken) {
+        public async Task<List<LenderQueryResult>> Handle(GetEligibleLendersQuery request, CancellationToken cancellationToken) {
 
             if (await _applicationRepository.ContainsAsync(request.Id) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
@@ -59,8 +58,7 @@ namespace Application.UseCases.LenderCases.Queries {
             if (eligibles.Any() is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("NoEligibleLendersFound").Value);
 
-
-            return _mapper.Map<List<EligibleLenderQueryResult>>(eligibles);
+            return _mapper.Map<List<LenderQueryResult>>(eligibles);
         }
 
         private static bool IsTenorAccepted(Lender lender, int tenor) {

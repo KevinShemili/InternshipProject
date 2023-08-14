@@ -34,7 +34,7 @@ namespace Infrastructure.Persistence.Repositories {
             return applications;
         }
 
-        public async Task<ApplicationEntity> GetByIdWithProductAsync(Guid id) {
+        public async Task<ApplicationEntity> GetWithProductAsync(Guid id) {
             var application = await _databaseContext.Applications
                 .Include(x => x.Product)
                 .Where(x => x.Id == id)
@@ -61,6 +61,15 @@ namespace Infrastructure.Persistence.Repositories {
             application.RequestedTenor = entity.RequestedTenor;
             application.FinancePurposeDefinition = entity.FinancePurposeDefinition;
             application.Name = entity.Name;
+        }
+
+        public async Task<bool> IsApprovedAsLoanAsync(Guid id) {
+            var application = await _databaseContext.Applications
+                .Include(x => x.Loan)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return application.Loan != null;
         }
     }
 }

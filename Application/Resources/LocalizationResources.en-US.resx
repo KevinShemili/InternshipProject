@@ -255,6 +255,12 @@
   <data name="LoginExpired" xml:space="preserve">
     <value>Your session has expired. Please login again.</value>
   </data>
+  <data name="MatrixAlreadyExists" xml:space="preserve">
+    <value>The lender product and tenor combination already exist for the provided lender and product. Please perform an update instead.</value>
+  </data>
+  <data name="MatrixDoesntExist" xml:space="preserve">
+    <value>The requested lender - product does not exist. Please create one before applying an update.</value>
+  </data>
   <data name="MissingPermission" xml:space="preserve">
     <value>You do not have the required permissions in order to access this resource.</value>
   </data>
@@ -262,7 +268,7 @@
     <value>No eligible lenders where found.</value>
   </data>
   <data name="NoExcelRowExists" xml:space="preserve">
-    <value>There is no row that has the corresponding {0} lender ID and {1} product ID.</value>
+    <value>The lender - product combination has not been created yet. Please generate an empty template.</value>
   </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>Your password must contain at least one lowercase letter.</value>
@@ -305,6 +311,12 @@
   </data>
   <data name="SmallerRequestAmount" xml:space="preserve">
     <value>The requested application amount is below the minimal financing amount for the chosen product type.</value>
+  </data>
+  <data name="SpreadConstraint" xml:space="preserve">
+    <value>Spread should be between 3% - 8%.</value>
+  </data>
+  <data name="TenorConstraint" xml:space="preserve">
+    <value>Tenor should be between 11 - 65.</value>
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Link has expired.</value>

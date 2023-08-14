@@ -10,8 +10,14 @@ namespace Infrastructure.Persistence.Repositories.Common {
             _databaseContext = databaseContext;
         }
 
-        public async Task SaveChangesAsync() {
-            await _databaseContext.SaveChangesAsync();
+        public async Task<bool> SaveChangesAsync() {
+            try {
+                await _databaseContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception) {
+                return false;
+            }
         }
     }
 }

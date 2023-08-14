@@ -23,12 +23,11 @@
 
   <ItemGroup>
     <Folder Include="UseCases\Authentication\Queries\" />
-    <Folder Include="UseCases\BorrowerJourney\Queries\" />
+    <Folder Include="UseCases\CompanyTypeCases\Commands\" />
     <Folder Include="UseCases\LenderCases\Commands\" />
     <Folder Include="UseCases\LenderMatrixCases\Results\" />
-    <Folder Include="UseCases\LoanJourney\Commands\" />
-    <Folder Include="UseCases\LoanJourney\Results\" />
-    <Folder Include="UseCases\LoanJourney\Queries\" />
+    <Folder Include="UseCases\ProductCases\Commands\" />
+    <Folder Include="UseCases\UserCases\Commands\" />
   </ItemGroup>
 
 </Project>

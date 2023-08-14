@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
+using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -41,27 +42,34 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
 
         public async Task<bool> Handle(CreateLenderMatrixCommand request, CancellationToken cancellationToken) {
 
-            var matrix = await _excelService.ReadMatrix(request.File, request.LenderId, request.ProductId);
+            if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
+                throw new NoSuchEntityExistsException(_localization.GetString("LenderDoesntExist").Value);
 
-            /*if (await _productRepository.ContainsAsync(matrix.ProductId) is false)
-                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("ProductTypeDoesntExist").Value,
-                                                                    matrix.ProductId));
+            if (await _productRepository.ContainsAsync(request.ProductId) is false)
+                throw new NoSuchEntityExistsException(_localization.GetString("ProductTypeDoesntExist").Value);
 
-            else if (await _lenderRepository.ContainsAsync(matrix.LenderId) is false)
-                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("LenderDoesntExist").Value,
-                                                                    matrix.LenderId));
+            if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is true)
+                throw new ForbiddenException(_localization.GetString("MatrixAlreadyExists").Value);
 
-            await _lenderMatrixRepository.UploadAsync(matrix);
-            await _unitOfWork.SaveChangesAsync();
+            var matrices = await _excelService.ReadMatrix(request.File, request.LenderId, request.ProductId);
+            await _lenderMatrixRepository.CreateAsync(matrices);
 
-            return true;*/
+            var flag = await _unitOfWork.SaveChangesAsync();
+            if (flag is false)
+                throw new Exception();
 
-            throw new Exception();
+            return true;
         }
     }
 
     public class CreateLenderMatrixCommandValidator : AbstractValidator<CreateLenderMatrixCommand> {
         public CreateLenderMatrixCommandValidator() {
+            RuleFor(x => x.LenderId)
+                .NotEmpty().WithMessage("EmptyId");
+
+            RuleFor(x => x.ProductId)
+                .NotEmpty().WithMessage("EmptyId");
+
             RuleFor(x => x.File.FileName)
                 .Must(y => IsSupported(y))
                 .WithMessage("IncorrectExcelFormat");

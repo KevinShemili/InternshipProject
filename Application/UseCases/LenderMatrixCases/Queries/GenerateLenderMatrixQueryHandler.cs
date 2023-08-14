@@ -12,6 +12,7 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
     public class GenerateLenderMatrixQuery : IRequest<FileStreamResult> {
         public Guid ProductId { get; set; }
         public Guid LenderId { get; set; }
+        public bool IsFilled { get; set; }
     }
 
     public class GenerateLenderMatrixQueryHandler : IRequestHandler<GenerateLenderMatrixQuery, FileStreamResult> {
@@ -20,12 +21,14 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
         private readonly ILenderRepository _lenderRepository;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<LocalizationResources> _localization;
+        private readonly ILenderMatrixRepository _lenderMatrixRepository;
 
-        public GenerateLenderMatrixQueryHandler(ILenderRepository lenderRepository, IProductRepository productRepository, IExcelService excelService, IStringLocalizer<LocalizationResources> localization) {
+        public GenerateLenderMatrixQueryHandler(ILenderRepository lenderRepository, IProductRepository productRepository, IExcelService excelService, IStringLocalizer<LocalizationResources> localization, ILenderMatrixRepository lenderMatrixRepository) {
             _lenderRepository = lenderRepository;
             _productRepository = productRepository;
             _excelService = excelService;
             _localization = localization;
+            _lenderMatrixRepository = lenderMatrixRepository;
         }
 
         public async Task<FileStreamResult> Handle(GenerateLenderMatrixQuery request, CancellationToken cancellationToken) {
@@ -41,7 +44,18 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
             var product = await _productRepository.GetByIdAsync(request.ProductId);
             var lender = await _lenderRepository.GetByIdAsync(request.LenderId);
 
-            return _excelService.GenerateMatrixTemplate(lender, product);
+            if (request.IsFilled is false)
+                return _excelService.GenerateMatrixTemplate(lender, product);
+            else {
+                if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is false)
+                    throw new NoSuchEntityExistsException(_localization.GetString("NoExcelRowExists").Value);
+
+                var matrices = await _lenderMatrixRepository.GetMatricesAsync(request.LenderId, request.ProductId);
+                var lenderName = lender.Name;
+                var productName = product.Name;
+
+                return _excelService.GenerateMatrixTemplate(matrices, lenderName, productName);
+            }
         }
     }
 

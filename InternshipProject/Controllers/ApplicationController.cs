@@ -22,7 +22,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Create new application")]
-        [Authorize(Policy = PermissionSeeds.CanAddApplication)]
+        //[Authorize(Policy = PermissionSeeds.CanAddApplication)]
         [HttpPost("borrowers/{id}/applications")]
         public async Task<IActionResult> CreateApplication([FromRoute] Guid id, [FromBody] CreateApplicationRequest request) {
             var command = _mapper.Map<CreateApplicationCommand>(request);

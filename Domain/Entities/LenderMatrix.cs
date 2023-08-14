@@ -7,5 +7,6 @@ namespace Domain.Entities {
         public Guid ProductId { get; set; }
         public int Tenor { get; set; }
         public decimal Spread { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

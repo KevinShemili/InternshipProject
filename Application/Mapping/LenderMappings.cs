@@ -5,7 +5,8 @@ using Domain.Entities;
 namespace Application.Mapping {
     public class LenderMappings : Profile {
         public LenderMappings() {
-            CreateMap<EligibleLenderQueryResult, Lender>().ReverseMap();
+            CreateMap<LenderQueryResult, Lender>().ReverseMap();
+
         }
     }
 }

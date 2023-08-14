@@ -1,5 +1,6 @@
 ﻿using Application.UseCases.Authentication.Commands;
 using Application.UseCases.BlockedAccounts.Results;
+using Application.UseCases.UserCases.Results;
 using AutoMapper;
 using Domain.Entities;
 
@@ -19,6 +20,10 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
                 .ForMember(dest => dest.LoginTries, opt => opt.Ignore())
                 .ForMember(dest => dest.IsBlocked, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<User, UserResult>()
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Prefix + " " + src.PhoneNumber))
                 .ReverseMap();
         }
     }

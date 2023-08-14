@@ -8,7 +8,7 @@ namespace Application.Persistance {
         Task<HashSet<string>> GetPermissionsAsync(Guid userId);
         Task<HashSet<Role>> GetRolesAsync(Guid userId);
         Task<bool> ContainsUsernameAsync(string username);
-        Task<bool> ContainsIdAsync(Guid id);
+        Task<bool> ContainsAsync(Guid id);
         Task<bool> ContainsEmailAsync(string email);
         Task ActivateAccountAsync(string email);
         Task<bool> IsAccountActivatedAsync(string email);
@@ -23,5 +23,6 @@ namespace Application.Persistance {
         Task UnblockAccountAsync(Guid id);
         Task<IEnumerable<User>> GetBlockedAccountsAsync();
         Task<bool> AddBorrowerAsync(Guid id, Borrower borrower);
+        Task<bool> HasBorrowersAsync(Guid id);
     }
 }

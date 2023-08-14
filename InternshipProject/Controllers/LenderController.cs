@@ -22,8 +22,26 @@ namespace InternshipProject.Controllers {
         [SwaggerOperation(Summary = "Get eligible lenders")]
         [AllowAnonymous]
         [HttpGet("applications/{id}/eligible-lenders")]
-        public async Task<IActionResult> CreateApplication([FromRoute] Guid id) {
+        public async Task<IActionResult> GetEligibleLenders([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetEligibleLendersQuery {
+                Id = id
+            });
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get all lenders")]
+        [AllowAnonymous]
+        [HttpGet("lenders")]
+        public async Task<IActionResult> GetAllLenders() {
+            var result = await _mediator.Send(new GetAllLendersQuery { });
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get lender by id")]
+        [AllowAnonymous]
+        [HttpGet("lenders/{id}")]
+        public async Task<IActionResult> GetLenderById([FromRoute] Guid id) {
+            var result = await _mediator.Send(new GetLendersQuery {
                 Id = id
             });
             return Ok(result);

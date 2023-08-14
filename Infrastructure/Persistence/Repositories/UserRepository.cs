@@ -147,7 +147,7 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<bool> ContainsIdAsync(Guid id) {
+        public async Task<bool> ContainsAsync(Guid id) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
@@ -219,6 +219,19 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
 
             user.Borrowers.Add(borrower);
+            return true;
+        }
+
+        public async Task<bool> HasBorrowersAsync(Guid id) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Borrowers)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            var borrowers = user.Borrowers;
+            if (borrowers is null || borrowers.Any() is false)
+                return false;
+
             return true;
         }
     }

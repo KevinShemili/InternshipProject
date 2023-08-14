@@ -35,6 +35,29 @@ namespace Infrastructure.Persistence.Repositories {
             return entity.CompanyProfile;
         }
 
+        public async Task<IEnumerable<Borrower>> GetUserBorrowers(Guid userId) {
+            var user = await _databaseContext.Users
+                .Include(x => x.Borrowers)
+                .Where(x => x.Id == userId)
+                .FirstOrDefaultAsync();
+
+            var borrowers = user.Borrowers;
+            return borrowers;
+        }
+
+        public async Task<bool> HasApplicationsAsync(Guid id) {
+            var borrower = await _databaseContext.Borrowers
+                .Include(x => x.Applications)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            var applications = borrower.Applications;
+            if (applications is null || applications.Any() is false)
+                return false;
+
+            return true;
+        }
+
         public async Task<bool> IsFiscalCodeUniqueAsync(Guid id, string fiscalCode) {
             var borrowers = await _databaseContext.Borrowers
                 .Where(x => x.UserId == id)

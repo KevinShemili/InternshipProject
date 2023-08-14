@@ -255,6 +255,12 @@
   <data name="LoginExpired" xml:space="preserve">
     <value>La tua sessione è scaduta. Per favore esegui l'accesso di nuovo.</value>
   </data>
+  <data name="MatrixAlreadyExists" xml:space="preserve">
+    <value>La combinazione di prodotto del prestatore e durata esiste già per il prestatore e il prodotto forniti. Si prega invece di eseguire un aggiornamento.</value>
+  </data>
+  <data name="MatrixDoesntExist" xml:space="preserve">
+    <value>Il prestatore richiesto - il prodotto non esiste. Creane uno prima di applicare un aggiornamento.</value>
+  </data>
   <data name="MissingPermission" xml:space="preserve">
     <value>Lei non dispone delle autorizzazioni necessarie per accedere a questa risorsa.</value>
   </data>
@@ -262,7 +268,7 @@
     <value>Nessun prestatore idoneo è stato trovato.</value>
   </data>
   <data name="NoExcelRowExists" xml:space="preserve">
-    <value>Non esiste alcuna riga con l'ID prestatore {0} corrispondente e l'ID prodotto {1}.</value>
+    <value>La combinazione prestatore - prodotto non è stata ancora creata. Si prega di generare un modello vuoto.</value>
   </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>La tua password deve contenere almeno una lettera minuscola.</value>
@@ -305,6 +311,12 @@
   </data>
   <data name="SmallerRequestAmount" xml:space="preserve">
     <value>L'importo della domanda richiesto è inferiore all'importo minimo del finanziamento per il tipo di prodotto scelto.</value>
+  </data>
+  <data name="SpreadConstraint" xml:space="preserve">
+    <value>Lo spread dovrebbe essere compreso tra il 3% e l'8%.</value>
+  </data>
+  <data name="TenorConstraint" xml:space="preserve">
+    <value>Il tenore dovrebbe essere compreso tra 11 e 65.</value>
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Il link e scaduto.</value>

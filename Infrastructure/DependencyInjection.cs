@@ -49,6 +49,7 @@ namespace Infrastructure {
             services.AddScoped<IExcelService, ExcelService>();
             services.AddScoped<ILenderMatrixRepository, LenderMatrixRepository>();
             services.AddScoped<ILenderRepository, LenderRepository>();
+            services.AddScoped<ILoanRepository, LoanRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

@@ -20,7 +20,7 @@ namespace InternshipProject.Controllers {
             _mediator = mediator;
         }
 
-        [Authorize(Policy = PermissionSeeds.CanAddBorrower)]
+        //[Authorize(Policy = PermissionSeeds.CanAddBorrower)]
         [HttpPost("borrowers")]
         public async Task<IActionResult> CreateBorrower([FromHeader] string AccessToken, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<CreateBorrowerCommmand>(borrowerRequest);
@@ -58,6 +58,28 @@ namespace InternshipProject.Controllers {
             });
 
             return Ok();
+        }
+
+        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [HttpGet("users/{id}/borrowers")]
+        public async Task<IActionResult> GetBorrowersByUser([FromRoute] Guid id) {
+
+            var borrowers = await _mediator.Send(new GetUserBorrowersQuery {
+                UserId = id,
+            });
+
+            return Ok(borrowers);
+        }
+
+        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [HttpGet("borrowers/{id}/company-profile")]
+        public async Task<IActionResult> GetCompanyProfile([FromRoute] Guid id) {
+
+            var companyProfile = await _mediator.Send(new GetCompanyProfileQuery {
+                BorrowerId = id,
+            });
+
+            return Ok(companyProfile);
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using Application.UseCases.ApplicationJourney.Commands;
+﻿using Application.UseCases.LoanJourney.Commands;
+using Application.UseCases.LoanJourney.Queries;
 using AutoMapper;
-using InternshipProject.Objects.Requests.ApplicationJourneyRequests;
+using InternshipProject.Objects.Requests.LoanRequests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -19,12 +20,50 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Approve application as loan")]
-        [HttpPost("loans")]
-        public async Task<IActionResult> CreateLoan([FromRoute] Guid id, [FromBody] CreateApplicationRequest request) {
-            var command = _mapper.Map<CreateApplicationCommand>(request);
-            command.BorrowerId = id;
+        [HttpPost("applications/{id}/loans")]
+        public async Task<IActionResult> CreateLoan([FromRoute] Guid id, [FromBody] CreateLoanRequest request) {
+            var command = _mapper.Map<CreateLoanCommand>(request);
+            command.ApplicationId = id;
 
             var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get all loans")]
+        [HttpGet("loans")]
+        public async Task<IActionResult> GetAllLoans() {
+            var result = await _mediator.Send(new GetAllLoansQuery { });
+
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get loan by id")]
+        [HttpGet("loans/{id}")]
+        public async Task<IActionResult> GetLoanById(Guid id) {
+            var result = await _mediator.Send(new GetLoanQuery {
+                Id = id
+            });
+
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get all loans of a borrower")]
+        [HttpGet("borrowers/{id}/loans")]
+        public async Task<IActionResult> GetBorrowerLoans(Guid id) {
+            var result = await _mediator.Send(new GetBorrowerLoansQuery {
+                BorrowerId = id
+            });
+
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get a specific loan of a borrower")]
+        [HttpGet("borrowers/{borrowerId}/loans/{loanId}")]
+        public async Task<IActionResult> GetBorrowerLoan(Guid borrowerId, Guid loanId) {
+            var result = await _mediator.Send(new GetBorrowerLoanQuery {
+                LoanId = loanId,
+                BorrowerId = borrowerId
+            });
             return Ok(result);
         }
     }

@@ -8,6 +8,7 @@ namespace Application.Persistance {
         Task<List<ApplicationEntity>> GetApplications(Guid borrowerId);
         Task<ApplicationEntity> GetApplicationByBorrower(Guid borrowerId, Guid applicationId);
         Task<string> GetCompanyTypeAsync(Guid id);
-        Task<ApplicationEntity> GetByIdWithProductAsync(Guid id);
+        Task<ApplicationEntity> GetWithProductAsync(Guid id);
+        Task<bool> IsApprovedAsLoanAsync(Guid id);
     }
 }
