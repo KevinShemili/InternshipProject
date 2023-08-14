@@ -28,11 +28,6 @@ namespace Infrastructure.Persistence.Configurations {
                 .IsRequired();
 
             builder
-                .Property(x => x.Status)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            builder
                 .HasOne(x => x.Lender)
                 .WithMany(y => y.Loans)
                 .HasForeignKey(x => x.LenderId)
@@ -45,6 +40,12 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasForeignKey<Loan>(x => x.ApplicationId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasOne(x => x.LoanStatus)
+                .WithMany(x => x.Loans)
+                .HasForeignKey(x => x.LoanStatusId)
+                .IsRequired();
         }
     }
 }

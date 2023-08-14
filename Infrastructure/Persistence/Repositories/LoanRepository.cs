@@ -17,11 +17,21 @@ namespace Infrastructure.Persistence.Repositories {
             return loan != null;
         }
 
+        public async Task<Loan> GetByIdWithApplication(Guid id) {
+            var loan = await _databaseContext.Loans
+                .Include(x => x.Application)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return loan;
+        }
+
         public async Task<Loan?> GetLoanByBorrowerAsync(Guid borrowerId, Guid loanId) {
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
             var borrower = await _databaseContext.Borrowers
                 .Include(x => x.Applications)
                 .ThenInclude(x => x.Loan)
+                .ThenInclude(x => x.LoanStatus)
                 .Where(x => x.Id == borrowerId)
                 .FirstOrDefaultAsync();
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
@@ -38,6 +48,7 @@ namespace Infrastructure.Persistence.Repositories {
             var borrower = await _databaseContext.Borrowers
                 .Include(x => x.Applications)
                 .ThenInclude(x => x.Loan)
+                .ThenInclude(x => x.LoanStatus)
                 .Where(x => x.Id == borrowerId)
                 .FirstOrDefaultAsync();
 
@@ -48,6 +59,31 @@ namespace Infrastructure.Persistence.Repositories {
                     list.Add(application.Loan);
 
             return list.AsEnumerable();
+        }
+
+        public async Task UpdateStatus(Guid loanId, Guid statusId) {
+            var loan = await _databaseContext.Loans
+                .Where(x => x.Id == loanId)
+                .FirstOrDefaultAsync();
+
+            loan.LoanStatusId = statusId;
+        }
+
+        public new async Task<IEnumerable<Loan>> GetAllAsync() {
+            var loans = await _databaseContext.Loans
+                .Include(x => x.LoanStatus)
+                .ToListAsync();
+
+            return loans.AsEnumerable();
+        }
+
+        public new async Task<Loan?> GetByIdAsync(Guid id) {
+            var loan = await _databaseContext.Loans
+                .Include(x => x.LoanStatus)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return loan;
         }
     }
 }

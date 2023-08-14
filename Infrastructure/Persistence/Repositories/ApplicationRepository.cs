@@ -19,6 +19,7 @@ namespace Infrastructure.Persistence.Repositories {
 
         public async Task<ApplicationEntity> GetApplicationByBorrower(Guid borrowerId, Guid applicationId) {
             var application = await _databaseContext.Applications
+                .Include(x => x.ApplicationStatus)
                 .Where(x => x.BorrowerId == borrowerId
                             && x.Id == applicationId)
                 .FirstOrDefaultAsync();
@@ -28,6 +29,7 @@ namespace Infrastructure.Persistence.Repositories {
 
         public async Task<List<ApplicationEntity>> GetApplications(Guid borrowerId) {
             var applications = await _databaseContext.Applications
+                .Include(x => x.ApplicationStatus)
                 .Where(x => x.BorrowerId == borrowerId)
                 .ToListAsync();
 
@@ -70,6 +72,23 @@ namespace Infrastructure.Persistence.Repositories {
                 .FirstOrDefaultAsync();
 
             return application.Loan != null;
+        }
+
+        public async Task UpdateStatus(Guid applicationId, Guid statusId) {
+            var application = await _databaseContext.Applications
+                .Where(x => x.Id == applicationId)
+                .FirstOrDefaultAsync();
+
+            application.ApplicationStatusId = statusId;
+        }
+
+        public new async Task<ApplicationEntity?> GetByIdAsync(Guid id) {
+            var application = await _databaseContext.Applications
+                .Include(x => x.ApplicationStatus)
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return application;
         }
     }
 }

@@ -7,10 +7,11 @@ namespace Domain.Entities {
         public decimal ReferenceRate { get; set; }
         public decimal InterestRate { get; set; }
         public int Tenor { get; set; }
-        public string Status { get; set; } = null!;
         public Guid ProductId { get; set; }
         public Guid LenderId { get; set; }
         public Guid ApplicationId { get; set; }
+        public Guid LoanStatusId { get; set; }
+        public virtual LoanStatus LoanStatus { get; set; } = null!;
         public virtual ApplicationEntity Application { get; set; } = null!;
         public virtual Lender Lender { get; set; } = null!;
     }

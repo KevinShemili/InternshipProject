@@ -28,11 +28,6 @@ namespace Infrastructure.Persistence.Configurations {
                 .IsRequired();
 
             builder
-                .Property(x => x.Status)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            builder
                 .HasOne(x => x.Product)
                 .WithMany(y => y.Applications)
                 .HasForeignKey(x => x.ProductId)
@@ -50,6 +45,12 @@ namespace Infrastructure.Persistence.Configurations {
                 .HasOne(a => a.Borrower)
                 .WithMany(b => b.Applications)
                 .IsRequired(false);
+
+            builder
+                .HasOne(x => x.ApplicationStatus)
+                .WithMany(x => x.Applications)
+                .HasForeignKey(x => x.ApplicationStatusId)
+                .IsRequired();
         }
     }
 }

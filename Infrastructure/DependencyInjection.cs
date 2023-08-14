@@ -50,6 +50,8 @@ namespace Infrastructure {
             services.AddScoped<ILenderMatrixRepository, LenderMatrixRepository>();
             services.AddScoped<ILenderRepository, LenderRepository>();
             services.AddScoped<ILoanRepository, LoanRepository>();
+            services.AddScoped<IApplicationStatusRepository, ApplicationStatusRepository>();
+            services.AddScoped<ILoanStatusRepository, LoanStatusRepository>();
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

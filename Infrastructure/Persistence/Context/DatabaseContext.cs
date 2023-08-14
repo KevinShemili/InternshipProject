@@ -22,6 +22,8 @@ namespace Infrastructure.Persistence.Context {
         public DbSet<User> Users { get; set; }
         public DbSet<Role_Permission> RolePermissions { get; set; }
         public DbSet<UserVerificationAndReset> UserVerificationAndReset { get; set; }
+        public DbSet<ApplicationStatus> ApplicationStatuses { get; set; }
+        public DbSet<LoanStatus> LoanStatuses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder
@@ -205,6 +207,66 @@ namespace Infrastructure.Persistence.Context {
                 MinTenor = 30,
                 MaxTenor = 60
             };
+
+            // Application status
+            var a_inCharge = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.InCharge.Id,
+                Name = DefinedApplicationStatuses.InCharge.Name
+            };
+            var a_canceled = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Canceled.Id,
+                Name = DefinedApplicationStatuses.Canceled.Name
+            };
+            var a_defaulted = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Defaulted.Id,
+                Name = DefinedApplicationStatuses.Defaulted.Name
+            };
+            var a_disbursed = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Disbursed.Id,
+                Name = DefinedApplicationStatuses.Disbursed.Name
+            };
+            var a_guaranteed = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Guaranted.Id,
+                Name = DefinedApplicationStatuses.Guaranted.Name
+            };
+            var a_rejected = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Rejected.Id,
+                Name = DefinedApplicationStatuses.Rejected.Name
+            };
+            var a_repaid = new ApplicationStatus {
+                Id = DefinedApplicationStatuses.Repaid.Id,
+                Name = DefinedApplicationStatuses.Repaid.Name
+            };
+
+            // Loan status
+            var l_created = new LoanStatus {
+                Id = DefinedLoanStatuses.Created.Id,
+                Name = DefinedLoanStatuses.Created.Name
+            };
+            var l_erased = new LoanStatus {
+                Id = DefinedLoanStatuses.Erased.Id,
+                Name = DefinedLoanStatuses.Erased.Name
+            };
+            var l_defaulted = new LoanStatus {
+                Id = DefinedLoanStatuses.Defaulted.Id,
+                Name = DefinedLoanStatuses.Defaulted.Name
+            };
+            var l_disbursed = new LoanStatus {
+                Id = DefinedLoanStatuses.Disbursed.Id,
+                Name = DefinedLoanStatuses.Disbursed.Name
+            };
+            var l_guaranteed = new LoanStatus {
+                Id = DefinedLoanStatuses.Guaranted.Id,
+                Name = DefinedLoanStatuses.Guaranted.Name
+            };
+            var l_rejected = new LoanStatus {
+                Id = DefinedLoanStatuses.Rejected.Id,
+                Name = DefinedLoanStatuses.Rejected.Name
+            };
+            var l_repaid = new LoanStatus {
+                Id = DefinedLoanStatuses.Repaid.Id,
+                Name = DefinedLoanStatuses.Repaid.Name
+            };
             #endregion
 
             #region seeds
@@ -216,6 +278,7 @@ namespace Infrastructure.Persistence.Context {
                 limitedPartnership,
                 cooperativeSociety,
                 generalPartnership
+
             );
 
             modelBuilder.Entity<Permission>().HasData(
@@ -231,6 +294,7 @@ namespace Infrastructure.Persistence.Context {
                 canDeleteApplication,
                 canReadOwnApplications,
                 canReadOwnBorrowers
+
             );
 
             modelBuilder.Entity<Role>().HasData(
@@ -238,15 +302,18 @@ namespace Infrastructure.Persistence.Context {
                 loanOfficer,
                 registeredUser,
                 borrower
+
             );
 
             modelBuilder.Entity<User>().HasData(
                 sa
+
              );
 
             modelBuilder.Entity<Product>().HasData(
                 fixedRatePreAmortization,
                 variableRatePreAmortization
+
             );
 
             modelBuilder.Entity<Lender>().HasData(
@@ -255,12 +322,32 @@ namespace Infrastructure.Persistence.Context {
                 logitech
             );
 
-            modelBuilder.Entity<User_Role>().HasData(
-                new User_Role {
-                    UserId = sa.Id,
-                    RoleId = superAdmin.Id
-                }
+            modelBuilder.Entity<ApplicationStatus>().HasData(
+                a_inCharge,
+                a_canceled,
+                a_defaulted,
+                a_disbursed,
+                a_guaranteed,
+                a_rejected,
+                a_repaid
             );
+
+            modelBuilder.Entity<LoanStatus>().HasData(
+                l_created,
+                l_erased,
+                l_defaulted,
+                l_disbursed,
+                l_guaranteed,
+                l_rejected,
+                l_repaid
+            );
+
+            modelBuilder.Entity<User_Role>().HasData(
+                    new User_Role {
+                        UserId = sa.Id,
+                        RoleId = superAdmin.Id
+                    }
+                );
 
             modelBuilder.Entity<Role_Permission>().HasData(
                 new Role_Permission {

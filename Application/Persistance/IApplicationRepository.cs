@@ -3,6 +3,7 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface IApplicationRepository : IBaseRepository<ApplicationEntity> {
+        new Task<ApplicationEntity?> GetByIdAsync(Guid id);
         Task<bool> ContainsAsync(Guid id);
         Task UpdateAsync(Guid id, ApplicationEntity entity);
         Task<List<ApplicationEntity>> GetApplications(Guid borrowerId);
@@ -10,5 +11,6 @@ namespace Application.Persistance {
         Task<string> GetCompanyTypeAsync(Guid id);
         Task<ApplicationEntity> GetWithProductAsync(Guid id);
         Task<bool> IsApprovedAsLoanAsync(Guid id);
+        Task UpdateStatus(Guid applicationId, Guid statusId);
     }
 }

@@ -27,6 +27,7 @@
     <Folder Include="UseCases\LenderCases\Commands\" />
     <Folder Include="UseCases\LenderMatrixCases\Results\" />
     <Folder Include="UseCases\ProductCases\Commands\" />
+    <Folder Include="UseCases\StatusCases\Commands\" />
     <Folder Include="UseCases\UserCases\Commands\" />
   </ItemGroup>
 

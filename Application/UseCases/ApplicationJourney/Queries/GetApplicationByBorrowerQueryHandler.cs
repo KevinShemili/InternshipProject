@@ -41,8 +41,6 @@ namespace Application.UseCases.ApplicationJourney.Queries {
             var application = await _applicationRepository.GetApplicationByBorrower(request.BorrowerId, request.ApplicationId);
 
             return _mapper.Map<ApplicationQueryResult>(application);
-
-
         }
     }
 

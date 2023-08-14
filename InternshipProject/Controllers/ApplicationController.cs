@@ -1,10 +1,8 @@
 ﻿using Application.UseCases.ApplicationJourney.Commands;
 using Application.UseCases.ApplicationJourney.Queries;
 using AutoMapper;
-using Domain.Seeds;
 using InternshipProject.Objects.Requests.ApplicationJourneyRequests;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -33,7 +31,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get application info by id")]
-        [Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("applications/{id}")]
         public async Task<IActionResult> GetApplication([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetApplicationQuery {
@@ -43,7 +41,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Edit application info (Loan Officer)")]
-        [Authorize(Policy = $"{PermissionSeeds.CanUpdateApplication}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanUpdateApplication}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpPut("applications/{id}")]
         public async Task<IActionResult> UpdateApplication([FromRoute] Guid id, [FromBody] UpdateApplicationRequest request) {
             var command = _mapper.Map<UpdateApplicationCommand>(request);
@@ -54,7 +52,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Gets the applications of a borrower")]
-        [Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}/applications")]
         public async Task<IActionResult> GetApplicationsByBorrower([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetApplicationsByBorrowerQuery {
@@ -64,7 +62,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get specific application of specific borrower")]
-        [Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("borrowers/{borrowerId}/applications/{applicationId}")]
         public async Task<IActionResult> GetApplicationByBorrower([FromRoute] Guid borrowerId, [FromRoute] Guid applicationId) {
             var result = await _mediator.Send(new GetApplicationByBorrowerQuery {

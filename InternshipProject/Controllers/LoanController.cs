@@ -39,7 +39,7 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Get loan by id")]
         [HttpGet("loans/{id}")]
-        public async Task<IActionResult> GetLoanById(Guid id) {
+        public async Task<IActionResult> GetLoanById([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetLoanQuery {
                 Id = id
             });
@@ -49,7 +49,7 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Get all loans of a borrower")]
         [HttpGet("borrowers/{id}/loans")]
-        public async Task<IActionResult> GetBorrowerLoans(Guid id) {
+        public async Task<IActionResult> GetBorrowerLoans([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetBorrowerLoansQuery {
                 BorrowerId = id
             });
@@ -59,10 +59,20 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Get a specific loan of a borrower")]
         [HttpGet("borrowers/{borrowerId}/loans/{loanId}")]
-        public async Task<IActionResult> GetBorrowerLoan(Guid borrowerId, Guid loanId) {
+        public async Task<IActionResult> GetBorrowerLoan([FromRoute] Guid borrowerId, [FromRoute] Guid loanId) {
             var result = await _mediator.Send(new GetBorrowerLoanQuery {
                 LoanId = loanId,
                 BorrowerId = borrowerId
+            });
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Change loan status")]
+        [HttpPatch("loans/{id}/change-status")]
+        public async Task<IActionResult> ChangeLoanStatus([FromRoute] Guid id, [FromBody] Guid statusId) {
+            var result = await _mediator.Send(new ChangeLoanStatusCommand {
+                LoanId = id,
+                StatusId = statusId
             });
             return Ok(result);
         }

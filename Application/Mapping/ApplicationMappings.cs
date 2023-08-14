@@ -10,7 +10,10 @@ namespace Application.Mapping {
 
             CreateMap<UpdateApplicationCommand, ApplicationEntity>().ReverseMap();
 
-            CreateMap<ApplicationQueryResult, ApplicationEntity>().ReverseMap();
+            CreateMap<ApplicationEntity, ApplicationQueryResult>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.ApplicationStatus.Name))
+                .ReverseMap();
+
         }
     }
 }

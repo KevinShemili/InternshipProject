@@ -4,6 +4,7 @@ using Application.UseCases.LoanJourney.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -25,6 +26,7 @@ namespace Application.UseCases.LoanJourney.Commands {
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly ILenderMatrixRepository _lenderMatrixRepository;
         private readonly ILoanRepository _loanRepository;
+        private readonly ILoanStatusRepository _loanStatusRepository;
 
         public CreateLoanCommandHandler(IStringLocalizer<LocalizationResources> localization,
                                         IMapper mapper,
@@ -32,7 +34,8 @@ namespace Application.UseCases.LoanJourney.Commands {
                                         ILenderRepository lenderRepository,
                                         IApplicationRepository applicationRepository,
                                         ILenderMatrixRepository lenderMatrixRepository,
-                                        ILoanRepository loanRepository) {
+                                        ILoanRepository loanRepository,
+                                        ILoanStatusRepository loanStatusRepository) {
             _localization = localization;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -40,6 +43,7 @@ namespace Application.UseCases.LoanJourney.Commands {
             _applicationRepository = applicationRepository;
             _lenderMatrixRepository = lenderMatrixRepository;
             _loanRepository = loanRepository;
+            _loanStatusRepository = loanStatusRepository;
         }
 
         public async Task<LoanResult> Handle(CreateLoanCommand request, CancellationToken cancellationToken) {
@@ -73,12 +77,12 @@ namespace Application.UseCases.LoanJourney.Commands {
                 ReferenceRate = product.ReferenceRate,
                 InterestRate = matrix.Spread + product.ReferenceRate,
                 Tenor = application.RequestedTenor,
-                ProductId = product.Id,
-                Status = application.Status
+                ProductId = product.Id
             };
 
             loan.Application = application;
             loan.Lender = lender;
+            loan.LoanStatus = await _loanStatusRepository.GetByIdAsync(DefinedLoanStatuses.Created.Id);
 
             await _loanRepository.CreateAsync(loan);
 
@@ -89,7 +93,7 @@ namespace Application.UseCases.LoanJourney.Commands {
                 InterestRate = loan.InterestRate,
                 ReferenceRate = loan.ReferenceRate,
                 RequestedAmount = loan.RequestedAmount,
-                Status = loan.Status,
+                Status = loan.LoanStatus.Name,
                 Tenor = loan.Tenor
             };
         }

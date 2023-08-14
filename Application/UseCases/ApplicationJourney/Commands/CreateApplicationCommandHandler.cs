@@ -28,19 +28,22 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
         private readonly IBorrowerRepository _borrowerRepository;
+        private readonly IApplicationStatusRepository _applicationStatusRepository;
 
         public CreateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
             IApplicationRepository applicationRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IProductRepository productRepository,
-            IBorrowerRepository borrowerRepository) {
+            IBorrowerRepository borrowerRepository,
+            IApplicationStatusRepository applicationStatusRepository) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _productRepository = productRepository;
             _borrowerRepository = borrowerRepository;
+            _applicationStatusRepository = applicationStatusRepository;
         }
 
         public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request, CancellationToken cancellationToken) {
@@ -59,7 +62,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             application.Id = Guid.NewGuid();
             application.BorrowerId = request.BorrowerId;
             application.Name = request.RequestedAmount.ToString() + " - " + DateTime.UtcNow.ToString("d");
-            application.Status = ApplicationStatuses.InCharge;
+            application.ApplicationStatus = await _applicationStatusRepository.GetByIdAsync(DefinedApplicationStatuses.InCharge.Id);
             application.Product = product;
 
             await _applicationRepository.CreateAsync(application);
