@@ -7,7 +7,6 @@ namespace Infrastructure.Persistence.Context {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) {
 
         }
-
         public DbSet<ApplicationEntity> Applications { get; set; }
         public DbSet<Borrower> Borrowers { get; set; }
         public DbSet<CompanyProfile> CompanyProfiles { get; set; }
@@ -33,179 +32,173 @@ namespace Infrastructure.Persistence.Context {
             #region entities
             // CompanyTypes
             var soleProprietorship = new CompanyType {
-                Id = Guid.Parse("7DB974F8-6321-4B35-8EF4-65EDDA9FE1D6"),
-                Type = CompanyTypeSeeds.SoleProprietorship
+                Id = DefinedCompanyTypes.SoleProprietorship.Id,
+                Type = DefinedCompanyTypes.SoleProprietorship.Name,
+                Description = DefinedCompanyTypes.SoleProprietorship.Description
             };
             var other = new CompanyType {
-                Id = Guid.Parse("A7EEA608-196C-4A52-A5C7-9694E0EB190B"),
-                Type = CompanyTypeSeeds.Other
+                Id = DefinedCompanyTypes.Other.Id,
+                Type = DefinedCompanyTypes.Other.Name,
+                Description = DefinedCompanyTypes.Other.Description
             };
             var partnershipLimitedByShares = new CompanyType {
-                Id = Guid.Parse("67D5FD0E-F3A4-4AA7-BEF8-8A587BCB475E"),
-                Type = CompanyTypeSeeds.PartnershipLimitedByShares
+                Id = DefinedCompanyTypes.PartnershipLimitedByShares.Id,
+                Type = DefinedCompanyTypes.PartnershipLimitedByShares.Name,
+                Description = DefinedCompanyTypes.PartnershipLimitedByShares.Description
             };
             var limitedPartnership = new CompanyType {
-                Id = Guid.Parse("B2B5CE14-79B1-402E-92F5-2536BCE91DDA"),
-                Type = CompanyTypeSeeds.LimitedPartnership
+                Id = DefinedCompanyTypes.LimitedPartnership.Id,
+                Type = DefinedCompanyTypes.LimitedPartnership.Name,
+                Description = DefinedCompanyTypes.LimitedPartnership.Description
             };
             var cooperativeSociety = new CompanyType {
-                Id = Guid.Parse("BE9A7220-0773-4D4D-8EF7-B5FBF480E952"),
-                Type = CompanyTypeSeeds.CooperativeSociety
+                Id = DefinedCompanyTypes.CooperativeSociety.Id,
+                Type = DefinedCompanyTypes.CooperativeSociety.Name,
+                Description = DefinedCompanyTypes.CooperativeSociety.Description
             };
             var generalPartnership = new CompanyType {
-                Id = Guid.Parse("AFBB07DD-70AD-471D-8448-67539B17B872"),
-                Type = CompanyTypeSeeds.GeneralPartnership
+                Id = DefinedCompanyTypes.GeneralPartnership.Id,
+                Type = DefinedCompanyTypes.GeneralPartnership.Name,
+                Description = DefinedCompanyTypes.GeneralPartnership.Description
             };
 
             // Permissions
             var canReadBorrowers = new Permission {
-                Id = Guid.Parse("F2A1FBA5-A23E-4686-9C0F-3E636B1AC3E4"),
-                Name = PermissionSeeds.CanReadBorrowers
+                Id = DefinedPermissions.CanReadBorrowers.Id,
+                Name = DefinedPermissions.CanReadBorrowers.Name
             };
             var canReadOwnBorrowers = new Permission {
-                Id = Guid.Parse("2C9DAD73-3625-4ECB-9522-C0F59A003E17"),
-                Name = PermissionSeeds.CanReadOwnBorrowers
+                Id = DefinedPermissions.CanReadOwnBorrowers.Id,
+                Name = DefinedPermissions.CanReadOwnBorrowers.Name
             };
             var canUpdateBorrower = new Permission {
-                Id = Guid.Parse("96C36A8C-BE53-442D-A2F6-B2BCD71B3524"),
-                Name = PermissionSeeds.CanUpdateBorrower
-            };
-            var canDeleteBorrower = new Permission {
-                Id = Guid.Parse("537B42BD-DB04-4DB1-B4D8-C945A63116F6"),
-                Name = PermissionSeeds.CanDeleteBorrower
+                Id = DefinedPermissions.CanUpdateBorrower.Id,
+                Name = DefinedPermissions.CanUpdateBorrower.Name
             };
             var canAddBorrower = new Permission {
-                Id = Guid.Parse("D3E011D6-53D4-46C7-8866-840593334476"),
-                Name = PermissionSeeds.CanAddBorrower
+                Id = DefinedPermissions.CanAddBorrower.Id,
+                Name = DefinedPermissions.CanAddBorrower.Name
             };
 
             var isSuperAdmin = new Permission {
-                Id = Guid.Parse("FF9F62DE-AB2A-4BA2-A15D-11A1F214AC66"),
-                Name = PermissionSeeds.IsSuperAdmin
+                Id = DefinedPermissions.IsSuperAdmin.Id,
+                Name = DefinedPermissions.IsSuperAdmin.Name
             };
             var isRegistered = new Permission {
-                Id = Guid.Parse("6FC1CBAF-B307-4EFA-8CA9-2CCED12A6028"),
-                Name = PermissionSeeds.IsRegistered
+                Id = DefinedPermissions.IsRegistered.Id,
+                Name = DefinedPermissions.IsRegistered.Name
             };
 
             var canReadApplications = new Permission {
-                Id = Guid.Parse("4D74CE4F-B8D9-4C87-8F48-365C00DC612C"),
-                Name = PermissionSeeds.CanReadApplications
+                Id = DefinedPermissions.CanReadApplications.Id,
+                Name = DefinedPermissions.CanReadApplications.Name
             };
             var canReadOwnApplications = new Permission {
-                Id = Guid.Parse("A333628C-0918-47DD-9C84-30342E0E95E3"),
-                Name = PermissionSeeds.CanReadOwnApplications
+                Id = DefinedPermissions.CanReadOwnApplications.Id,
+                Name = DefinedPermissions.CanReadOwnApplications.Name
             };
             var canAddApplication = new Permission {
-                Id = Guid.Parse("6FE53FC9-8FDE-45F2-B3EB-F988E7ABD00D"),
-                Name = PermissionSeeds.CanAddApplication
+                Id = DefinedPermissions.CanAddApplication.Id,
+                Name = DefinedPermissions.CanAddApplication.Name
             };
             var canUpdateApplication = new Permission {
-                Id = Guid.Parse("3B12B41C-CDD3-45C8-8466-31750B8D3E3C"),
-                Name = PermissionSeeds.CanUpdateApplication
-            };
-            var canDeleteApplication = new Permission {
-                Id = Guid.Parse("E12C2B57-DE8B-4191-A325-AB74C712E7DD"),
-                Name = PermissionSeeds.CanDeleteApplication
+                Id = DefinedPermissions.CanUpdateApplication.Id,
+                Name = DefinedPermissions.CanUpdateApplication.Name
             };
 
             var canGenerateMatrix = new Permission {
-                Id = Guid.Parse("CD978177-AA39-45F5-B6A6-783B9795196C"),
-                Name = PermissionSeeds.CanGenerateMatrix
+                Id = DefinedPermissions.CanGenerateMatrix.Id,
+                Name = DefinedPermissions.CanGenerateMatrix.Name
             };
-            var canUploadMatrix = new Permission {
-                Id = Guid.Parse("2FE0991B-7A0B-4700-8F2C-036782B973BC"),
-                Name = PermissionSeeds.CanUploadMatrix
+            var canCreateMatrix = new Permission {
+                Id = DefinedPermissions.CanCreateMatrix.Id,
+                Name = DefinedPermissions.CanCreateMatrix.Name
             };
 
             var canAddLoan = new Permission {
-                Id = Guid.Parse("4F29D160-B6C3-4BFF-9BAE-D1E6BE1DAC8B"),
-                Name = PermissionSeeds.CanAddLoan
-            };
-            var canDeleteLoan = new Permission {
-                Id = Guid.Parse("9ED89079-F9BF-498A-A7BA-F19AD0AC08F1"),
-                Name = PermissionSeeds.CanDeleteLoan
-            };
-            var canUpdateLoan = new Permission {
-                Id = Guid.Parse("00E181E4-0549-4EBC-8730-77C901BFE676"),
-                Name = PermissionSeeds.CanUpdateLoan
+                Id = DefinedPermissions.CanAddLoan.Id,
+                Name = DefinedPermissions.CanAddLoan.Name
             };
 
+            var canUpdateLoan = new Permission {
+                Id = DefinedPermissions.CanUpdateLoan.Id,
+                Name = DefinedPermissions.CanUpdateLoan.Name
+            };
 
             // Roles
             var superAdmin = new Role {
-                Id = Guid.Parse("1AFAC8E2-D840-40AA-A97F-C3F2BC5931B0"),
-                Name = RoleSeeds.SuperAdmin
+                Id = DefinedRoles.SuperAdmin.Id,
+                Name = DefinedRoles.SuperAdmin.Name
             };
             var loanOfficer = new Role {
-                Id = Guid.Parse("D6013A21-70D7-4C08-9DE9-482F339147A8"),
-                Name = RoleSeeds.LoanOfficer
+                Id = DefinedRoles.LoanOfficer.Id,
+                Name = DefinedRoles.LoanOfficer.Name
             };
             var registeredUser = new Role {
-                Id = Guid.Parse("846D0436-FFCE-49A2-A8FF-BF22AEDF0A83"),
-                Name = RoleSeeds.RegisteredUser
+                Id = DefinedRoles.RegisteredUser.Id,
+                Name = DefinedRoles.RegisteredUser.Name
             };
             var borrower = new Role {
-                Id = Guid.Parse("B05D025A-62EE-4D6C-AEF4-9433CC52DCD0"),
-                Name = RoleSeeds.Borrower
+                Id = DefinedRoles.Borrower.Id,
+                Name = DefinedRoles.Borrower.Name
             };
 
             // Products
             var fixedRatePreAmortization = new Product {
-                Id = Guid.Parse("5FF6A3BE-482E-4826-B027-B7AEA05DE030"),
-                Name = ProductSeeds.FixedRatePreAmortization,
-                Description = ProductSeeds.FixedRatePreAmortization,
-                ReferenceRate = 0.0025M,
-                FinanceMinAmount = 10000.00M,
-                FinanceMaxAmount = 2000000.00M,
+                Id = DefinedProducts.FixedRatePreAmortization.Id,
+                Name = DefinedProducts.FixedRatePreAmortization.Name,
+                Description = DefinedProducts.FixedRatePreAmortization.Description,
+                ReferenceRate = DefinedProducts.FixedRatePreAmortization.ReferenceRate,
+                FinanceMinAmount = DefinedProducts.FixedRatePreAmortization.FinanceMinAmount,
+                FinanceMaxAmount = DefinedProducts.FixedRatePreAmortization.FinanceMaxAmount,
             };
             var variableRatePreAmortization = new Product {
-                Id = Guid.Parse("B2C0E6AE-2A83-4FD3-ACCE-DD1C647B1B1C"),
-                Name = ProductSeeds.VariableRatePreAmortization,
-                Description = ProductSeeds.VariableRatePreAmortization,
-                ReferenceRate = 0.03M,
-                FinanceMinAmount = 10000.00M,
-                FinanceMaxAmount = 2000000.00M,
+                Id = DefinedProducts.VariableRatePreAmortization.Id,
+                Name = DefinedProducts.VariableRatePreAmortization.Name,
+                Description = DefinedProducts.VariableRatePreAmortization.Description,
+                ReferenceRate = DefinedProducts.VariableRatePreAmortization.ReferenceRate,
+                FinanceMinAmount = DefinedProducts.VariableRatePreAmortization.FinanceMinAmount,
+                FinanceMaxAmount = DefinedProducts.VariableRatePreAmortization.FinanceMaxAmount,
             };
 
             // Users
             var sa = new User {
-                Id = Guid.Parse("1B2031FF-DF77-4CE4-A2F0-00E60546F243"),
-                FirstName = "Kevin",
-                LastName = "Shemili",
-                Username = "kevinshemili1",
-                Email = "kevin.shemili@cardoai.com",
-                IsEmailConfirmed = true,
-                PhoneNumber = "683363203",
-                Prefix = "+355",
-                PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=",
-                PasswordSalt = "jWRLoRafDBcFS72uPEqyqg=="
+                Id = DefinedUsers.SA.Id,
+                FirstName = DefinedUsers.SA.FirstName,
+                LastName = DefinedUsers.SA.LastName,
+                Username = DefinedUsers.SA.Username,
+                Email = DefinedUsers.SA.Email,
+                IsEmailConfirmed = DefinedUsers.SA.IsEmailConfirmed,
+                PhoneNumber = DefinedUsers.SA.PhoneNumber,
+                Prefix = DefinedUsers.SA.Prefix,
+                PasswordHash = DefinedUsers.SA.PasswordHash,
+                PasswordSalt = DefinedUsers.SA.PasswordSalt,
             };
 
             // Lenders
             var pmiBtech = new Lender {
-                Id = Guid.Parse("8D1AC5ED-0E1E-4DE1-A7FC-A7DF9E095653"),
-                Name = "PMI BTECH",
-                RequestedAmount = 100000,
-                BorrowerCompanyType = CompanyTypeSeeds.CooperativeSociety,
-                MinTenor = 30,
-                MaxTenor = 65
+                Id = DefinedLenders.PmiBtech.Id,
+                Name = DefinedLenders.PmiBtech.Name,
+                RequestedAmount = DefinedLenders.PmiBtech.RequestedAmount,
+                BorrowerCompanyType = DefinedCompanyTypes.CooperativeSociety.Name,
+                MinTenor = DefinedLenders.PmiBtech.MinTenor,
+                MaxTenor = DefinedLenders.PmiBtech.MaxTenor
             };
             var azif = new Lender {
-                Id = Guid.Parse("7F83C404-EFEE-4900-98EE-38D3C95DAF56"),
-                Name = "AZIF",
-                RequestedAmount = 400000,
-                BorrowerCompanyType = CompanyTypeSeeds.PartnershipLimitedByShares,
-                MinTenor = 40,
-                MaxTenor = 60
+                Id = DefinedLenders.Azif.Id,
+                Name = DefinedLenders.Azif.Name,
+                RequestedAmount = DefinedLenders.Azif.RequestedAmount,
+                BorrowerCompanyType = DefinedCompanyTypes.PartnershipLimitedByShares.Name,
+                MinTenor = DefinedLenders.Azif.MinTenor,
+                MaxTenor = DefinedLenders.Azif.MaxTenor
             };
             var logitech = new Lender {
-                Id = Guid.Parse("0F3C377F-89AD-4FD6-AF55-62F783B0EA52"),
-                Name = "LOGITECH",
-                RequestedAmount = 100000,
-                BorrowerCompanyType = CompanyTypeSeeds.SoleProprietorship,
-                MinTenor = 30,
-                MaxTenor = 60
+                Id = DefinedLenders.Logitech.Id,
+                Name = DefinedLenders.Logitech.Name,
+                RequestedAmount = DefinedLenders.Logitech.RequestedAmount,
+                BorrowerCompanyType = DefinedCompanyTypes.SoleProprietorship.Name,
+                MinTenor = DefinedLenders.Logitech.MinTenor,
+                MaxTenor = DefinedLenders.Logitech.MaxTenor
             };
 
             // Application status
@@ -287,14 +280,11 @@ namespace Infrastructure.Persistence.Context {
                 isRegistered,
                 canAddBorrower,
                 canUpdateBorrower,
-                canDeleteBorrower,
                 canReadApplications,
                 canUpdateApplication,
                 canAddApplication,
-                canDeleteApplication,
                 canReadOwnApplications,
                 canReadOwnBorrowers
-
             );
 
             modelBuilder.Entity<Role>().HasData(
@@ -364,10 +354,6 @@ namespace Infrastructure.Persistence.Context {
                 },
                 new Role_Permission {
                     RoleId = borrower.Id,
-                    PermissionId = canDeleteBorrower.Id,
-                },
-                new Role_Permission {
-                    RoleId = borrower.Id,
                     PermissionId = canUpdateBorrower.Id,
                 },
                 new Role_Permission {
@@ -377,10 +363,6 @@ namespace Infrastructure.Persistence.Context {
                 new Role_Permission {
                     RoleId = borrower.Id,
                     PermissionId = canReadOwnApplications.Id,
-                },
-                new Role_Permission {
-                    RoleId = borrower.Id,
-                    PermissionId = canDeleteApplication.Id,
                 },
                 new Role_Permission {
                     RoleId = registeredUser.Id,

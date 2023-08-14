@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Exceptions\ClientErrors\" />
     <Folder Include="UseCases\Authentication\Queries\" />
     <Folder Include="UseCases\CompanyTypeCases\Commands\" />
     <Folder Include="UseCases\LenderCases\Commands\" />

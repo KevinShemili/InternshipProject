@@ -14,6 +14,9 @@ namespace Application.Mapping {
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.ApplicationStatus.Name))
                 .ReverseMap();
 
+            CreateMap<ApplicationEntity, ApplicationCommandResult>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.FinancePurposeDefinition))
+                .ReverseMap();
         }
     }
 }

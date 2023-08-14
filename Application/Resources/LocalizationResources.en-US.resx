@@ -132,6 +132,9 @@
   <data name="CompanyTypeDoesntExist" xml:space="preserve">
     <value>The provided company type does not exist.</value>
   </data>
+  <data name="DatabaseException" xml:space="preserve">
+    <value>Your changes could not be saved due to a fatal error. Please try again.</value>
+  </data>
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email already exists.</value>
   </data>

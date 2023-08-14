@@ -5,6 +5,7 @@ using Application.UseCases.BorrowerJourney.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -32,7 +33,14 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoleRepository _roleRepository;
 
-        public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization, IUserRepository userRepository, IMapper mapper, ICompanyTypeRepository companyTypeRepository, IBorrowerRepository borrowerRepository, IJwtToken jwtToken, IUnitOfWork unitOfWork, IRoleRepository roleRepository) {
+        public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization,
+                                            IUserRepository userRepository,
+                                            IMapper mapper,
+                                            ICompanyTypeRepository companyTypeRepository,
+                                            IBorrowerRepository borrowerRepository,
+                                            IJwtToken jwtToken,
+                                            IUnitOfWork unitOfWork,
+                                            IRoleRepository roleRepository) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -65,7 +73,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
             await _borrowerRepository.CreateAsync(borrower);
 
-            await _userRepository.AddRoleAsync(userId, await _roleRepository.GetByNameAsync(Domain.Seeds.RoleSeeds.Borrower));
+            await _userRepository.AddRoleAsync(userId,
+                                               await _roleRepository.GetByIdAsync(DefinedRoles.Borrower.Id));
 
             await _unitOfWork.SaveChangesAsync();
 

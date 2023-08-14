@@ -132,6 +132,9 @@
   <data name="CompanyTypeDoesntExist" xml:space="preserve">
     <value>Il tipo di società fornito non esiste.</value>
   </data>
+  <data name="DatabaseException" xml:space="preserve">
+    <value>Non è stato possibile salvare le modifiche a causa di un errore irreversibile. Per favore riprova.</value>
+  </data>
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email già esistente.</value>
   </data>

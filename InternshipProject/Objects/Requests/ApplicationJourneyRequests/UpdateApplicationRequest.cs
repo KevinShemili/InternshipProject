@@ -3,6 +3,6 @@
         public int RequestedAmount { get; set; }
         public int RequestedTenor { get; set; }
         public string FinancePurposeDefinition { get; set; } = null!;
-        public string ProductType { get; set; } = null!;
+        public string ProductId { get; set; } = null!;
     }
 }

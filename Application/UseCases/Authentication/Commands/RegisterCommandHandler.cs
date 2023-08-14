@@ -6,6 +6,7 @@ using Application.UseCases.Authentication.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -36,7 +37,16 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RegisterCommandHandler(IUserRepository userRepository, IMapper mapper, IHasherService hasherService, IMailBodyService mailBodyService, ITokenService recoveryTokenService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IRoleRepository roleRepository, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public RegisterCommandHandler(IUserRepository userRepository,
+                                      IMapper mapper,
+                                      IHasherService hasherService,
+                                      IMailBodyService mailBodyService,
+                                      ITokenService recoveryTokenService,
+                                      IMailService mailService,
+                                      IUserVerificationAndResetRepository userVerificationAndResetRepository,
+                                      IRoleRepository roleRepository,
+                                      IStringLocalizer<LocalizationResources> localizer,
+                                      IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
@@ -66,7 +76,7 @@ namespace Application.UseCases.Authentication.Commands {
             user.PasswordSalt = salt;
             user.IsEmailConfirmed = false;
             user.Roles = new List<Role> {
-                await _roleRepository.GetByNameAsync(Domain.Seeds.RoleSeeds.RegisteredUser)
+                await _roleRepository.GetByIdAsync(DefinedRoles.RegisteredUser.Id)
             };
 
             await _userRepository.CreateAsync(user);

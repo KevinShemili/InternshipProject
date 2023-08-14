@@ -9,16 +9,6 @@ namespace Infrastructure.Persistence.Repositories {
         public ProductRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task<bool> ContainsAsync(string name) {
-            var entity = await _databaseContext.Products
-                .Where(x => x.Name == name)
-                .FirstOrDefaultAsync();
-
-            if (entity is null)
-                return false;
-            return true;
-        }
-
         public async Task<bool> ContainsAsync(Guid id) {
             var entity = await _databaseContext.Products
                 .Where(x => x.Id == id)

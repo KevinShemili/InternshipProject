@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.ApplicationJourney.Results;
@@ -31,12 +32,12 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private readonly IApplicationStatusRepository _applicationStatusRepository;
 
         public CreateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
-            IApplicationRepository applicationRepository,
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IProductRepository productRepository,
-            IBorrowerRepository borrowerRepository,
-            IApplicationStatusRepository applicationStatusRepository) {
+                                               IApplicationRepository applicationRepository,
+                                               IUnitOfWork unitOfWork,
+                                               IMapper mapper,
+                                               IProductRepository productRepository,
+                                               IBorrowerRepository borrowerRepository,
+                                               IApplicationStatusRepository applicationStatusRepository) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
             _unitOfWork = unitOfWork;
@@ -46,9 +47,10 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             _applicationStatusRepository = applicationStatusRepository;
         }
 
-        public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request, CancellationToken cancellationToken) {
+        public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request,
+                                                           CancellationToken cancellationToken) {
 
-            var product = await _productRepository.GetByNameAsync(ProductSeeds.FixedRatePreAmortization);
+            var product = await _productRepository.GetByIdAsync(DefinedProducts.FixedRatePreAmortization.Id);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
                 throw new InvalidInputException(_localizer.GetString("BiggerRequestAmount").Value);
@@ -61,19 +63,23 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             var application = _mapper.Map<ApplicationEntity>(request);
             application.Id = Guid.NewGuid();
             application.BorrowerId = request.BorrowerId;
-            application.Name = request.RequestedAmount.ToString() + " - " + DateTime.UtcNow.ToString("d");
+            application.Name = GenerateName(request.RequestedAmount);
             application.ApplicationStatus = await _applicationStatusRepository.GetByIdAsync(DefinedApplicationStatuses.InCharge.Id);
             application.Product = product;
 
             await _applicationRepository.CreateAsync(application);
-            await _unitOfWork.SaveChangesAsync();
+            var flag = await _unitOfWork.SaveChangesAsync();
 
-            return new ApplicationCommandResult {
-                Id = application.Id,
-                Name = application.Name,
-                Description = application.FinancePurposeDefinition
-            };
+            if (flag is false)
+                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
+            return _mapper.Map<ApplicationCommandResult>(application);
         }
+
+        private static string GenerateName(int amount) {
+            return amount.ToString() + " - " + DateTime.UtcNow.ToString("d");
+        }
+
     }
 
     public class CreateApplicationCommandValidator : AbstractValidator<CreateApplicationCommand> {
@@ -87,8 +93,11 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             RuleFor(x => x.RequestedTenor)
                 .NotEmpty().WithMessage("EmptyRequestTenor");
 
+            RuleFor(x => x.RequestedTenor < DefinedTenors.MaximumTenor && x.RequestedTenor > DefinedTenors.MinimumTenor)
+                .NotEmpty().WithMessage("TenorConstraint");
+
             RuleFor(x => x.FinancePurposeDefinition)
-                .NotEmpty().WithMessage("EmptyFinancePurposeDefinition.")
+                .NotEmpty().WithMessage("EmptyFinancePurposeDefinition")
                 .MaximumLength(100).WithMessage("FinancePurposeMaximumLengthRestriction");
         }
     }

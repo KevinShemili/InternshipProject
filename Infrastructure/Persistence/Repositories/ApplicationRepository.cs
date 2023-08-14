@@ -56,8 +56,8 @@ namespace Infrastructure.Persistence.Repositories {
             return companyType;
         }
 
-        public async Task UpdateAsync(Guid id, ApplicationEntity entity) {
-            var application = await base.GetByIdAsync(id);
+        public async Task UpdateAsync(ApplicationEntity entity) {
+            var application = await base.GetByIdAsync(entity.Id);
             application.Product = entity.Product;
             application.RequestedAmount = entity.RequestedAmount;
             application.RequestedTenor = entity.RequestedTenor;
@@ -82,7 +82,7 @@ namespace Infrastructure.Persistence.Repositories {
             application.ApplicationStatusId = statusId;
         }
 
-        public new async Task<ApplicationEntity?> GetByIdAsync(Guid id) {
+        public new async Task<ApplicationEntity> GetByIdAsync(Guid id) {
             var application = await _databaseContext.Applications
                 .Include(x => x.ApplicationStatus)
                 .Where(x => x.Id == id)

@@ -3,6 +3,6 @@
         Task<List<T>> GetAllAsync();
         Task CreateAsync(T entity);
         Task DeleteAsync(Guid id);
-        Task<T?> GetByIdAsync(Guid id);
+        Task<T> GetByIdAsync(Guid id);
     }
 }

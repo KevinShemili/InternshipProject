@@ -27,11 +27,8 @@ namespace Infrastructure.Persistence.Repositories.Common {
             return await _databaseContext.Set<T>().ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(Guid id) {
+        public async Task<T> GetByIdAsync(Guid id) {
             var entity = await _databaseContext.Set<T>().FindAsync(id);
-            if (entity == null)
-                return null;
-
             return entity;
         }
     }

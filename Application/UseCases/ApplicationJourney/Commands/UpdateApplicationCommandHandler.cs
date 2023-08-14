@@ -1,10 +1,12 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -17,7 +19,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         public int RequestedAmount { get; set; }
         public int RequestedTenor { get; set; }
         public string FinancePurposeDefinition { get; set; } = null!;
-        public string ProductType { get; set; } = null!;
+        public string ProductId { get; set; } = null!;
     }
 
     public class UpdateApplicationCommandHandler : IRequestHandler<UpdateApplicationCommand, ApplicationCommandResult> {
@@ -28,7 +30,11 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
 
-        public UpdateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer, IApplicationRepository applicationRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork) {
+        public UpdateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
+                                               IApplicationRepository applicationRepository,
+                                               IProductRepository productRepository,
+                                               IMapper mapper,
+                                               IUnitOfWork unitOfWork) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
             _productRepository = productRepository;
@@ -43,10 +49,12 @@ namespace Application.UseCases.ApplicationJourney.Commands {
 
             var application = await _applicationRepository.GetByIdAsync(request.Id);
 
-            if (await _productRepository.ContainsAsync(request.ProductType) is false)
+            var productId = Guid.Parse(request.ProductId);
+
+            if (await _productRepository.ContainsAsync(productId) is false)
                 throw new NoSuchEntityExistsException(_localizer.GetString("ProductTypeDoesntExist").Value);
 
-            var product = await _productRepository.GetByNameAsync(request.ProductType);
+            var product = await _productRepository.GetByIdAsync(productId);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
                 throw new InvalidInputException(_localizer.GetString("BiggerRequestAmount").Value);
@@ -54,19 +62,24 @@ namespace Application.UseCases.ApplicationJourney.Commands {
                 throw new InvalidInputException(_localizer.GetString("SmallerRequestAmount").Value);
 
             var newApplication = _mapper.Map<ApplicationEntity>(request);
+            newApplication.Id = application.Id;
             newApplication.Product = product;
-            var parts = application.Name.Split(" - ");
-            parts[0] = request.RequestedAmount.ToString();
-            newApplication.Name = string.Join(" - ", parts);
+            newApplication.Name = GenerateName(application.Name, request.RequestedAmount);
 
-            await _applicationRepository.UpdateAsync(request.Id, newApplication);
-            await _unitOfWork.SaveChangesAsync();
+            await _applicationRepository.UpdateAsync(newApplication);
 
-            return new ApplicationCommandResult {
-                Id = application.Id,
-                Name = newApplication.Name,
-                Description = request.FinancePurposeDefinition
-            };
+            var flag = await _unitOfWork.SaveChangesAsync();
+
+            if (flag is false)
+                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
+            return _mapper.Map<ApplicationCommandResult>(application);
+        }
+
+        private static string GenerateName(string name, int amount) {
+            var parts = name.Split(" - ");
+            parts[0] = amount.ToString();
+            return string.Join(" - ", parts);
         }
     }
 
@@ -81,11 +94,14 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             RuleFor(x => x.RequestedTenor)
                 .NotEmpty().WithMessage("EmptyRequestTenor");
 
-            RuleFor(x => x.ProductType)
-                .NotEmpty().WithMessage("EmptyProductType");
+            RuleFor(x => x.RequestedTenor <= DefinedTenors.MaximumTenor && x.RequestedTenor >= DefinedTenors.MinimumTenor)
+                .NotEmpty().WithMessage("TenorConstraint");
+
+            RuleFor(x => x.ProductId)
+                .NotEmpty().WithMessage("EmptyId");
 
             RuleFor(x => x.FinancePurposeDefinition)
-                .NotEmpty().WithMessage("EmptyFinancePurposeDefinition.")
+                .NotEmpty().WithMessage("EmptyFinancePurposeDefinition")
                 .MaximumLength(100).WithMessage("FinancePurposeMaximumLengthRestriction");
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Exceptions;
@@ -21,7 +22,10 @@ namespace Application.UseCases.ActivateAccount.Commands {
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository, IUserRepository userRepository, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public ActivateAccountCommandHandler(IUserVerificationAndResetRepository userVerificationAndResetRepository,
+                                             IUserRepository userRepository,
+                                             IStringLocalizer<LocalizationResources> localizer,
+                                             IUnitOfWork unitOfWork) {
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _userRepository = userRepository;
             _localizer = localizer;
@@ -37,25 +41,30 @@ namespace Application.UseCases.ActivateAccount.Commands {
                 throw new EmailAlreadyVerifiedException(_localizer.GetString("EmailAlreadyVerified").Value);
 
             var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
-            var VerificationToken = entity.EmailVerificationToken;
-            var VerificationTokenExpiry = entity.EmailVerificationTokenExpiry;
 
-            if (VerificationToken is null)
+            var verificationToken = entity.EmailVerificationToken;
+            var verificationTokenExpiry = entity.EmailVerificationTokenExpiry;
+
+            if (verificationToken is null)
                 throw new ForbiddenException(_localizer.GetString("EmptyVerificationTokens").Value);
 
-            if (VerificationTokenExpiry is null)
+            if (verificationTokenExpiry is null)
                 throw new ForbiddenException(_localizer.GetString("EmptyVerificationTokens").Value);
 
-            if (VerificationToken == request.Token
-                && VerificationTokenExpiry > DateTime.Now)
+            if (verificationToken == request.Token
+                && verificationTokenExpiry > DateTime.Now)
                 await _userRepository.ActivateAccountAsync(request.Email);
-            else if (VerificationToken == request.Token
-                && VerificationTokenExpiry < DateTime.Now)
+            else if (verificationToken == request.Token
+                && verificationTokenExpiry < DateTime.Now) // token is expired
                 throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
-            else
+            else // token is invalid
                 throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
 
-            await _unitOfWork.SaveChangesAsync();
+            var flag = await _unitOfWork.SaveChangesAsync();
+
+            if (flag is false)
+                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
             return true;
         }
     }

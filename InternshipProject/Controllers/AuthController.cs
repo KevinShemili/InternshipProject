@@ -7,7 +7,6 @@ using Application.UseCases.GenerateRefreshToken.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
 using Application.UseCases.UnblockAccount.Command;
 using AutoMapper;
-using Domain.Seeds;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -120,14 +119,14 @@ namespace InternshipProject.Controllers {
             return Ok(response);
         }
 
-        [Authorize(Policy = PermissionSeeds.IsSuperAdmin)]
+        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
         [HttpGet("blocked-accounts")]
         public async Task<IActionResult> GetBlockedAccounts() {
             var response = await _mediator.Send(new BlockedAccountsQuery());
             return Ok(response);
         }
 
-        [Authorize(Policy = PermissionSeeds.IsSuperAdmin)]
+        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
         [HttpPatch("unblock-account/{id}")]
         public async Task<IActionResult> UnblockAccount([FromRoute] Guid id) {
             await _mediator.Send(new UnblockAccountCommand { Id = id });

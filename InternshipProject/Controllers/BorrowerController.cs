@@ -1,10 +1,8 @@
 ﻿using Application.UseCases.BorrowerJourney.Commands;
 using Application.UseCases.BorrowerJourney.Queries;
 using AutoMapper;
-using Domain.Seeds;
 using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternshipProject.Controllers {
@@ -30,7 +28,7 @@ namespace InternshipProject.Controllers {
             return Ok(result);
         }
 
-        [Authorize(Policy = $"{PermissionSeeds.CanReadBorrowers}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers}, {DefinedPermissions.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}")]
         public async Task<IActionResult> GetBorrower([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetBorrowerQuery {
@@ -39,7 +37,7 @@ namespace InternshipProject.Controllers {
             return Ok(result);
         }
 
-        [Authorize(Policy = $"{PermissionSeeds.CanUpdateBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{DefinedPermissions.CanUpdateBorrower}, {DefinedPermissions.IsSuperAdmin}")]
         [HttpPut("borrowers/{id}")]
         public async Task<IActionResult> UpdateBorrower([FromRoute] Guid id, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<UpdateBorrowerCommand>(borrowerRequest);
@@ -49,7 +47,7 @@ namespace InternshipProject.Controllers {
             return Ok();
         }
 
-        [Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        //[Authorize(Policy = $"{DefinedPermissions.CanDeleteBorrower}, {DefinedPermissions.IsSuperAdmin}")]
         [HttpDelete("borrowers/{id}")]
         public async Task<IActionResult> DeleteBorrower([FromRoute] Guid id) {
 

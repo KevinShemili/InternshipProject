@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
 using Domain.Exceptions;
 using InternshipProject.Localizations;
 using Microsoft.Extensions.Localization;
@@ -79,6 +80,10 @@ namespace InternshipProject.Middleware {
                 await HandleExceptionAsync(context, ex);
             }
             catch (FormatException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (DatabaseException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -257,6 +262,17 @@ namespace InternshipProject.Middleware {
                         title = "Unprocessable Entity",
                         status = (int)HttpStatusCode.UnprocessableEntity,
                         detail = formatException.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case DatabaseException databaseException:
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/500",
+                        title = "Database Exception",
+                        status = (int)HttpStatusCode.InternalServerError,
+                        detail = databaseException.Message
                     });
                     return context.Response.WriteAsync(result);
 
