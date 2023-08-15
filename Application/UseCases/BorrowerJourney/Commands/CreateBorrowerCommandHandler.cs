@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
+using Hangfire;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
@@ -32,6 +33,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IJwtToken _jwtToken;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoleRepository _roleRepository;
+        private readonly IRecurringJobManager _recurringJobManager;
 
         public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization,
                                             IUserRepository userRepository,
@@ -40,7 +42,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                                             IBorrowerRepository borrowerRepository,
                                             IJwtToken jwtToken,
                                             IUnitOfWork unitOfWork,
-                                            IRoleRepository roleRepository) {
+                                            IRoleRepository roleRepository,
+                                            IRecurringJobManager recurringJobManager) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -49,6 +52,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             _jwtToken = jwtToken;
             _unitOfWork = unitOfWork;
             _roleRepository = roleRepository;
+            _recurringJobManager = recurringJobManager;
         }
 
         public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
@@ -75,8 +79,6 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
             await _userRepository.AddRoleAsync(userId,
                                                await _roleRepository.GetByIdAsync(DefinedRoles.Borrower.Id));
-
-            await _unitOfWork.SaveChangesAsync();
 
             return new BorrowerCommandResult {
                 Id = borrowerId,

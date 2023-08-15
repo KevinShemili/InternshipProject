@@ -9,6 +9,14 @@ namespace Infrastructure.Persistence.Repositories {
         public CompanyProfileRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
+        public async Task<bool> ContainAsync(Guid id) {
+            var cp = await _databaseContext.CompanyProfiles
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            return cp != null;
+        }
+
         public async Task<CompanyProfile> GetByBorrower(Guid id) {
             var borrower = await _databaseContext.Borrowers
                 .Include(x => x.CompanyProfile)

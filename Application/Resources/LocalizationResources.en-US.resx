@@ -222,6 +222,9 @@
   <data name="FinancePurposeMaximumLengthRestriction" xml:space="preserve">
     <value>Your finance purpose description length must not exceed 25 characters.</value>
   </data>
+  <data name="FinhubError" xml:space="preserve">
+    <value>A connection could not be estabilished with the Finhub website. Please try again later.</value>
+  </data>
   <data name="FirstNameMaximumLengthRestriction" xml:space="preserve">
     <value>Your first name length must not exceed 25 characters.</value>
   </data>

@@ -1,7 +1,9 @@
 using Application;
+using Hangfire;
 using Infrastructure;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Services.Authentication.PermissionPolicyConfigurations;
+using Infrastructure.Services.Hangfire.DashboardAuthorization;
 using InternshipProject.Middleware;
 using InternshipProject.SwaggerConfig;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +46,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+builder.Services.AddHangfireServer();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -98,6 +103,12 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions() {
+    Authorization = new[] {
+        new HangfireAuthorizationFilter()
+    }
+});
 
 app.MapControllers();
 

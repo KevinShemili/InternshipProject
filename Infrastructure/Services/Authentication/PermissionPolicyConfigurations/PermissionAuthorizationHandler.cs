@@ -20,10 +20,10 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement) {
 
             // 1. Check if user is logged in
-            string? UserId = context.User.Claims
+            string? userId = context.User.Claims
                                .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
-            if (!Guid.TryParse(UserId, out Guid parsedUserId))
+            if (!Guid.TryParse(userId, out Guid parsedUserId))
                 throw new UnauthorizedException(_localizer.GetString("UnathorizedAccess").Value);
 
             // 2. Check if user's session is expired
