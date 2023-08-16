@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlreadyApproved" xml:space="preserve">
+    <value>This application has already been approved as a loan.</value>
+  </data>
   <data name="ApplicationDoesntExist" xml:space="preserve">
     <value>The provided application does not exist.</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="DatabaseException" xml:space="preserve">
     <value>Your changes could not be saved due to a fatal error. Please try again.</value>
+  </data>
+  <data name="DoesntBelongTo" xml:space="preserve">
+    <value>The loan does not belong to the provided borrower.</value>
   </data>
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email already exists.</value>
@@ -156,6 +162,12 @@
   <data name="EmptyAccessToken" xml:space="preserve">
     <value>Please provide the access token.</value>
   </data>
+  <data name="EmptyApplicationId" xml:space="preserve">
+    <value>Please provide an application id.</value>
+  </data>
+  <data name="EmptyBorrowerId" xml:space="preserve">
+    <value>Please provide a borrower id.</value>
+  </data>
   <data name="EmptyCompanyName" xml:space="preserve">
     <value>The name of the company can not be empty. Please provide a value.</value>
   </data>
@@ -174,14 +186,26 @@
   <data name="EmptyFirstName" xml:space="preserve">
     <value>The first name can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyFiscalCode" xml:space="preserve">
+    <value>The fiscal code can not be empty. Please provide a value.</value>
+  </data>
   <data name="EmptyId" xml:space="preserve">
     <value>Please provide a id associated with the entity.</value>
   </data>
   <data name="EmptyLastName" xml:space="preserve">
     <value>The last name can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyLenderId" xml:space="preserve">
+    <value>Please provide a lender id.</value>
+  </data>
+  <data name="EmptyLoanId" xml:space="preserve">
+    <value>Please provide a loan id.</value>
+  </data>
   <data name="EmptyPassword" xml:space="preserve">
     <value>The password can not be empty. Please provide a value.</value>
+  </data>
+  <data name="EmptyPermissionId" xml:space="preserve">
+    <value>Please provide a permission id.</value>
   </data>
   <data name="EmptyPermissionName" xml:space="preserve">
     <value>The name of the permission can not be empty. Please provide a value.</value>
@@ -191,6 +215,9 @@
   </data>
   <data name="EmptyPrefix" xml:space="preserve">
     <value>The prefix can not be empty. Please provide a value.</value>
+  </data>
+  <data name="EmptyProductId" xml:space="preserve">
+    <value>Please provide a product id.</value>
   </data>
   <data name="EmptyProductType" xml:space="preserve">
     <value>The product type cannot be empty. Please provide a value.</value>
@@ -204,11 +231,20 @@
   <data name="EmptyRequestTenor" xml:space="preserve">
     <value>The request tenor cannot be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyRoleId" xml:space="preserve">
+    <value>Please provide a role id.</value>
+  </data>
   <data name="EmptyRoleName" xml:space="preserve">
     <value>The name of the role can not be empty. Please provide a value.</value>
   </data>
+  <data name="EmptyStatusId" xml:space="preserve">
+    <value>Please provide a status id.</value>
+  </data>
   <data name="EmptyToken" xml:space="preserve">
     <value>The token can not be empty. Please provide a value.</value>
+  </data>
+  <data name="EmptyUserId" xml:space="preserve">
+    <value>Please provide an user id.</value>
   </data>
   <data name="EmptyUsername" xml:space="preserve">
     <value>The username can not be empty. Please provide a value.</value>
@@ -276,6 +312,9 @@
   <data name="NoExcelRowExists" xml:space="preserve">
     <value>The lender - product combination has not been created yet. Please generate an empty template.</value>
   </data>
+  <data name="NotEligible" xml:space="preserve">
+    <value>The provided lender is not eligible for the application. Please provide an eligible lender.</value>
+  </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>Your password must contain at least one lowercase letter.</value>
   </data>
@@ -315,6 +354,9 @@
   <data name="RoleDoesntExist" xml:space="preserve">
     <value>The provided role does not exist.</value>
   </data>
+  <data name="SendEmailError" xml:space="preserve">
+    <value>The email could not be sent. Please try again later.</value>
+  </data>
   <data name="SmallerRequestAmount" xml:space="preserve">
     <value>The requested application amount is below the minimal financing amount for the chosen product type.</value>
   </data>
@@ -329,6 +371,9 @@
   </data>
   <data name="UnathorizedAccess" xml:space="preserve">
     <value>You do not have the necessary authorization in order to access this resource.</value>
+  </data>
+  <data name="UndefinedStatus" xml:space="preserve">
+    <value>The provided status does not exist.</value>
   </data>
   <data name="UnverifiedEmail" xml:space="preserve">
     <value>Please verify your email in order to proceed with the login.</value>

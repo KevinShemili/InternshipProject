@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Excel;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Exceptions;
@@ -48,6 +49,7 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
             if (await _productRepository.ContainsAsync(request.ProductId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("ProductTypeDoesntExist").Value);
 
+            // we are already making sure that during matrix up, the user has to upload all combinations. We check if just one exists
             if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is true)
                 throw new ForbiddenException(_localization.GetString("MatrixAlreadyExists").Value);
 
@@ -56,7 +58,7 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
 
             var flag = await _unitOfWork.SaveChangesAsync();
             if (flag is false)
-                throw new Exception();
+                throw new DatabaseException(_localization.GetString("DatabaseException"));
 
             return true;
         }
@@ -65,10 +67,10 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
     public class CreateLenderMatrixCommandValidator : AbstractValidator<CreateLenderMatrixCommand> {
         public CreateLenderMatrixCommandValidator() {
             RuleFor(x => x.LenderId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyLenderId");
 
             RuleFor(x => x.ProductId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyProductId");
 
             RuleFor(x => x.File.FileName)
                 .Must(y => IsSupported(y))

@@ -1,7 +1,5 @@
 ﻿using Application.Interfaces.Authentication;
 using Infrastructure.Services.Common;
-using InternshipProject.Localizations;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,11 +10,9 @@ namespace Infrastructure.Services.Authentication {
     public class JwtToken : IJwtToken {
 
         private readonly JwtSettings _jwtSettings;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
 
-        public JwtToken(IOptions<JwtSettings> jwtOptions, IStringLocalizer<LocalizationResources> localizer) {
+        public JwtToken(IOptions<JwtSettings> jwtOptions) {
             _jwtSettings = jwtOptions.Value;
-            _localizer = localizer;
         }
 
         public string GenerateToken(Guid UserId, string username, IEnumerable<string> roles) {
@@ -45,6 +41,12 @@ namespace Infrastructure.Services.Authentication {
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public IEnumerable<string> GetRoles(string accessToken) {
+            var token = new JwtSecurityToken(accessToken);
+            var roles = token.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList();
+            return roles;
         }
 
         public Guid GetUserId(string accessToken) {

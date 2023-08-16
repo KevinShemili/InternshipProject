@@ -17,31 +17,23 @@ namespace Infrastructure.Persistence.Repositories {
             return borrower != null;
         }
 
-        public new async Task<Borrower?> GetByIdAsync(Guid id) {
+        public new async Task<Borrower> GetByIdAsync(Guid id) {
             var borrower = await _databaseContext.Borrowers
                 .Where(x => x.Id == id)
                 .Include(x => x.User)
                 .Include(x => x.CompanyProfile)
                 .FirstOrDefaultAsync();
+#pragma warning disable CS8603 // Possible null reference return.
             return borrower;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<CompanyProfile> GetCompanyProfile(Guid id) {
-            var entity = await _databaseContext.Borrowers
-                .Where(x => x.Id == id)
-                .Include(x => x.CompanyProfile)
-                .FirstOrDefaultAsync();
+        public IQueryable<Borrower> GetIQueryable(Guid userId) {
+            var borrowers = _databaseContext.Borrowers
+                .Include(x => x.User)
+                .Where(x => x.UserId == userId)
+                .AsQueryable();
 
-            return entity.CompanyProfile;
-        }
-
-        public async Task<IEnumerable<Borrower>> GetUserBorrowers(Guid userId) {
-            var user = await _databaseContext.Users
-                .Include(x => x.Borrowers)
-                .Where(x => x.Id == userId)
-                .FirstOrDefaultAsync();
-
-            var borrowers = user.Borrowers;
             return borrowers;
         }
 
@@ -51,7 +43,9 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var applications = borrower.Applications;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (applications is null || applications.Any() is false)
                 return false;
 

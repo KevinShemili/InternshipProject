@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Excel;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Exceptions;
@@ -18,6 +19,7 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
     }
 
     public class UpdateLenderMatrixCommandHandler : IRequestHandler<UpdateLenderMatrixCommand, bool> {
+
         private readonly IExcelService _excelService;
         private readonly ILenderMatrixRepository _lenderMatrixRepository;
         private readonly IProductRepository _productRepository;
@@ -56,9 +58,8 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
                 await _lenderMatrixRepository.UpdateAsync(matrix);
 
             var flag = await _unitOfWork.SaveChangesAsync();
-
             if (flag is false)
-                throw new Exception();
+                throw new DatabaseException(_localization.GetString("DatabaseException"));
 
             return true;
         }
@@ -67,10 +68,10 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
     public class UpdateLenderMatrixCommandValidator : AbstractValidator<UpdateLenderMatrixCommand> {
         public UpdateLenderMatrixCommandValidator() {
             RuleFor(x => x.LenderId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyLenderId");
 
             RuleFor(x => x.ProductId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyProductId");
 
             RuleFor(x => x.File.FileName)
                 .Must(y => IsSupported(y))

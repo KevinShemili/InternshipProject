@@ -10,7 +10,7 @@ using Microsoft.Extensions.Localization;
 namespace Application.UseCases.ApplicationJourney.Queries {
 
     public class GetApplicationQuery : IRequest<ApplicationQueryResult> {
-        public Guid Id { get; set; }
+        public Guid ApplicationId { get; set; }
     }
 
     public class GetApplicationQueryHandler : IRequestHandler<GetApplicationQuery, ApplicationQueryResult> {
@@ -27,10 +27,10 @@ namespace Application.UseCases.ApplicationJourney.Queries {
 
         public async Task<ApplicationQueryResult> Handle(GetApplicationQuery request, CancellationToken cancellationToken) {
 
-            if (await _applicationRepository.ContainsAsync(request.Id) is false)
+            if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetByIdAsync(request.Id);
+            var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
 
             return _mapper.Map<ApplicationQueryResult>(application);
         }
@@ -38,8 +38,8 @@ namespace Application.UseCases.ApplicationJourney.Queries {
 
     public class GetApplicationQueryValidator : AbstractValidator<GetApplicationQuery> {
         public GetApplicationQueryValidator() {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("EmptyId");
+            RuleFor(x => x.ApplicationId)
+                .NotEmpty().WithMessage("EmptyApplicationId");
         }
     }
 }

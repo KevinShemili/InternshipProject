@@ -31,24 +31,14 @@ namespace Infrastructure.Persistence.Repositories {
             return true;
         }
 
-        public async Task<Role> GetByNameAsync(string name) {
-            var entity = await _databaseContext.Roles
-                .Where(x => x.Name == name)
-                .FirstOrDefaultAsync();
-
-            if (entity is null)
-                return null;
-            return entity;
-        }
-
-        public async Task<HashSet<Permission>> GetPermissionsAsync(Guid id) {
-            var permissions = await _databaseContext.Roles
+        public IQueryable<Permission> GetPermissions(Guid id) {
+            var permissions = _databaseContext.Roles
                 .Include(x => x.Permissions)
                 .Where(x => x.Id == id)
                 .SelectMany(x => x.Permissions)
-                .ToListAsync();
+                .AsQueryable();
 
-            return permissions.ToHashSet();
+            return permissions;
         }
 
         public async Task<bool> UpdatePermissionsAsync(Guid id, IEnumerable<Permission> permissions) {

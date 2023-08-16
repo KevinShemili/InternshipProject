@@ -1,9 +1,12 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions;
+using Application.Persistance;
 using Application.UseCases.LoanJourney.Results;
 using AutoMapper;
 using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.LoanJourney.Queries {
 
@@ -18,11 +21,16 @@ namespace Application.UseCases.LoanJourney.Queries {
         private readonly ILoanRepository _loanRepository;
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
 
-        public GetBorrowerLoanQueryHandler(IMapper mapper, IBorrowerRepository borrowerRepository, ILoanRepository loanRepository) {
+        public GetBorrowerLoanQueryHandler(IMapper mapper,
+                                           IBorrowerRepository borrowerRepository,
+                                           ILoanRepository loanRepository,
+                                           IStringLocalizer<LocalizationResources> localization) {
             _mapper = mapper;
             _borrowerRepository = borrowerRepository;
             _loanRepository = loanRepository;
+            _localization = localization;
         }
 
         public async Task<LoanResult> Handle(GetBorrowerLoanQuery request, CancellationToken cancellationToken) {
@@ -34,7 +42,7 @@ namespace Application.UseCases.LoanJourney.Queries {
                 throw new NoSuchEntityExistsException("");
 
             var loan = await _loanRepository.GetLoanByBorrowerAsync(request.BorrowerId, request.LoanId)
-                       ?? throw new Exception("loan doesnt belong to borrower");
+                       ?? throw new InvalidInputException(_localization.GetString("DoesntBelongTo").Value);
 
             return _mapper.Map<LoanResult>(loan);
         }
@@ -43,10 +51,10 @@ namespace Application.UseCases.LoanJourney.Queries {
     public class GetBorrowerLoanQueryValidator : AbstractValidator<GetBorrowerLoanQuery> {
         public GetBorrowerLoanQueryValidator() {
             RuleFor(x => x.BorrowerId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyBorrowerId");
 
             RuleFor(x => x.LoanId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyLoanId");
         }
     }
 }

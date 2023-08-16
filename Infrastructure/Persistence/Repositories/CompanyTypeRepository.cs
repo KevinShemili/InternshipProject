@@ -9,24 +9,14 @@ namespace Infrastructure.Persistence.Repositories {
         public CompanyTypeRepository(DatabaseContext databaseContext) : base(databaseContext) {
         }
 
-        public async Task<bool> ContainsAsync(string type) {
+        public async Task<bool> ContainsAsync(Guid id) {
             var entity = await _databaseContext.CompanyTypes
-                .Where(x => x.Type == type)
+                .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
                 return false;
             return true;
-        }
-
-        public async Task<CompanyType> GetByNameAsync(string name) {
-            var entity = await _databaseContext.CompanyTypes
-                .Where(x => x.Type == name)
-                .FirstOrDefaultAsync();
-
-            if (entity is null)
-                return null;
-            return entity;
         }
     }
 }

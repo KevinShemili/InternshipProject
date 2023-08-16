@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Authentication;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
@@ -23,7 +24,12 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService, IMailService mailService, IUserVerificationAndResetRepository userVerificationAndResetRepository, ITokenService recoveryTokenService, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public ResendEmailVerificationCommandHandler(IMailBodyService mailBodyService,
+                                                     IMailService mailService,
+                                                     IUserVerificationAndResetRepository userVerificationAndResetRepository,
+                                                     ITokenService recoveryTokenService,
+                                                     IStringLocalizer<LocalizationResources> localizer,
+                                                     IUnitOfWork unitOfWork) {
             _mailBodyService = mailBodyService;
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
@@ -49,8 +55,14 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
             var subject = "Verify Your Email";
             var mailData = new MailData(request.Email, subject, body);
 
-            await _mailService.SendAsync(mailData, cancellationToken);
-            await _unitOfWork.SaveChangesAsync();
+            var emailFlag = await _mailService.SendAsync(mailData, cancellationToken);
+            if (emailFlag is false)
+                throw new ThirdPartyException(_localizer.GetString("SendEmailError").Value);
+
+            var dbFlag = await _unitOfWork.SaveChangesAsync();
+            if (dbFlag is false)
+                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
             return true;
         }
     }

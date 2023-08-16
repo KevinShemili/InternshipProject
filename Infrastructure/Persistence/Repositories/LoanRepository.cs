@@ -17,17 +17,20 @@ namespace Infrastructure.Persistence.Repositories {
             return loan != null;
         }
 
-        public async Task<Loan> GetByIdWithApplication(Guid id) {
+        public async Task<Loan> GetByIdWithApplicationAsync(Guid id) {
             var loan = await _databaseContext.Loans
                 .Include(x => x.Application)
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return loan;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<Loan?> GetLoanByBorrowerAsync(Guid borrowerId, Guid loanId) {
+        public async Task<Loan> GetLoanByBorrowerAsync(Guid borrowerId, Guid loanId) {
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var borrower = await _databaseContext.Borrowers
                 .Include(x => x.Applications)
                 .ThenInclude(x => x.Loan)
@@ -40,50 +43,51 @@ namespace Infrastructure.Persistence.Repositories {
             foreach (var application in applications)
                 if (application.Loan is not null && application.Loan.Id == loanId)
                     return application.Loan;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
+#pragma warning disable CS8603 // Possible null reference return.
             return null;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<IEnumerable<Loan>> GetLoansByBorrowerAsync(Guid borrowerId) {
-            var borrower = await _databaseContext.Borrowers
-                .Include(x => x.Applications)
-                .ThenInclude(x => x.Loan)
-                .ThenInclude(x => x.LoanStatus)
-                .Where(x => x.Id == borrowerId)
-                .FirstOrDefaultAsync();
+        public IQueryable<Loan> GetLoansByBorrower(Guid borrowerId) {
+            var loans = _databaseContext.Loans
+                .Include(x => x.Application)
+                .ThenInclude(x => x.Borrower)
+                .Include(x => x.LoanStatus)
+                .AsQueryable();
 
-            var list = new List<Loan>();
-            var applications = borrower.Applications;
-            foreach (var application in applications)
-                if (application.Loan is not null)
-                    list.Add(application.Loan);
-
-            return list.AsEnumerable();
+            loans = loans.Where(x => x.Application.Borrower.Id == borrowerId);
+            return loans;
         }
 
-        public async Task UpdateStatus(Guid loanId, Guid statusId) {
+        public async Task UpdateStatusAsync(Guid loanId, Guid statusId) {
             var loan = await _databaseContext.Loans
                 .Where(x => x.Id == loanId)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             loan.LoanStatusId = statusId;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        public new async Task<IEnumerable<Loan>> GetAllAsync() {
-            var loans = await _databaseContext.Loans
+        public new IQueryable<Loan> GetIQueryable() {
+            var loans = _databaseContext.Loans
                 .Include(x => x.LoanStatus)
-                .ToListAsync();
+                .AsQueryable();
 
-            return loans.AsEnumerable();
+            return loans;
         }
 
-        public new async Task<Loan?> GetByIdAsync(Guid id) {
+        public new async Task<Loan> GetByIdAsync(Guid id) {
             var loan = await _databaseContext.Loans
                 .Include(x => x.LoanStatus)
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return loan;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 }

@@ -4,10 +4,12 @@ using AutoMapper;
 using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
     [ApiController]
-    [Route("borrower-controller")]
+    [Route("api")]
     public class BorrowerController : ControllerBase {
 
         private readonly IMediator _mediator;
@@ -18,6 +20,7 @@ namespace InternshipProject.Controllers {
             _mediator = mediator;
         }
 
+        [SwaggerOperation(Summary = "Create new borrower")]
         //[Authorize(Policy = PermissionSeeds.CanAddBorrower)]
         [HttpPost("borrowers")]
         public async Task<IActionResult> CreateBorrower([FromHeader] string AccessToken, [FromBody] BorrowerRequest borrowerRequest) {
@@ -28,15 +31,17 @@ namespace InternshipProject.Controllers {
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Get borrower by id")]
         //[Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers}, {DefinedPermissions.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}")]
         public async Task<IActionResult> GetBorrower([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetBorrowerQuery {
-                Id = id
+                BorrowerId = id
             });
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Update borrower")]
         //[Authorize(Policy = $"{DefinedPermissions.CanUpdateBorrower}, {DefinedPermissions.IsSuperAdmin}")]
         [HttpPut("borrowers/{id}")]
         public async Task<IActionResult> UpdateBorrower([FromRoute] Guid id, [FromBody] BorrowerRequest borrowerRequest) {
@@ -47,28 +52,49 @@ namespace InternshipProject.Controllers {
             return Ok();
         }
 
-        //[Authorize(Policy = $"{DefinedPermissions.CanDeleteBorrower}, {DefinedPermissions.IsSuperAdmin}")]
-        [HttpDelete("borrowers/{id}")]
-        public async Task<IActionResult> DeleteBorrower([FromRoute] Guid id) {
-
-            _ = await _mediator.Send(new DeleteBorrowerCommand {
-                Id = id,
-            });
-
-            return Ok();
-        }
-
+        [SwaggerOperation(Summary = "Get borrowers of a user")]
         //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("users/{id}/borrowers")]
-        public async Task<IActionResult> GetBorrowersByUser([FromRoute] Guid id) {
+        public async Task<IActionResult> GetBorrowersByUser([FromRoute] Guid id,
+                                                            [FromQuery] string? filter,
+                                                            [FromQuery] string? sortColumn,
+                                                            [FromQuery] string? sortOrder,
+                                                            [FromQuery] int pageSize,
+                                                            [FromQuery] int page) {
 
             var borrowers = await _mediator.Send(new GetUserBorrowersQuery {
                 UserId = id,
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
             });
 
             return Ok(borrowers);
         }
 
+        [SwaggerOperation(Summary = "Get all borrowers")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [HttpGet("borrowers")]
+        public async Task<IActionResult> GetAllBorrowers([FromQuery] string? filter,
+                                                         [FromQuery] string? sortColumn,
+                                                         [FromQuery] string? sortOrder,
+                                                         [FromQuery] int pageSize,
+                                                         [FromQuery] int page) {
+
+            var borrowers = await _mediator.Send(new GetBorrowersQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
+            });
+
+            return Ok(borrowers);
+        }
+
+        [SwaggerOperation(Summary = "Get the company profile of a borrower")]
         //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}/company-profile")]
         public async Task<IActionResult> GetCompanyProfile([FromRoute] Guid id) {

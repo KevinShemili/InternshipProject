@@ -1,7 +1,8 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
+using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -18,20 +19,22 @@ namespace Application.UseCases.Permissions.Commands {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IPermissionRepository _permissionRepository;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PermissionAssignationCommandHandler(
-            IPermissionRepository permissionRepository, IRoleRepository roleRepository,
-            IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public PermissionAssignationCommandHandler(IPermissionRepository permissionRepository,
+                                                   IRoleRepository roleRepository,
+                                                   IStringLocalizer<LocalizationResources> localizer,
+                                                   IUnitOfWork unitOfWork) {
             _permissionRepository = permissionRepository;
             _roleRepository = roleRepository;
-            _localizer = localizer;
+            _localization = localizer;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(PermissionAssignationCommand request, CancellationToken cancellationToken) {
 
+            // all permissions are removed
             if (request.Ids.Any() is false)
                 await _roleRepository.ClearPermissionsAsync(request.RoleId);
 
@@ -42,15 +45,18 @@ namespace Application.UseCases.Permissions.Commands {
             var flag = request.Ids.All(item => permissionIds.Contains(item));
 
             if (flag is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("InvalidPermissions").Value);
+                throw new InvalidInputException(_localization.GetString("InvalidPermissions").Value);
 
             await _roleRepository.UpdatePermissionsAsync(request.RoleId, GetPermissions(request.Ids, permissions));
-            await _unitOfWork.SaveChangesAsync();
+
+            var dbFlag = await _unitOfWork.SaveChangesAsync();
+            if (flag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
             return true;
         }
 
         // we are getting a list of Ids, we need to get the entities associated with these ids in order to perform the insertion in the db
-        private List<Permission> GetPermissions(IEnumerable<Guid> ids, IEnumerable<Permission> permissions) {
+        private static List<Permission> GetPermissions(IEnumerable<Guid> ids, IEnumerable<Permission> permissions) {
             var list = new List<Permission>();
             foreach (var permission in permissions)
                 if (ids.Contains(permission.Id))
@@ -62,7 +68,7 @@ namespace Application.UseCases.Permissions.Commands {
     public class PermissionAssignationCommandValidator : AbstractValidator<PermissionAssignationCommand> {
         public PermissionAssignationCommandValidator() {
             RuleFor(x => x.RoleId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyRoleId");
         }
     }
 }

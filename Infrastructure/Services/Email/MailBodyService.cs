@@ -15,7 +15,7 @@ namespace Application.Services {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "VerifyEmailTemplate.html");
             string htmlTemplate = await File.ReadAllTextAsync(path);
 
-            var body = htmlTemplate.Replace("ReplaceMe", $"{GetUrl()}/auth/verify-email?token={token}&email={email}");
+            var body = htmlTemplate.Replace("ReplaceMe", $"{GetUrl()}/api/authentication/verify-email?token={token}&email={email}");
 
             return body;
         }
@@ -35,7 +35,7 @@ namespace Application.Services {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ForgotPasswordTemplate.html");
             string htmlTemplate = await File.ReadAllTextAsync(path);
 
-            var body = htmlTemplate.Replace("ReplaceMe", $"{GetUrl()}/auth/reset-password?token={token}&email={email}");
+            var body = htmlTemplate.Replace("ReplaceMe", $"{GetUrl()}/api/authentication/reset-password?token={token}&email={email}");
 
             return body;
         }

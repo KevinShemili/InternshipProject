@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Authentication;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
@@ -34,7 +35,7 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IMailService _mailService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
 
         public RegisterCommandHandler(IUserRepository userRepository,
@@ -55,17 +56,17 @@ namespace Application.UseCases.Authentication.Commands {
             _mailService = mailService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _roleRepository = roleRepository;
-            _localizer = localizer;
+            _localization = localizer;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsEmailAsync(request.Email) is true)
-                throw new DuplicateException(_localizer.GetString("DuplicateEmail").Value);
+                throw new DuplicateException(_localization.GetString("DuplicateEmail").Value);
 
             if (await _userRepository.ContainsUsernameAsync(request.Username) is true)
-                throw new DuplicateException(_localizer.GetString("DuplicateUsername").Value);
+                throw new DuplicateException(_localization.GetString("DuplicateUsername").Value);
 
             var tuple = _hasherService.HashPassword(request.Password);
             var hash = tuple.Item1;
@@ -75,28 +76,37 @@ namespace Application.UseCases.Authentication.Commands {
             user.PasswordHash = hash;
             user.PasswordSalt = salt;
             user.IsEmailConfirmed = false;
+
+            // automatically add registered role to this user -> Can add borrower
             user.Roles = new List<Role> {
                 await _roleRepository.GetByIdAsync(DefinedRoles.RegisteredUser.Id)
             };
 
             await _userRepository.CreateAsync(user);
 
+            // the token to verify the email
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);
 
             var body = await _mailBodyService.GetVerificationMailBodyAsync(request.Email, token);
 
+            var subject = "Verify Your Email";
+            var mailData = new MailData(request.Email, subject, body);
+            var flag = await _mailService.SendAsync(mailData, cancellationToken);
+
+            if (flag is false)
+                throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
+
+            // save in db the verification token & expiry
             await _userVerificationAndResetRepository.CreateAsync(new UserVerificationAndReset {
                 EmailVerificationToken = token,
                 EmailVerificationTokenExpiry = tokenExpiry,
                 UserEmail = request.Email,
             });
 
-            var subject = "Verify Your Email";
-            var mailData = new MailData(request.Email, subject, body);
-            await _mailService.SendAsync(mailData, cancellationToken);
-
-            await _unitOfWork.SaveChangesAsync();
+            var dbFlag = await _unitOfWork.SaveChangesAsync();
+            if (dbFlag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
 
             var returnResult = new RegisterResult {
                 Id = user.Id,

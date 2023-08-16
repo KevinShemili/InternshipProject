@@ -1,20 +1,20 @@
 ﻿using Application.UseCases.ActivateAccount.Commands;
 using Application.UseCases.Authentication.Commands;
-using Application.UseCases.BlockedAccounts.Queries;
 using Application.UseCases.ForgotPassword.Commands;
 using Application.UseCases.ForgotUsername.Queries;
 using Application.UseCases.GenerateRefreshToken.Commands;
 using Application.UseCases.ResendEmailVerification.Commands;
-using Application.UseCases.UnblockAccount.Command;
 using AutoMapper;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
     [ApiController]
-    [Route("auth")]
+    [Route("api/authentication")]
     public class AuthController : ControllerBase {
 
         private readonly IMediator _mediator;
@@ -25,74 +25,74 @@ namespace InternshipProject.Controllers {
             _mapper = mapper;
         }
 
+        [SwaggerOperation(Summary = "Create a new account")]
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest) {
 
             var registerCommand = _mapper.Map<RegisterCommand>(registerRequest);
-
             var result = await _mediator.Send(registerCommand);
 
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Login")]
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> LogIn([FromBody] LogInRequest logInRequest) {
             var loginQuery = _mapper.Map<LoginCommand>(logInRequest);
-
             var result = await _mediator.Send(loginQuery);
-
 
             return Ok(result);
         }
 
-        // verify email used for registration
+        [SwaggerOperation(Summary = "verify email after register")]
         [AllowAnonymous]
         [HttpGet("verify-email")] // [FromQuery] is always a GET request. Also this call makes changes to the database,
                                   // declaring it as POST would give a 405 error. 
         public async Task<IActionResult> VerifyEmail([FromQuery] string token, [FromQuery] string email) {
 
-            var activationCommand = new ActivateAccountCommand {
+            var result = await _mediator.Send(new ActivateAccountCommand {
                 Email = email,
                 Token = token
-            };
-
-            await _mediator.Send(activationCommand);
-            return Ok();
+            });
+            return Ok(result);
         }
 
-        // send new email with new token if old token expired
+        [SwaggerOperation(Summary = "send new email with new token if old token expired")]
         [AllowAnonymous]
         [HttpPatch("request-new-verification-token")]
         public async Task<IActionResult> RequestNewVerificationToken([FromBody] ResendVerificationEmailRequest resendVerificationEmailRequest) {
+
             var request = _mapper.Map<ResendEmailVerificationCommand>(resendVerificationEmailRequest);
+            var result = await _mediator.Send(request);
 
-            await _mediator.Send(request);
-
-            return Ok();
+            return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Request username in email")]
         [AllowAnonymous]
         [HttpGet("forgot-username")]
         public async Task<IActionResult> ForgotUsername([FromQuery] ForgotUsernameRequest forgotUsernameRequest) {
-            var request = _mapper.Map<ForgotUsernameQuery>(forgotUsernameRequest);
 
+            var request = _mapper.Map<ForgotUsernameQuery>(forgotUsernameRequest);
             await _mediator.Send(request);
 
             return Ok();
         }
 
+        [SwaggerOperation(Summary = "Get password reset email")]
         [AllowAnonymous]
         [HttpGet("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromQuery] ForgotPasswordRequest forgotPasswordRequest) {
+
             var request = _mapper.Map<ForgotPasswordCommand>(forgotPasswordRequest);
+            var result = await _mediator.Send(request);
 
-            await _mediator.Send(request);
-
-            return Ok();
+            return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Reset password (password reset email redirects here)")]
         [AllowAnonymous]
         [HttpPatch("reset-password")]
         public async Task<IActionResult> ResetPassword([FromHeader] string token, [FromBody] ResetPasswordRequest resetPasswordRequest) {
@@ -104,11 +104,12 @@ namespace InternshipProject.Controllers {
                 ConfirmPassword = resetPasswordRequest.ConfirmPassword
             };
 
-            await _mediator.Send(request);
+            var result = await _mediator.Send(request);
 
-            return Ok();
+            return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Get a new refresh token")]
         [AllowAnonymous]
         [HttpPatch("refresh-token")]
         public async Task<IActionResult> GenerateRefreshToken([FromBody] RefreshTokenRequest refreshTokenRequest) {
@@ -117,20 +118,6 @@ namespace InternshipProject.Controllers {
             var response = await _mediator.Send(request);
 
             return Ok(response);
-        }
-
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
-        [HttpGet("blocked-accounts")]
-        public async Task<IActionResult> GetBlockedAccounts() {
-            var response = await _mediator.Send(new BlockedAccountsQuery());
-            return Ok(response);
-        }
-
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
-        [HttpPatch("unblock-account/{id}")]
-        public async Task<IActionResult> UnblockAccount([FromRoute] Guid id) {
-            await _mediator.Send(new UnblockAccountCommand { Id = id });
-            return Ok();
         }
     }
 }

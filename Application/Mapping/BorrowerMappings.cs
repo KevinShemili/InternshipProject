@@ -1,4 +1,5 @@
-﻿using Application.UseCases.BorrowerJourney.Commands;
+﻿using Application.Interfaces.Pagination;
+using Application.UseCases.BorrowerJourney.Commands;
 using Application.UseCases.BorrowerJourney.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -20,7 +21,11 @@ namespace Application.Mapping {
             CreateMap<BorrowerQueryResult, Borrower>().ReverseMap();
 
             CreateMap<UpdateBorrowerCommand, Borrower>().ReverseMap()
-                .ForMember(dest => dest.CompanyType, opt => opt.Ignore());
+                .ForMember(dest => dest.CompanyTypeId, opt => opt.Ignore());
+
+            CreateMap<PagedList<Borrower>, PagedList<BorrowerQueryResult>>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
+                .ReverseMap();
         }
     }
 }

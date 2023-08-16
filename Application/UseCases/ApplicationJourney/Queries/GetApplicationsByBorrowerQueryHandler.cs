@@ -1,48 +1,92 @@
-﻿using Application.Persistance;
+﻿using Application.Interfaces.Pagination;
+using Application.Persistance;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using System.Linq.Expressions;
 
 namespace Application.UseCases.ApplicationJourney.Queries {
 
-    public class GetApplicationsByBorrowerQuery : IRequest<List<ApplicationQueryResult>> {
-        public Guid Id { get; set; }
+    public class GetApplicationsByBorrowerQuery : IRequest<PagedList<ApplicationQueryResult>> {
+        public Guid BorrowerId { get; set; }
+        public string? Filter { get; set; }
+        public string? SortColumn { get; set; }
+        public string? SortOrder { get; set; }
+        public int PageSize { get; set; }
+        public int Page { get; set; }
     }
 
-    public class GetApplicationsByBorrowerQueryHandler : IRequestHandler<GetApplicationsByBorrowerQuery, List<ApplicationQueryResult>> {
+    public class GetApplicationsByBorrowerQueryHandler : IRequestHandler<GetApplicationsByBorrowerQuery, PagedList<ApplicationQueryResult>> {
 
         private readonly IApplicationRepository _applicationRepository;
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IMapper _mapper;
+        private readonly IPaginationService<ApplicationEntity> _pagination;
 
-        public GetApplicationsByBorrowerQueryHandler(IApplicationRepository applicationRepository, IBorrowerRepository borrowerRepository, IStringLocalizer<LocalizationResources> localization, IMapper mapper) {
+        public GetApplicationsByBorrowerQueryHandler(IApplicationRepository applicationRepository, IBorrowerRepository borrowerRepository, IStringLocalizer<LocalizationResources> localization, IMapper mapper, IPaginationService<ApplicationEntity> pagination) {
             _applicationRepository = applicationRepository;
             _borrowerRepository = borrowerRepository;
             _localization = localization;
             _mapper = mapper;
+            _pagination = pagination;
         }
 
-        public async Task<List<ApplicationQueryResult>> Handle(GetApplicationsByBorrowerQuery request, CancellationToken cancellationToken) {
-            if (await _borrowerRepository.ContainsAsync(request.Id) is false)
+        public async Task<PagedList<ApplicationQueryResult>> Handle(GetApplicationsByBorrowerQuery request, CancellationToken cancellationToken) {
+
+            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("BorrowerDoesntExist").Value);
 
-            if (await _borrowerRepository.HasApplicationsAsync(request.Id) is false)
-                return new List<ApplicationQueryResult>();
+            if (await _borrowerRepository.HasApplicationsAsync(request.BorrowerId) is false)
+                return new PagedList<ApplicationQueryResult>();
 
-            var applications = await _applicationRepository.GetApplications(request.Id);
+            var applications = _applicationRepository.GetIQueryable(request.BorrowerId);
 
-            return _mapper.Map<List<ApplicationQueryResult>>(applications);
+            var tuple = _pagination.Validate(request.Page, request.PageSize, applications.Count());
+            request.Page = tuple.Item1;
+            request.PageSize = tuple.Item2;
+
+            applications = Filter(applications, request.Filter);
+            applications = Sort(applications, request.SortOrder, request.SortColumn);
+            var response = await _pagination.PaginateAsync(applications, request.Page, request.PageSize);
+
+            return _mapper.Map<PagedList<ApplicationQueryResult>>(response);
+        }
+
+        private static IQueryable<ApplicationEntity> Filter(IQueryable<ApplicationEntity> applications, string? filter) {
+            if (string.IsNullOrWhiteSpace(filter) is false)
+                applications = applications.Where(x =>
+                    x.Name.Contains(filter) ||
+                    x.RequestedAmount.ToString().Contains(filter) ||
+                    x.RequestedTenor.ToString().Contains(filter));
+
+            return applications;
+        }
+
+        private static IQueryable<ApplicationEntity> Sort(IQueryable<ApplicationEntity> applications, string? sortOrder, string? sortColumn) {
+
+            Expression<Func<ApplicationEntity, object>> key = sortColumn?.ToLower() switch {
+                "name" => x => x.Name,
+                "requestedAmount" => x => x.RequestedAmount,
+                "requestedTenor" => x => x.RequestedTenor,
+                _ => x => x.Id
+            };
+
+            if (sortOrder?.ToLower() == "desc")
+                return applications.OrderByDescending(key);
+            else
+                return applications.OrderBy(key);
         }
     }
 
     public class GetApplicationsByBorrowerQueryValidator : AbstractValidator<GetApplicationsByBorrowerQuery> {
         public GetApplicationsByBorrowerQueryValidator() {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.BorrowerId)
                 .NotEmpty().WithMessage("EmptyId");
         }
     }

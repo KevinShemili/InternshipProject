@@ -1,10 +1,13 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.ViewPermissions.Results;
 using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.Permissions.Commands {
 
@@ -18,11 +21,16 @@ namespace Application.UseCases.Permissions.Commands {
         private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
 
-        public CreatePermissionCommandHandler(IPermissionRepository permissionRepository, IMapper mapper, IUnitOfWork unitOfWork) {
+        public CreatePermissionCommandHandler(IPermissionRepository permissionRepository,
+                                              IMapper mapper,
+                                              IUnitOfWork unitOfWork,
+                                              IStringLocalizer<LocalizationResources> localization) {
             _permissionRepository = permissionRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _localization = localization;
         }
 
         public async Task<PermissionsResult> Handle(CreatePermissionCommand request, CancellationToken cancellationToken) {
@@ -30,7 +38,11 @@ namespace Application.UseCases.Permissions.Commands {
             permission.Id = Guid.NewGuid();
 
             await _permissionRepository.CreateAsync(permission);
-            await _unitOfWork.SaveChangesAsync();
+
+            var flag = await _unitOfWork.SaveChangesAsync();
+            if (flag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
             return _mapper.Map<PermissionsResult>(permission);
         }
     }

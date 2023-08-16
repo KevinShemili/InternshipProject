@@ -11,9 +11,7 @@ namespace Infrastructure.Persistence.Repositories {
 
         public async Task ActivateAccountAsync(string email) {
             var entity = await GetByEmailAsync(email);
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsEmailConfirmed = true;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public async Task<bool> ContainsEmailAsync(string email) {
@@ -40,16 +38,20 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.Users
                 .Where(x => x.Username == username)
                 .FirstOrDefaultAsync();
+#pragma warning disable CS8603 // Possible null reference return.
             return entity;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<User?> GetByEmailAsync(string email) {
+        public async Task<User> GetByEmailAsync(string email) {
             var entity = await _databaseContext.Users
                 .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
 
             if (entity is null)
+#pragma warning disable CS8603 // Possible null reference return.
                 return null;
+#pragma warning restore CS8603 // Possible null reference return.
 
             return entity;
         }
@@ -71,25 +73,25 @@ namespace Infrastructure.Persistence.Repositories {
             return permissions;
         }
 
-        public async Task<bool?> ChangePasswordAsync(string email, string passwordHash, string passwordSalt) {
+        public async Task<bool> ChangePasswordAsync(string email, string passwordHash, string passwordSalt) {
             var entity = await GetByEmailAsync(email);
 
             if (entity is null)
-                return null;
+                return false;
 
             entity.PasswordHash = passwordHash;
             entity.PasswordSalt = passwordSalt;
             return true;
         }
 
-        public async Task<HashSet<Role>> GetRolesAsync(Guid userId) {
+        public async Task<IEnumerable<Role>> GetRolesAsync(Guid userId) {
             var roles = await _databaseContext.Users
                 .Include(x => x.Roles)
                 .Where(x => x.Id == userId)
                 .SelectMany(x => x.Roles)
                 .ToListAsync();
 
-            return roles.ToHashSet();
+            return roles.AsEnumerable();
         }
 
         public async Task<bool> UpdateRolesAsync(Guid id, IEnumerable<Role> roles) {
@@ -161,7 +163,9 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.Users
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.LoginTries = 0;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public async Task<bool> IncrementTriesAsync(Guid id) {
@@ -169,8 +173,10 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (entity.LoginTries == 3)
                 return false;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             entity.LoginTries += 1;
             await _databaseContext.SaveChangesAsync();
             return true;
@@ -181,7 +187,9 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsBlocked = true;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -189,15 +197,17 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.Users
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             entity.IsBlocked = false;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        public async Task<IEnumerable<User>> GetBlockedAccountsAsync() {
-            var entities = await _databaseContext.Users
+        public IQueryable<User> GetBlockedAccountsAsync() {
+            var entities = _databaseContext.Users
                 .Where(x => x.IsBlocked == true)
-                .ToListAsync();
+                .AsQueryable();
 
-            return entities.AsEnumerable();
+            return entities;
         }
 
         public async Task<bool> IsAccountActivatedAsync(string email) {
@@ -205,20 +215,10 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Email == email)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (entity.IsEmailConfirmed is false)
                 return false;
-            return true;
-        }
-
-        public async Task<bool> AddBorrowerAsync(Guid id, Borrower borrower) {
-            var user = await _databaseContext.Users
-                .Include(x => x.Borrowers)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (user is null)
-                return false;
-
-            user.Borrowers.Add(borrower);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             return true;
         }
 
@@ -228,11 +228,23 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var borrowers = user.Borrowers;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (borrowers is null || borrowers.Any() is false)
                 return false;
 
             return true;
+        }
+
+        public IQueryable<Role> GetRoles(Guid userId) {
+            var roles = _databaseContext.Users
+                .Include(x => x.Roles)
+                .Where(x => x.Id == userId)
+                .SelectMany(x => x.Roles)
+                .AsQueryable();
+
+            return roles;
         }
     }
 }

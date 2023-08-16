@@ -2,6 +2,7 @@
 using Application.Interfaces.Email;
 using Application.Interfaces.Excel;
 using Application.Interfaces.Jobs;
+using Application.Interfaces.Pagination;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.Services;
@@ -13,6 +14,7 @@ using Infrastructure.Services.Common;
 using Infrastructure.Services.Email;
 using Infrastructure.Services.Excel;
 using Infrastructure.Services.Hangfire;
+using Infrastructure.Services.Pagination;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -55,7 +57,7 @@ namespace Infrastructure {
             services.AddScoped<IApplicationStatusRepository, ApplicationStatusRepository>();
             services.AddScoped<ILoanStatusRepository, LoanStatusRepository>();
             services.AddScoped<IJobService, JobService>();
-
+            services.AddScoped(typeof(IPaginationService<>), typeof(PaginationService<>));
         }
 
         private static void AddDatabaseConnection(IServiceCollection services, IConfiguration configuration) {

@@ -3,7 +3,6 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface ICompanyTypeRepository : IBaseRepository<CompanyType> {
-        Task<bool> ContainsAsync(string type);
-        Task<CompanyType> GetByNameAsync(string name);
+        Task<bool> ContainsAsync(Guid id);
     }
 }

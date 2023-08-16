@@ -11,7 +11,7 @@ using Microsoft.Extensions.Localization;
 namespace Application.UseCases.LenderCases.Queries {
 
     public class GetEligibleLendersQuery : IRequest<List<LenderQueryResult>> {
-        public Guid Id { get; set; }
+        public Guid ApplicationId { get; set; }
     }
 
     public class GetEligibleLendersQueryHandler : IRequestHandler<GetEligibleLendersQuery, List<LenderQueryResult>> {
@@ -34,11 +34,12 @@ namespace Application.UseCases.LenderCases.Queries {
 
         public async Task<List<LenderQueryResult>> Handle(GetEligibleLendersQuery request, CancellationToken cancellationToken) {
 
-            if (await _applicationRepository.ContainsAsync(request.Id) is false)
+            if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetByIdAsync(request.Id);
-            var companyType = await _applicationRepository.GetCompanyTypeAsync(request.Id);
+            var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
+            var companyType = await _applicationRepository.GetCompanyTypeAsync(request.ApplicationId);
+
             var lenders = await _lenderRepository.GetAllAsync();
 
             var eligibles = new List<Lender>();
@@ -62,7 +63,7 @@ namespace Application.UseCases.LenderCases.Queries {
         }
 
         private static bool IsTenorAccepted(Lender lender, int tenor) {
-            if (lender.MinTenor < tenor && lender.MaxTenor > tenor)
+            if (lender.MinTenor <= tenor && lender.MaxTenor >= tenor)
                 return true;
             return false;
         }
@@ -72,14 +73,17 @@ namespace Application.UseCases.LenderCases.Queries {
         }
 
         private static bool IsCompanyTypeAccepted(Lender lender, string type) {
+            if (string.IsNullOrEmpty(lender.BorrowerCompanyType) is true)
+                return true;
+
             return lender.BorrowerCompanyType == type;
         }
     }
 
     public class GetEligibleLendersQueryValidator : AbstractValidator<GetEligibleLendersQuery> {
         public GetEligibleLendersQueryValidator() {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("EmptyId");
+            RuleFor(x => x.ApplicationId)
+                .NotEmpty().WithMessage("EmptyApplicationId");
         }
     }
 }

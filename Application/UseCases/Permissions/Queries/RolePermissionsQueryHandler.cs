@@ -1,30 +1,68 @@
-﻿using Application.Persistance;
+﻿using Application.Interfaces.Pagination;
+using Application.Persistance;
 using Application.UseCases.ViewPermissions.Results;
 using AutoMapper;
+using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using System.Linq.Expressions;
 
 namespace Application.UseCases.Permissions.Queries {
 
-    public class RolePermissionsQuery : IRequest<List<PermissionsResult>> {
+    public class RolePermissionsQuery : IRequest<PagedList<PermissionsResult>> {
         public Guid Id { get; set; }
+        public string? Filter { get; set; }
+        public string? SortColumn { get; set; }
+        public string? SortOrder { get; set; }
+        public int PageSize { get; set; }
+        public int Page { get; set; }
     }
 
-    public class RolePermissionsQueryHandler : IRequestHandler<RolePermissionsQuery, List<PermissionsResult>> {
+    public class RolePermissionsQueryHandler : IRequestHandler<RolePermissionsQuery, PagedList<PermissionsResult>> {
 
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
+        private readonly IPaginationService<Permission> _pagination;
 
-        public RolePermissionsQueryHandler(IRoleRepository roleRepository, IMapper mapper) {
+        public RolePermissionsQueryHandler(IRoleRepository roleRepository, IMapper mapper, IPaginationService<Permission> pagination) {
             _roleRepository = roleRepository;
             _mapper = mapper;
+            _pagination = pagination;
         }
 
-        public async Task<List<PermissionsResult>> Handle(RolePermissionsQuery request, CancellationToken cancellationToken) {
-            var permissions = await _roleRepository.GetPermissionsAsync(request.Id);
+        public async Task<PagedList<PermissionsResult>> Handle(RolePermissionsQuery request, CancellationToken cancellationToken) {
+            var permissions = _roleRepository.GetPermissions(request.Id);
 
-            var result = _mapper.Map<List<PermissionsResult>>(permissions.ToList());
-            return result;
+            var tuple = _pagination.Validate(request.Page, request.PageSize, permissions.Count());
+            request.Page = tuple.Item1;
+            request.PageSize = tuple.Item2;
+
+            permissions = Filter(permissions, request.Filter);
+            permissions = Sort(permissions, request.SortOrder, request.SortColumn);
+            var response = await _pagination.PaginateAsync(permissions, request.Page, request.PageSize);
+
+            return _mapper.Map<PagedList<PermissionsResult>>(response);
+        }
+
+        private static IQueryable<Permission> Filter(IQueryable<Permission> permissions, string? filter) {
+            if (string.IsNullOrWhiteSpace(filter) is false)
+                permissions = permissions.Where(x =>
+                    x.Name.Contains(filter));
+
+            return permissions;
+        }
+
+        private static IQueryable<Permission> Sort(IQueryable<Permission> permissions, string? sortOrder, string? sortColumn) {
+
+            Expression<Func<Permission, object>> key = sortColumn?.ToLower() switch {
+                "name" => x => x.Name,
+                _ => x => x.Id
+            };
+
+            if (sortOrder?.ToLower() == "desc")
+                return permissions.OrderByDescending(key);
+            else
+                return permissions.OrderBy(key);
         }
     }
 

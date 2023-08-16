@@ -9,7 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace Application.UseCases.LenderCases.Queries {
     public class GetLendersQuery : IRequest<LenderQueryResult> {
-        public Guid Id { get; set; }
+        public Guid LenderId { get; set; }
     }
 
     public class GetLendersQueryHandler : IRequestHandler<GetLendersQuery, LenderQueryResult> {
@@ -26,18 +26,18 @@ namespace Application.UseCases.LenderCases.Queries {
 
         public async Task<LenderQueryResult> Handle(GetLendersQuery request, CancellationToken cancellationToken) {
 
-            if (await _lenderRepository.ContainsAsync(request.Id) is false)
-                throw new NoSuchEntityExistsException("");
+            if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
+                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
 
-            var lender = await _lenderRepository.GetByIdAsync(request.Id);
+            var lender = await _lenderRepository.GetByIdAsync(request.LenderId);
             return _mapper.Map<LenderQueryResult>(lender);
         }
     }
 
     public class GetLendersQueryValidator : AbstractValidator<GetLendersQuery> {
         public GetLendersQueryValidator() {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("EmptyId");
+            RuleFor(x => x.LenderId)
+                .NotEmpty().WithMessage("EmptyLenderId");
         }
     }
 }

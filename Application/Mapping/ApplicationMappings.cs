@@ -1,4 +1,5 @@
-﻿using Application.UseCases.ApplicationJourney.Commands;
+﻿using Application.Interfaces.Pagination;
+using Application.UseCases.ApplicationJourney.Commands;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
@@ -16,6 +17,10 @@ namespace Application.Mapping {
 
             CreateMap<ApplicationEntity, ApplicationCommandResult>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.FinancePurposeDefinition))
+                .ReverseMap();
+
+            CreateMap<PagedList<ApplicationEntity>, PagedList<ApplicationQueryResult>>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
                 .ReverseMap();
         }
     }

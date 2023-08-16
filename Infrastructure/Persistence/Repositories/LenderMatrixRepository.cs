@@ -47,7 +47,9 @@ namespace Infrastructure.Persistence.Repositories {
                         && x.IsDeleted == false)
             .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return matrix;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<List<LenderMatrix>> GetMatricesAsync(Guid lenderId, Guid productId) {
@@ -68,7 +70,9 @@ namespace Infrastructure.Persistence.Repositories {
                         && x.IsDeleted == false)
             .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             matrix.Spread = entity.Spread;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public async Task CreateAsync(List<LenderMatrix> matrices) {

@@ -62,10 +62,10 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
     public class GenerateLenderMatrixQueryValidator : AbstractValidator<GenerateLenderMatrixQuery> {
         public GenerateLenderMatrixQueryValidator() {
             RuleFor(x => x.ProductId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyProductId");
 
             RuleFor(x => x.LenderId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyLenderId");
         }
     }
 

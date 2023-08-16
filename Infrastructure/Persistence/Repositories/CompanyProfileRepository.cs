@@ -17,13 +17,15 @@ namespace Infrastructure.Persistence.Repositories {
             return cp != null;
         }
 
-        public async Task<CompanyProfile> GetByBorrower(Guid id) {
+        public async Task<CompanyProfile> GetByBorrowerAsync(Guid id) {
             var borrower = await _databaseContext.Borrowers
                 .Include(x => x.CompanyProfile)
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var companyProfile = borrower.CompanyProfile;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             return companyProfile;
         }
 

@@ -29,7 +29,7 @@ namespace Application.UseCases.BorrowerJourney.Queries {
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
                 throw new NoSuchEntityExistsException("");
 
-            var companyProfile = await _companyProfileRepository.GetByBorrower(request.BorrowerId);
+            var companyProfile = await _companyProfileRepository.GetByBorrowerAsync(request.BorrowerId);
 
             return _mapper.Map<CompanyProfileResult>(companyProfile);
         }

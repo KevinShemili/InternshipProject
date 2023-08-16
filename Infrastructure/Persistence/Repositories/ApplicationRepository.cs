@@ -17,21 +17,31 @@ namespace Infrastructure.Persistence.Repositories {
             return application != null;
         }
 
-        public async Task<ApplicationEntity> GetApplicationByBorrower(Guid borrowerId, Guid applicationId) {
+        public async Task<ApplicationEntity> GetApplicationByBorrowerAsync(Guid borrowerId, Guid applicationId) {
             var application = await _databaseContext.Applications
                 .Include(x => x.ApplicationStatus)
                 .Where(x => x.BorrowerId == borrowerId
                             && x.Id == applicationId)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return application;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<List<ApplicationEntity>> GetApplications(Guid borrowerId) {
-            var applications = await _databaseContext.Applications
+        public IQueryable<ApplicationEntity> GetIQueryable(Guid borrowerId) {
+            var applications = _databaseContext.Applications
                 .Include(x => x.ApplicationStatus)
                 .Where(x => x.BorrowerId == borrowerId)
-                .ToListAsync();
+                .AsQueryable();
+
+            return applications;
+        }
+
+        public new IQueryable<ApplicationEntity> GetIQueryable() {
+            var applications = _databaseContext.Applications
+                .Include(x => x.ApplicationStatus)
+                .AsQueryable();
 
             return applications;
         }
@@ -42,7 +52,9 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return application;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public async Task<string> GetCompanyTypeAsync(Guid id) {
@@ -52,7 +64,9 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var companyType = application.Borrower.CompanyType.Type;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             return companyType;
         }
 
@@ -71,15 +85,19 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             return application.Loan != null;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        public async Task UpdateStatus(Guid applicationId, Guid statusId) {
+        public async Task UpdateStatusAsync(Guid applicationId, Guid statusId) {
             var application = await _databaseContext.Applications
                 .Where(x => x.Id == applicationId)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             application.ApplicationStatusId = statusId;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public new async Task<ApplicationEntity> GetByIdAsync(Guid id) {
@@ -88,7 +106,9 @@ namespace Infrastructure.Persistence.Repositories {
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
+#pragma warning disable CS8603 // Possible null reference return.
             return application;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 }

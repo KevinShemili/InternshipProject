@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Objects\Response\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Templates\VerifyEmailTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

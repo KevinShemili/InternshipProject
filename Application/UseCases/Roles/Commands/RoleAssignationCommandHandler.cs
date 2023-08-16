@@ -1,4 +1,5 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -18,14 +19,16 @@ namespace Application.UseCases.Roles.Commands {
 
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RoleAssignationCommandHandler(IUserRepository userRepository, IRoleRepository roleRepository,
-            IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public RoleAssignationCommandHandler(IUserRepository userRepository,
+                                             IRoleRepository roleRepository,
+                                             IStringLocalizer<LocalizationResources> localizer,
+                                             IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
-            _localizer = localizer;
+            _localization = localizer;
             _unitOfWork = unitOfWork;
         }
 
@@ -41,16 +44,20 @@ namespace Application.UseCases.Roles.Commands {
             var flag = request.Ids.All(item => roleIds.Contains(item));
 
             if (flag is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("InvalidRoles").Value);
+                throw new NoSuchEntityExistsException(_localization.GetString("InvalidRoles").Value);
 
             await _userRepository.UpdateRolesAsync(request.UserId, GetRoles(request.Ids, roles));
-            await _unitOfWork.SaveChangesAsync();
+
+            var dbFlag = await _unitOfWork.SaveChangesAsync();
+            if (dbFlag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
             return true;
         }
 
         // we are getting a list of Ids, we need to get the entities associated
         // with these ids in order to perform the insertion in the db
-        private List<Role> GetRoles(IEnumerable<Guid> ids, IEnumerable<Role> roles) {
+        private static List<Role> GetRoles(IEnumerable<Guid> ids, IEnumerable<Role> roles) {
             var list = new List<Role>();
             foreach (var role in roles)
                 if (ids.Contains(role.Id))
@@ -62,7 +69,7 @@ namespace Application.UseCases.Roles.Commands {
     public class RoleAssignationCommandValidator : AbstractValidator<RoleAssignationCommand> {
         public RoleAssignationCommandValidator() {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyUserId");
         }
     }
 }

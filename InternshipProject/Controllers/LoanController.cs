@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
     [ApiController]
     [Route("api")]
     public class LoanController : ControllerBase {
@@ -31,8 +32,18 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Get all loans")]
         [HttpGet("loans")]
-        public async Task<IActionResult> GetAllLoans() {
-            var result = await _mediator.Send(new GetAllLoansQuery { });
+        public async Task<IActionResult> GetAllLoans([FromQuery] string? filter,
+                                                     [FromQuery] string? sortColumn,
+                                                     [FromQuery] string? sortOrder,
+                                                     [FromQuery] int pageSize,
+                                                     [FromQuery] int page) {
+            var result = await _mediator.Send(new GetAllLoansQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
+            });
 
             return Ok(result);
         }
@@ -41,7 +52,7 @@ namespace InternshipProject.Controllers {
         [HttpGet("loans/{id}")]
         public async Task<IActionResult> GetLoanById([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetLoanQuery {
-                Id = id
+                LoanId = id
             });
 
             return Ok(result);
@@ -49,9 +60,19 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Get all loans of a borrower")]
         [HttpGet("borrowers/{id}/loans")]
-        public async Task<IActionResult> GetBorrowerLoans([FromRoute] Guid id) {
+        public async Task<IActionResult> GetBorrowerLoans([FromRoute] Guid id,
+                                                          [FromQuery] string? filter,
+                                                          [FromQuery] string? sortColumn,
+                                                          [FromQuery] string? sortOrder,
+                                                          [FromQuery] int pageSize,
+                                                          [FromQuery] int page) {
             var result = await _mediator.Send(new GetBorrowerLoansQuery {
-                BorrowerId = id
+                BorrowerId = id,
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
             });
 
             return Ok(result);
@@ -69,10 +90,10 @@ namespace InternshipProject.Controllers {
 
         [SwaggerOperation(Summary = "Change loan status")]
         [HttpPatch("loans/{id}/change-status")]
-        public async Task<IActionResult> ChangeLoanStatus([FromRoute] Guid id, [FromBody] Guid statusId) {
+        public async Task<IActionResult> ChangeLoanStatus([FromRoute] Guid id, [FromBody] LoanStatusRequest request) {
             var result = await _mediator.Send(new ChangeLoanStatusCommand {
                 LoanId = id,
-                StatusId = statusId
+                StatusId = request.Id
             });
             return Ok(result);
         }

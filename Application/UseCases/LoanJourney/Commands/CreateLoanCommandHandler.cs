@@ -1,7 +1,8 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
+using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.LoanJourney.Results;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Seeds;
@@ -22,14 +23,12 @@ namespace Application.UseCases.LoanJourney.Commands {
         private readonly IApplicationRepository _applicationRepository;
         private readonly ILenderRepository _lenderRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly ILenderMatrixRepository _lenderMatrixRepository;
         private readonly ILoanRepository _loanRepository;
         private readonly ILoanStatusRepository _loanStatusRepository;
 
         public CreateLoanCommandHandler(IStringLocalizer<LocalizationResources> localization,
-                                        IMapper mapper,
                                         IUnitOfWork unitOfWork,
                                         ILenderRepository lenderRepository,
                                         IApplicationRepository applicationRepository,
@@ -37,7 +36,6 @@ namespace Application.UseCases.LoanJourney.Commands {
                                         ILoanRepository loanRepository,
                                         ILoanStatusRepository loanStatusRepository) {
             _localization = localization;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _lenderRepository = lenderRepository;
             _applicationRepository = applicationRepository;
@@ -57,12 +55,12 @@ namespace Application.UseCases.LoanJourney.Commands {
             var application = await _applicationRepository.GetWithProductAsync(request.ApplicationId);
 
             if (await _applicationRepository.IsApprovedAsLoanAsync(application.Id) is true)
-                throw new Exception("this application already is a loan");
+                throw new InvalidInputException(_localization.GetString("AlreadyApproved").Value);
 
             var lender = await _lenderRepository.GetByIdAsync(request.LenderId);
 
             if (await IsEligible(lender, application) is false)
-                throw new NoSuchEntityExistsException("Lender not eligible");
+                throw new InvalidInputException(_localization.GetString("NotEligible").Value);
 
             var product = application.Product;
 
@@ -77,16 +75,17 @@ namespace Application.UseCases.LoanJourney.Commands {
                 ReferenceRate = product.ReferenceRate,
                 InterestRate = matrix.Spread + product.ReferenceRate,
                 Tenor = application.RequestedTenor,
-                ProductId = product.Id
+                ProductId = product.Id,
+                Application = application,
+                Lender = lender,
+                LoanStatus = await _loanStatusRepository.GetByIdAsync(DefinedLoanStatuses.Created.Id)
             };
-
-            loan.Application = application;
-            loan.Lender = lender;
-            loan.LoanStatus = await _loanStatusRepository.GetByIdAsync(DefinedLoanStatuses.Created.Id);
 
             await _loanRepository.CreateAsync(loan);
 
-            await _unitOfWork.SaveChangesAsync();
+            var flag = await _unitOfWork.SaveChangesAsync();
+            if (flag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException"));
 
             return new LoanResult {
                 Id = loan.Id,
@@ -106,12 +105,12 @@ namespace Application.UseCases.LoanJourney.Commands {
             if (lender.RequestedAmount > application.RequestedAmount)
                 return false;
 
-            if (lender.BorrowerCompanyType != await _applicationRepository.GetCompanyTypeAsync(application.Id))
+            if ((string.IsNullOrEmpty(lender.BorrowerCompanyType) is false) && (lender.BorrowerCompanyType
+                != await _applicationRepository.GetCompanyTypeAsync(application.Id)))
                 return false;
 
             return true;
         }
-
     }
 
     public class CreateLoanCommandValidator : AbstractValidator<CreateLoanCommand> {

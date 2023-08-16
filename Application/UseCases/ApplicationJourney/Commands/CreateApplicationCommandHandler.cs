@@ -50,6 +50,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request,
                                                            CancellationToken cancellationToken) {
 
+            // predefined can be changed later by loan offc.
             var product = await _productRepository.GetByIdAsync(DefinedProducts.FixedRatePreAmortization.Id);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
@@ -93,7 +94,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             RuleFor(x => x.RequestedTenor)
                 .NotEmpty().WithMessage("EmptyRequestTenor");
 
-            RuleFor(x => x.RequestedTenor < DefinedTenors.MaximumTenor && x.RequestedTenor > DefinedTenors.MinimumTenor)
+            RuleFor(x => x.RequestedTenor <= DefinedTenors.MaximumTenor && x.RequestedTenor >= DefinedTenors.MinimumTenor)
                 .NotEmpty().WithMessage("TenorConstraint");
 
             RuleFor(x => x.FinancePurposeDefinition)

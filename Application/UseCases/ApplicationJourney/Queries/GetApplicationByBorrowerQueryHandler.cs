@@ -38,7 +38,7 @@ namespace Application.UseCases.ApplicationJourney.Queries {
             if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetApplicationByBorrower(request.BorrowerId, request.ApplicationId);
+            var application = await _applicationRepository.GetApplicationByBorrowerAsync(request.BorrowerId, request.ApplicationId);
 
             return _mapper.Map<ApplicationQueryResult>(application);
         }
@@ -47,9 +47,9 @@ namespace Application.UseCases.ApplicationJourney.Queries {
     public class GetApplicationByBorrowerQueryValidator : AbstractValidator<GetApplicationByBorrowerQuery> {
         public GetApplicationByBorrowerQueryValidator() {
             RuleFor(x => x.BorrowerId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyBorrowerId");
             RuleFor(x => x.ApplicationId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyApplicationId");
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Application.UseCases.LenderCases.Queries;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +11,8 @@ namespace InternshipProject.Controllers {
     public class LenderController : ControllerBase {
 
         private readonly IMediator _mediator;
-        private readonly IMapper _mapper;
 
-        public LenderController(IMapper mapper, IMediator mediator) {
-            _mapper = mapper;
+        public LenderController(IMediator mediator) {
             _mediator = mediator;
         }
 
@@ -24,7 +21,7 @@ namespace InternshipProject.Controllers {
         [HttpGet("applications/{id}/eligible-lenders")]
         public async Task<IActionResult> GetEligibleLenders([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetEligibleLendersQuery {
-                Id = id
+                ApplicationId = id
             });
             return Ok(result);
         }
@@ -32,8 +29,19 @@ namespace InternshipProject.Controllers {
         [SwaggerOperation(Summary = "Get all lenders")]
         [AllowAnonymous]
         [HttpGet("lenders")]
-        public async Task<IActionResult> GetAllLenders() {
-            var result = await _mediator.Send(new GetAllLendersQuery { });
+        public async Task<IActionResult> GetAllLenders([FromQuery] string? filter,
+                                                       [FromQuery] string? sortColumn,
+                                                       [FromQuery] string? sortOrder,
+                                                       [FromQuery] int pageSize,
+                                                       [FromQuery] int page) {
+
+            var result = await _mediator.Send(new GetAllLendersQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
+            });
             return Ok(result);
         }
 
@@ -42,7 +50,7 @@ namespace InternshipProject.Controllers {
         [HttpGet("lenders/{id}")]
         public async Task<IActionResult> GetLenderById([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetLendersQuery {
-                Id = id
+                LenderId = id
             });
             return Ok(result);
         }

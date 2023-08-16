@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlreadyApproved" xml:space="preserve">
+    <value>Questa domanda è già stata approvata come prestito.</value>
+  </data>
   <data name="ApplicationDoesntExist" xml:space="preserve">
     <value>L'applicazione fornita non esiste.</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="DatabaseException" xml:space="preserve">
     <value>Non è stato possibile salvare le modifiche a causa di un errore irreversibile. Per favore riprova.</value>
+  </data>
+  <data name="DoesntBelongTo" xml:space="preserve">
+    <value>Il prestito non appartiene al mutuatario fornito.</value>
   </data>
   <data name="DuplicateEmail" xml:space="preserve">
     <value>Email già esistente.</value>
@@ -156,6 +162,12 @@
   <data name="EmptyAccessToken" xml:space="preserve">
     <value>Fornisci il token di accesso.</value>
   </data>
+  <data name="EmptyApplicationId" xml:space="preserve">
+    <value>Fornisci un ID applicazione.</value>
+  </data>
+  <data name="EmptyBorrowerId" xml:space="preserve">
+    <value>Si prega di fornire un ID mutuatario.</value>
+  </data>
   <data name="EmptyCompanyName" xml:space="preserve">
     <value>Il nome dell'azienda non può essere vuoto. Fornisci un valore.</value>
   </data>
@@ -174,14 +186,26 @@
   <data name="EmptyFirstName" xml:space="preserve">
     <value>Il nome non può essere vuoto. Fornisci un valore.</value>
   </data>
+  <data name="EmptyFiscalCode" xml:space="preserve">
+    <value>Il codice fiscale non può essere vuoto. Fornisci un valore.</value>
+  </data>
   <data name="EmptyId" xml:space="preserve">
     <value>Fornisci un ID associato all'entità.</value>
   </data>
   <data name="EmptyLastName" xml:space="preserve">
     <value>Il cognome non può essere vuoto. Fornisci un valore.</value>
   </data>
+  <data name="EmptyLenderId" xml:space="preserve">
+    <value>Si prega di fornire un ID prestatore.</value>
+  </data>
+  <data name="EmptyLoanId" xml:space="preserve">
+    <value>Si prega di fornire un ID prestito.</value>
+  </data>
   <data name="EmptyPassword" xml:space="preserve">
     <value>La password non può essere vuota. Fornisci un valore.</value>
+  </data>
+  <data name="EmptyPermissionId" xml:space="preserve">
+    <value>Si prega di fornire un ID di autorizzazione.</value>
   </data>
   <data name="EmptyPermissionName" xml:space="preserve">
     <value>Il nome dell'autorizzazione non può essere vuoto. Fornisci un valore.</value>
@@ -191,6 +215,9 @@
   </data>
   <data name="EmptyPrefix" xml:space="preserve">
     <value>Il prefisso non può essere vuoto. Fornisci un valore.</value>
+  </data>
+  <data name="EmptyProductId" xml:space="preserve">
+    <value>Fornisci un ID prodotto.</value>
   </data>
   <data name="EmptyProductType" xml:space="preserve">
     <value>Il tipo di prodotto non può essere vuoto. Fornisci un valore.</value>
@@ -204,11 +231,20 @@
   <data name="EmptyRequestTenor" xml:space="preserve">
     <value>Il tenore della richiesta non può essere vuoto. Fornisci un valore.</value>
   </data>
+  <data name="EmptyRoleId" xml:space="preserve">
+    <value>Fornisci un ID ruolo.</value>
+  </data>
   <data name="EmptyRoleName" xml:space="preserve">
     <value>Il nome del ruolo non può essere vuoto. Fornisci un valore.</value>
   </data>
+  <data name="EmptyStatusId" xml:space="preserve">
+    <value>Fornisci un ID stato.</value>
+  </data>
   <data name="EmptyToken" xml:space="preserve">
     <value>Il token non può essere vuoto. Fornisci un valore.</value>
+  </data>
+  <data name="EmptyUserId" xml:space="preserve">
+    <value>Fornisci un ID utente.</value>
   </data>
   <data name="EmptyUsername" xml:space="preserve">
     <value>Il nome utente non può essere vuoto. Fornisci un valore.</value>
@@ -276,6 +312,9 @@
   <data name="NoExcelRowExists" xml:space="preserve">
     <value>La combinazione prestatore - prodotto non è stata ancora creata. Si prega di generare un modello vuoto.</value>
   </data>
+  <data name="NotEligible" xml:space="preserve">
+    <value>Il prestatore fornito non è idoneo per l'applicazione. Si prega di fornire un prestatore idoneo.</value>
+  </data>
   <data name="PasswordLowercaseLetterRestriction" xml:space="preserve">
     <value>La tua password deve contenere almeno una lettera minuscola.</value>
   </data>
@@ -315,6 +354,9 @@
   <data name="RoleDoesntExist" xml:space="preserve">
     <value>Il ruolo fornito non esiste.</value>
   </data>
+  <data name="SendEmailError" xml:space="preserve">
+    <value>Non è stato possibile inviare l'e-mail. Per favore riprova più tardi.</value>
+  </data>
   <data name="SmallerRequestAmount" xml:space="preserve">
     <value>L'importo della domanda richiesto è inferiore all'importo minimo del finanziamento per il tipo di prodotto scelto.</value>
   </data>
@@ -329,6 +371,9 @@
   </data>
   <data name="UnathorizedAccess" xml:space="preserve">
     <value>Lei non ha l'autorizzazione necessaria per accedere a questa risorsa.</value>
+  </data>
+  <data name="UndefinedStatus" xml:space="preserve">
+    <value>Lo stato fornito non esiste.</value>
   </data>
   <data name="UnverifiedEmail" xml:space="preserve">
     <value>Verifica la tua email per procedere con il login.</value>

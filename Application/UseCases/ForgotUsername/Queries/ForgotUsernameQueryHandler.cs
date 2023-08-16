@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Email;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Email;
 using Application.Persistance;
 using Domain.Exceptions;
 using FluentValidation;
@@ -17,28 +18,33 @@ namespace Application.UseCases.ForgotUsername.Queries {
         private readonly IUserRepository _userRepository;
         private readonly IMailService _mailService;
         private readonly IMailBodyService _mailBodyService;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
 
-        public ForgotUsernameQueryHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IStringLocalizer<LocalizationResources> localizer) {
+        public ForgotUsernameQueryHandler(IUserRepository userRepository,
+                                          IMailService mailService,
+                                          IMailBodyService mailBodyService,
+                                          IStringLocalizer<LocalizationResources> localizer) {
             _userRepository = userRepository;
             _mailService = mailService;
             _mailBodyService = mailBodyService;
-            _localizer = localizer;
+            _localization = localizer;
         }
 
         public async Task<bool> Handle(ForgotUsernameQuery request, CancellationToken cancellationToken) {
 
-            var entity = await _userRepository.GetByEmailAsync(request.Email);
+            if (await _userRepository.ContainsEmailAsync(request.Email) is false)
+                throw new NoSuchEntityExistsException(_localization.GetString("EmailDoesntExist").Value);
 
-            if (entity == null)
-                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist"));
+            var user = await _userRepository.GetByEmailAsync(request.Email);
 
-            var body = await _mailBodyService.GetForgotUsernameMailBodyAsync(entity.Username);
+            var body = await _mailBodyService.GetForgotUsernameMailBodyAsync(user.Username);
             string subject = "Forgot Username";
-
             var mailData = new MailData(request.Email, subject, body);
 
-            await _mailService.SendAsync(mailData, cancellationToken);
+            var flag = await _mailService.SendAsync(mailData, cancellationToken);
+            if (flag is false)
+                throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
+
             return true;
         }
     }

@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
+    [ApiController]
+    [Route("api")]
     public class ProductsController : ControllerBase {
 
         private readonly IMediator _mediator;
@@ -15,8 +18,18 @@ namespace InternshipProject.Controllers {
         [SwaggerOperation(Summary = "Get products")]
         //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("products")]
-        public async Task<IActionResult> GetProducts() {
-            var result = await _mediator.Send(new GetProductsQuery { });
+        public async Task<IActionResult> GetProducts([FromQuery] string? filter,
+                                                     [FromQuery] string? sortColumn,
+                                                     [FromQuery] string? sortOrder,
+                                                     [FromQuery] int pageSize,
+                                                     [FromQuery] int page) {
+            var result = await _mediator.Send(new GetProductsQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
+            });
             return Ok(result);
         }
     }

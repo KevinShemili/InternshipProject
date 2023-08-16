@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Persistance;
 using Application.Persistance.Common;
@@ -25,7 +26,12 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
 
-        public LoginCommandHandler(IUserRepository userRepository, IJwtToken jwtToken, IHasherService hasherService, ITokenService tokenService, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public LoginCommandHandler(IUserRepository userRepository,
+                                   IJwtToken jwtToken,
+                                   IHasherService hasherService,
+                                   ITokenService tokenService,
+                                   IStringLocalizer<LocalizationResources> localizer,
+                                   IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _jwtToken = jwtToken;
             _hasherService = hasherService;
@@ -58,24 +64,28 @@ namespace Application.UseCases.Authentication.Commands {
             }
 
             var roles = await _userRepository.GetRolesAsync(user.Id);
-
             var roleNames = roles.Select(x => x.Name).AsEnumerable();
 
+            // put roles in token
             var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames);
+
+            // generate refresh token for the user
             var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
 
+            // logic successful by this point 
             await _userRepository.ResetTriesAsync(user.Id);
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
-            await _unitOfWork.SaveChangesAsync();
+            var dbFlag = await _unitOfWork.SaveChangesAsync();
 
-            var loginResult = new LoginResult {
+            if (dbFlag is false)
+                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
+            return new LoginResult {
                 Id = user.Id,
                 Token = token,
                 RefreshToken = refreshToken
-            };
-
-            return loginResult;
+            }; ;
         }
     }
 

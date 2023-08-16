@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Authentication;
+﻿using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
@@ -24,31 +25,38 @@ namespace Application.UseCases.ForgotPassword.Commands {
         private readonly IMailBodyService _mailBodyService;
         private readonly IUserVerificationAndResetRepository _userVerificationAndResetRepository;
         private readonly IHasherService _hasherService;
-        private readonly IStringLocalizer<LocalizationResources> _localizer;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ResetPasswordCommandHandler(IUserRepository userRepository, IMailService mailService, IMailBodyService mailBodyService, IUserVerificationAndResetRepository userVerificationAndResetRepository, IHasherService hasherService, IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+        public ResetPasswordCommandHandler(IUserRepository userRepository,
+                                           IMailService mailService,
+                                           IMailBodyService mailBodyService,
+                                           IUserVerificationAndResetRepository userVerificationAndResetRepository,
+                                           IHasherService hasherService,
+                                           IStringLocalizer<LocalizationResources> localizer,
+                                           IUnitOfWork unitOfWork) {
             _userRepository = userRepository;
             _mailService = mailService;
             _mailBodyService = mailBodyService;
             _userVerificationAndResetRepository = userVerificationAndResetRepository;
             _hasherService = hasherService;
-            _localizer = localizer;
+            _localization = localizer;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
 
+            // we know for sure row exists, because it was created when first registered
             var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
 
             var passwordToken = entity.PasswordResetToken;
             var passwordTokenExpiry = entity.PasswordResetTokenExpiry;
 
             if (passwordToken is null)
-                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
+                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
 
             if (passwordTokenExpiry is null)
-                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
+                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
 
             if (passwordToken == request.Token
                 && passwordTokenExpiry > DateTime.Now) {
@@ -58,19 +66,23 @@ namespace Application.UseCases.ForgotPassword.Commands {
 
                 await _userRepository.ChangePasswordAsync(request.Email, passwordHash, passwordSalt);
 
-                await _unitOfWork.SaveChangesAsync();
-
                 var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBodyAsync();
                 var subject = "Password Reset";
                 var mailData = new MailData(request.Email, subject, body);
-                await _mailService.SendAsync(mailData, cancellationToken);
+                var flag = await _mailService.SendAsync(mailData, cancellationToken);
+                if (flag is false)
+                    throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
+
+                var dbFlag = await _unitOfWork.SaveChangesAsync();
+                if (dbFlag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
                 return true;
             }
             else if (passwordToken == request.Token
                 && passwordTokenExpiry < DateTime.Now)
-                throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
+                throw new TokenExpiredException(_localization.GetString("TokenExpired").Value);
             else
-                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
+                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
         }
     }
 

@@ -12,7 +12,9 @@ using InternshipProject.Objects.Requests.ApplicationJourneyRequests;
 using InternshipProject.Objects.Requests.AuthenticationRequests;
 using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
 using InternshipProject.Objects.Requests.LoanRequests;
-using InternshipProject.Objects.Requests.RolePermissionRequests;
+using InternshipProject.Objects.Requests.ManagementRequests;
+using InternshipProject.Objects.Requests.PermissionRequests;
+using InternshipProject.Objects.Requests.RoleRequests;
 
 namespace InternshipProject.Mapping {
     public class CommandMappings : Profile {

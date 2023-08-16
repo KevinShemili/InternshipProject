@@ -1,4 +1,6 @@
-﻿using Application.Interfaces.Authentication;
+﻿using Application.Exceptions;
+using Application.Exceptions.ServerErrors;
+using Application.Interfaces.Authentication;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.BorrowerJourney.Results;
@@ -7,7 +9,6 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
-using Hangfire;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
@@ -18,7 +19,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
     public class CreateBorrowerCommmand : IRequest<BorrowerCommandResult> {
         public string AccessToken { get; set; } = null!;
         public string CompanyName { get; set; } = null!;
-        public string CompanyType { get; set; } = null!;
+        public string CompanyTypeId { get; set; } = null!;
         public string VATNumber { get; set; } = null!;
         public string FiscalCode { get; set; } = null!;
     }
@@ -33,7 +34,6 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IJwtToken _jwtToken;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoleRepository _roleRepository;
-        private readonly IRecurringJobManager _recurringJobManager;
 
         public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization,
                                             IUserRepository userRepository,
@@ -42,8 +42,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                                             IBorrowerRepository borrowerRepository,
                                             IJwtToken jwtToken,
                                             IUnitOfWork unitOfWork,
-                                            IRoleRepository roleRepository,
-                                            IRecurringJobManager recurringJobManager) {
+                                            IRoleRepository roleRepository) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -52,7 +51,6 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             _jwtToken = jwtToken;
             _unitOfWork = unitOfWork;
             _roleRepository = roleRepository;
-            _recurringJobManager = recurringJobManager;
         }
 
         public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
@@ -62,32 +60,45 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             if (await _userRepository.ContainsAsync(userId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("UnathorizedAccess").Value);
 
-            if (await _companyTypeRepository.ContainsAsync(request.CompanyType) is false)
+            var companyTypeId = Guid.Parse(request.CompanyTypeId);
+
+            if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
                 throw new NoSuchEntityExistsException(_localization.GetString("CompanyTypeDoesntExist").Value);
 
+            // fiscal codes must be unique for user
             if (await _borrowerRepository.IsFiscalCodeUniqueAsync(userId, request.FiscalCode) is false)
                 throw new DuplicateException(_localization.GetString("DuplicateFiscalCode").Value);
+
+            // validate length
+            if (IsValid(companyTypeId, request.FiscalCode) is false)
+                throw new InvalidInputException(_localization.GetString("FiscalCodeLengthRestriction").Value);
 
             var borrower = _mapper.Map<Borrower>(request);
             var borrowerId = Guid.NewGuid();
             borrower.Id = borrowerId;
             borrower.UserId = userId;
-            borrower.CompanyType = await _companyTypeRepository.GetByNameAsync(request.CompanyType);
+            borrower.CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId);
             borrower.CompanyProfile = await GetCompanyProfile(request.CompanyName);
 
             await _borrowerRepository.CreateAsync(borrower);
 
+            // automatically add role borrower -> Can see his own borrow, add application etc.
             await _userRepository.AddRoleAsync(userId,
                                                await _roleRepository.GetByIdAsync(DefinedRoles.Borrower.Id));
+
+            var flag = await _unitOfWork.SaveChangesAsync();
+            if (flag is false)
+                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
 
             return new BorrowerCommandResult {
                 Id = borrowerId,
                 CompanyName = borrower.CompanyName,
-                CompanyType = request.CompanyType
+                CompanyType = borrower.CompanyType.Type
             };
         }
 
         private static async Task<CompanyProfile> GetCompanyProfile(string companyName) {
+
             var client = new HttpClient {
                 BaseAddress = new Uri("https://finnhub.io/api/v1/stock/")
             };
@@ -96,13 +107,22 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                 + $"profile2?symbol={companyName}&token=cj3rfthr01qlttl4igc0cj3rfthr01qlttl4igcg");
 
             if (response.IsSuccessStatusCode is false)
-                throw new HttpRequestException(response.ReasonPhrase);
+                throw new ThirdPartyException(response.ReasonPhrase);
 
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<CompanyProfile>(stringResponse,
                                                               new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             result.Id = Guid.NewGuid();
-            return result is null ? throw new Exception() : result;
+            return result is null ? throw new ThirdPartyException("Invalid JSON data.") : result;
+        }
+
+        private static bool IsValid(Guid id, string fiscalCode) {
+            if (id == DefinedCompanyTypes.SoleProprietorship.Id)
+                return fiscalCode.Length == 16;
+            else if (id == DefinedCompanyTypes.Other.Id)
+                return fiscalCode.Length == 11;
+
+            return true; // For other company types no restrictions
         }
     }
 
@@ -111,7 +131,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             RuleFor(x => x.CompanyName)
                 .NotEmpty().WithMessage("EmptyCompanyName");
 
-            RuleFor(x => x.CompanyType)
+            RuleFor(x => x.CompanyTypeId)
                 .NotEmpty().WithMessage("EmptyCompanyType");
 
             RuleFor(x => x.VATNumber)
@@ -119,17 +139,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                 .Length(11).WithMessage("VATNumberLengthRestriction");
 
             RuleFor(x => x.FiscalCode)
-            .Must((command, fiscalCode) => ValidateFiscalCodeLength(command.CompanyType, fiscalCode))
-            .WithMessage("FiscalCodeLengthRestriction");
-        }
-
-        private bool ValidateFiscalCodeLength(string companyType, string fiscalCode) {
-            if (companyType == "Sole Proprietorship")
-                return fiscalCode.Length == 16;
-            else if (companyType == "Other")
-                return fiscalCode.Length == 11;
-
-            return true; // For other company types no restrictions
+                .NotEmpty().WithMessage("EmptyFiscalCode");
         }
     }
 }

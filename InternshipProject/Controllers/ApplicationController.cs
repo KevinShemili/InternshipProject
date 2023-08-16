@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
     [ApiController]
     [Route("api")]
     public class ApplicationController : ControllerBase {
@@ -35,7 +36,25 @@ namespace InternshipProject.Controllers {
         [HttpGet("applications/{id}")]
         public async Task<IActionResult> GetApplication([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetApplicationQuery {
-                Id = id
+                ApplicationId = id
+            });
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Get all applications")]
+        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [HttpGet("applications")]
+        public async Task<IActionResult> GetAllApplications([FromQuery] string? filter,
+                                                            [FromQuery] string? sortColumn,
+                                                            [FromQuery] string? sortOrder,
+                                                            [FromQuery] int pageSize,
+                                                            [FromQuery] int page) {
+            var result = await _mediator.Send(new GetAllApplicationsQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
             });
             return Ok(result);
         }
@@ -54,9 +73,19 @@ namespace InternshipProject.Controllers {
         [SwaggerOperation(Summary = "Gets the applications of a borrower")]
         //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("borrowers/{id}/applications")]
-        public async Task<IActionResult> GetApplicationsByBorrower([FromRoute] Guid id) {
+        public async Task<IActionResult> GetApplicationsByBorrower([FromRoute] Guid id,
+                                                                   [FromQuery] string? filter,
+                                                                   [FromQuery] string? sortColumn,
+                                                                   [FromQuery] string? sortOrder,
+                                                                   [FromQuery] int pageSize,
+                                                                   [FromQuery] int page) {
             var result = await _mediator.Send(new GetApplicationsByBorrowerQuery {
-                Id = id
+                BorrowerId = id,
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
             });
             return Ok(result);
         }

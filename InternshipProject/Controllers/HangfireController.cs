@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternshipProject.Controllers {
+
     [ApiController]
     [Route("api")]
     public class HangfireController : ControllerBase {
@@ -16,7 +17,7 @@ namespace InternshipProject.Controllers {
             _jobManager = jobManager;
         }
 
-        [SwaggerOperation(Summary = "Recurring company update")]
+        [SwaggerOperation(Summary = "Start recurring company update")]
         [HttpGet("company-update")]
         public IActionResult RecurringCompanyUpdate() {
 

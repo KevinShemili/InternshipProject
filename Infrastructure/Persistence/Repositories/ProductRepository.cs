@@ -18,20 +18,5 @@ namespace Infrastructure.Persistence.Repositories {
                 return false;
             return true;
         }
-
-        public async Task<Product> GetByNameAsync(string name) {
-            var entity = await _databaseContext.Products
-                .Where(x => x.Name == name)
-                .FirstOrDefaultAsync();
-
-            if (entity is null)
-                return null;
-            return entity;
-        }
-
-        public async Task<List<Guid>> GetIdsAsync() {
-            var ids = await _databaseContext.Products.Select(x => x.Id).ToListAsync();
-            return ids;
-        }
     }
 }

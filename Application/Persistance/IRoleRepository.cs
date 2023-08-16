@@ -3,10 +3,9 @@ using Domain.Entities;
 
 namespace Application.Persistance {
     public interface IRoleRepository : IBaseRepository<Role> {
-        Task<HashSet<Permission>> GetPermissionsAsync(Guid id);
+        IQueryable<Permission> GetPermissions(Guid id);
         Task<bool> ClearPermissionsAsync(Guid id);
         Task<bool> UpdatePermissionsAsync(Guid id, IEnumerable<Permission> permissions);
         Task<bool> ContainsAsync(Guid id);
-        Task<Role> GetByNameAsync(string name);
     }
 }

@@ -53,25 +53,27 @@ namespace Infrastructure.Persistence.Repositories {
             var entity = await _databaseContext.UserVerificationAndReset
                 .Where(x => x.UserEmail == email)
                 .FirstOrDefaultAsync();
+#pragma warning disable CS8603 // Possible null reference return.
             return entity;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
-        public async Task<bool?> SetPasswordTokenAsync(string email, string passwordToken, DateTime tokenExpiry) {
+        public async Task<bool> SetPasswordTokenAsync(string email, string passwordToken, DateTime tokenExpiry) {
             var entity = await GetByEmailAsync(email);
 
             if (entity is null)
-                return null;
+                return false;
 
             entity.PasswordResetToken = passwordToken;
             entity.PasswordResetTokenExpiry = tokenExpiry;
             return true;
         }
 
-        public async Task<bool?> UpdateVerificationTokenAsync(string email, string verificationToken, DateTime tokenExpiry) {
+        public async Task<bool> UpdateVerificationTokenAsync(string email, string verificationToken, DateTime tokenExpiry) {
             var entity = await GetByEmailAsync(email);
 
             if (entity is null)
-                return null;
+                return false;
 
             entity.EmailVerificationToken = verificationToken;
             entity.EmailVerificationTokenExpiry = tokenExpiry;

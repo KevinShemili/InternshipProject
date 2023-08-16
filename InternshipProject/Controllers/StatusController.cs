@@ -18,8 +18,18 @@ namespace InternshipProject.Controllers {
         [SwaggerOperation(Summary = "Get loan statuses")]
         //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
         [HttpGet("loan-statuses")]
-        public async Task<IActionResult> GetStatuses() {
-            var result = await _mediator.Send(new GetLoanStatusesQuery { });
+        public async Task<IActionResult> GetStatuses([FromQuery] string? filter,
+                                                     [FromQuery] string? sortColumn,
+                                                     [FromQuery] string? sortOrder,
+                                                     [FromQuery] int pageSize,
+                                                     [FromQuery] int page) {
+            var result = await _mediator.Send(new GetLoanStatusesQuery {
+                Filter = filter,
+                SortColumn = sortColumn,
+                SortOrder = sortOrder,
+                PageSize = pageSize,
+                Page = page
+            });
             return Ok(result);
         }
     }
