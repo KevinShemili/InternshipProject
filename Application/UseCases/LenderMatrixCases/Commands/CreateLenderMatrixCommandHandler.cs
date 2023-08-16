@@ -1,8 +1,8 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -44,14 +44,14 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
         public async Task<bool> Handle(CreateLenderMatrixCommand request, CancellationToken cancellationToken) {
 
             if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("LenderDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("LenderDoesntExist").Value);
 
             if (await _productRepository.ContainsAsync(request.ProductId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("ProductTypeDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("ProductTypeDoesntExist").Value);
 
             // we are already making sure that during matrix up, the user has to upload all combinations. We check if just one exists
             if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is true)
-                throw new ForbiddenException(_localization.GetString("MatrixAlreadyExists").Value);
+                throw new ConflictException(_localization.GetString("MatrixAlreadyExists").Value);
 
             var matrices = await _excelService.ReadMatrix(request.File, request.LenderId, request.ProductId);
             await _lenderMatrixRepository.CreateAsync(matrices);

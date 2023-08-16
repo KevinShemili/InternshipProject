@@ -1,7 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.LoanJourney.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -30,7 +30,7 @@ namespace Application.UseCases.LoanJourney.Queries {
         public async Task<LoanResult> Handle(GetLoanQuery request, CancellationToken cancellationToken) {
 
             if (await _loanRepository.ContainsAsync(request.LoanId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
+                throw new NotFoundException(_localization.GetString("LoanDoesntExist").Value);
 
             var loan = await _loanRepository.GetByIdAsync(request.LoanId);
 

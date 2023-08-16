@@ -1,4 +1,4 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
@@ -45,7 +45,7 @@ namespace Application.UseCases.Permissions.Commands {
             var flag = request.Ids.All(item => permissionIds.Contains(item));
 
             if (flag is false)
-                throw new InvalidInputException(_localization.GetString("InvalidPermissions").Value);
+                throw new InvalidRequestException(_localization.GetString("InvalidPermissions").Value);
 
             await _roleRepository.UpdatePermissionsAsync(request.RoleId, GetPermissions(request.Ids, permissions));
 

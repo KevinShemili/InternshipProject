@@ -1,6 +1,6 @@
-﻿using Application.Interfaces.Excel;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Interfaces.Excel;
 using Application.Persistance;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -34,11 +34,11 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
         public async Task<FileStreamResult> Handle(GenerateLenderMatrixQuery request, CancellationToken cancellationToken) {
 
             if (await _productRepository.ContainsAsync(request.ProductId) is false)
-                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("ProductTypeDoesntExist").Value,
+                throw new NotFoundException(string.Format(_localization.GetString("ProductTypeDoesntExist").Value,
                                                                         request.ProductId));
 
             if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
-                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("LenderDoesntExist").Value,
+                throw new NotFoundException(string.Format(_localization.GetString("LenderDoesntExist").Value,
                                                                         request.LenderId));
 
             var product = await _productRepository.GetByIdAsync(request.ProductId);
@@ -48,7 +48,7 @@ namespace Application.UseCases.LenderMatrixCases.Queries {
                 return _excelService.GenerateMatrixTemplate(lender, product);
             else {
                 if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is false)
-                    throw new NoSuchEntityExistsException(_localization.GetString("NoExcelRowExists").Value);
+                    throw new InvalidRequestException(_localization.GetString("NoExcelRowExists").Value);
 
                 var matrices = await _lenderMatrixRepository.GetMatricesAsync(request.LenderId, request.ProductId);
                 var lenderName = lender.Name;

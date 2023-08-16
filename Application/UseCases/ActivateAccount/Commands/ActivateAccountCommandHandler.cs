@@ -1,8 +1,7 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -35,10 +34,10 @@ namespace Application.UseCases.ActivateAccount.Commands {
         public async Task<bool> Handle(ActivateAccountCommand request, CancellationToken cancellationToken) {
 
             if (await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email) is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
+                throw new NotFoundException(_localizer.GetString("EmailDoesntExist").Value);
 
             if (await _userRepository.IsAccountActivatedAsync(request.Email) is true)
-                throw new EmailAlreadyVerifiedException(_localizer.GetString("EmailAlreadyVerified").Value);
+                throw new InvalidRequestException(_localizer.GetString("EmailAlreadyVerified").Value);
 
             var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
 
@@ -56,12 +55,11 @@ namespace Application.UseCases.ActivateAccount.Commands {
                 await _userRepository.ActivateAccountAsync(request.Email);
             else if (verificationToken == request.Token
                 && verificationTokenExpiry < DateTime.Now) // token is expired
-                throw new TokenExpiredException(_localizer.GetString("TokenExpired").Value);
+                throw new UnauthorizedException(_localizer.GetString("TokenExpired").Value);
             else // token is invalid
-                throw new ForbiddenException(_localizer.GetString("InvalidToken").Value);
+                throw new UnauthorizedException(_localizer.GetString("InvalidToken").Value);
 
             var flag = await _unitOfWork.SaveChangesAsync();
-
             if (flag is false)
                 throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 

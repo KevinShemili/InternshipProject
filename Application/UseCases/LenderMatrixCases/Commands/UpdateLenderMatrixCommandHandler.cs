@@ -1,8 +1,8 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Excel;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -44,10 +44,10 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
         public async Task<bool> Handle(UpdateLenderMatrixCommand request, CancellationToken cancellationToken) {
 
             if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("LenderDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("LenderDoesntExist").Value);
 
             if (await _productRepository.ContainsAsync(request.ProductId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("ProductTypeDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("ProductTypeDoesntExist").Value);
 
             if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is false)
                 throw new ForbiddenException(_localization.GetString("MatrixDoesntExist").Value);

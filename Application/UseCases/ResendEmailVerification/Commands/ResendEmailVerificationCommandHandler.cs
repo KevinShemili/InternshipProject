@@ -1,9 +1,9 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -43,7 +43,7 @@ namespace Application.UseCases.ResendEmailVerification.Commands {
             var flag = await _userVerificationAndResetRepository.ContainsEmailAsync(request.Email);
 
             if (flag is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("EmailDoesntExist").Value);
+                throw new NotFoundException(_localizer.GetString("EmailDoesntExist").Value);
 
             var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
             var tokenExpiry = DateTime.Now.AddMinutes(30);

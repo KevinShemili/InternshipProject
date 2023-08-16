@@ -1,9 +1,9 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.GenerateRefreshToken.Results;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -39,7 +39,7 @@ namespace Application.UseCases.GenerateRefreshToken.Commands {
             var userId = _jwtToken.GetUserId(request.AccessToken);
 
             if (await _userRepository.ContainsAsync(userId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("InvalidToken").Value);
+                throw new NotFoundException(_localization.GetString("InvalidToken").Value);
 
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -49,11 +49,11 @@ namespace Application.UseCases.GenerateRefreshToken.Commands {
             var oldRefreshTokenExpiry = entity.RefreshTokenExpiry;
 
             if (oldRefreshToken is null || oldRefreshTokenExpiry is null)
-                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
+                throw new UnauthorizedException(_localization.GetString("InvalidToken").Value);
             else if (request.RefreshToken != oldRefreshToken)
-                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
+                throw new UnauthorizedException(_localization.GetString("InvalidToken").Value);
             else if (oldRefreshTokenExpiry <= DateTime.Now)
-                throw new TokenExpiredException(_localization.GetString("TokenExpired").Value);
+                throw new UnauthorizedException(_localization.GetString("TokenExpired").Value);
 
             var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));

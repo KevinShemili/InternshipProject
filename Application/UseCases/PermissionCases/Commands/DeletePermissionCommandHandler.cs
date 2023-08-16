@@ -1,7 +1,7 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -30,7 +30,7 @@ namespace Application.UseCases.Permissions.Commands {
         public async Task<bool> Handle(DeletePermissionCommand request, CancellationToken cancellationToken) {
 
             if (await _permissionRepository.ContainsAsync(request.PermissionId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("PermissionDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("PermissionDoesntExist").Value);
 
             await _permissionRepository.DeleteAsync(request.PermissionId);
 

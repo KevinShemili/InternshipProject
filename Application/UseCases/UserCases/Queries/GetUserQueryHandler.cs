@@ -1,7 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.UserCases.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 
@@ -24,7 +24,7 @@ namespace Application.UseCases.UserCases.Queries {
         public async Task<UserResult> Handle(GetUserQuery request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsAsync(request.Id) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException("UserDoesntExist");
 
             var user = await _userRepository.GetByIdAsync(request.Id);
             return _mapper.Map<UserResult>(user);

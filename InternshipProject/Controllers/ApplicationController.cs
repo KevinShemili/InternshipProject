@@ -64,7 +64,7 @@ namespace InternshipProject.Controllers {
         [HttpPut("applications/{id}")]
         public async Task<IActionResult> UpdateApplication([FromRoute] Guid id, [FromBody] UpdateApplicationRequest request) {
             var command = _mapper.Map<UpdateApplicationCommand>(request);
-            command.Id = id;
+            command.ApplicationId = id;
 
             var result = await _mediator.Send(command);
             return Ok(result);

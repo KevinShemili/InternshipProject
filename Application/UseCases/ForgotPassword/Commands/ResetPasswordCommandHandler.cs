@@ -1,9 +1,9 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -80,7 +80,7 @@ namespace Application.UseCases.ForgotPassword.Commands {
             }
             else if (passwordToken == request.Token
                 && passwordTokenExpiry < DateTime.Now)
-                throw new TokenExpiredException(_localization.GetString("TokenExpired").Value);
+                throw new UnauthorizedException(_localization.GetString("TokenExpired").Value);
             else
                 throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
         }

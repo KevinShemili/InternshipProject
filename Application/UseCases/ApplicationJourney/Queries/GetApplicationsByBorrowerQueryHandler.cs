@@ -1,9 +1,9 @@
-﻿using Application.Interfaces.Pagination;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Interfaces.Pagination;
 using Application.Persistance;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -40,7 +40,7 @@ namespace Application.UseCases.ApplicationJourney.Queries {
         public async Task<PagedList<ApplicationQueryResult>> Handle(GetApplicationsByBorrowerQuery request, CancellationToken cancellationToken) {
 
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("BorrowerDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
             if (await _borrowerRepository.HasApplicationsAsync(request.BorrowerId) is false)
                 return new PagedList<ApplicationQueryResult>();
@@ -87,7 +87,7 @@ namespace Application.UseCases.ApplicationJourney.Queries {
     public class GetApplicationsByBorrowerQueryValidator : AbstractValidator<GetApplicationsByBorrowerQuery> {
         public GetApplicationsByBorrowerQueryValidator() {
             RuleFor(x => x.BorrowerId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyBorrowerId");
         }
     }
 }

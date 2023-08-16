@@ -1,7 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.LenderCases.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -27,7 +27,7 @@ namespace Application.UseCases.LenderCases.Queries {
         public async Task<LenderQueryResult> Handle(GetLendersQuery request, CancellationToken cancellationToken) {
 
             if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
+                throw new NotFoundException(_localization.GetString("LenderDoesntExist").Value);
 
             var lender = await _lenderRepository.GetByIdAsync(request.LenderId);
             return _mapper.Map<LenderQueryResult>(lender);

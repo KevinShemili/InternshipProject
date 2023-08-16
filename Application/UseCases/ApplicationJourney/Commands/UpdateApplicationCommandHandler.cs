@@ -1,11 +1,10 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Localization;
 namespace Application.UseCases.ApplicationJourney.Commands {
 
     public class UpdateApplicationCommand : IRequest<ApplicationCommandResult> {
-        public Guid Id { get; set; }
+        public Guid ApplicationId { get; set; }
         public int RequestedAmount { get; set; }
         public int RequestedTenor { get; set; }
         public string FinancePurposeDefinition { get; set; } = null!;
@@ -44,22 +43,22 @@ namespace Application.UseCases.ApplicationJourney.Commands {
 
         public async Task<ApplicationCommandResult> Handle(UpdateApplicationCommand request, CancellationToken cancellationToken) {
 
-            if (await _applicationRepository.ContainsAsync(request.Id) is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("ApplicationDoesntExist").Value);
+            if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
+                throw new NotFoundException(_localizer.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetByIdAsync(request.Id);
+            var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
 
             var productId = Guid.Parse(request.ProductId);
 
             if (await _productRepository.ContainsAsync(productId) is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("ProductTypeDoesntExist").Value);
+                throw new NotFoundException(_localizer.GetString("ProductTypeDoesntExist").Value);
 
             var product = await _productRepository.GetByIdAsync(productId);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
-                throw new InvalidInputException(_localizer.GetString("BiggerRequestAmount").Value);
+                throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
             else if (product.FinanceMinAmount > request.RequestedAmount)
-                throw new InvalidInputException(_localizer.GetString("SmallerRequestAmount").Value);
+                throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
 
             var newApplication = _mapper.Map<ApplicationEntity>(request);
             newApplication.Id = application.Id;
@@ -69,7 +68,6 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             await _applicationRepository.UpdateAsync(newApplication);
 
             var flag = await _unitOfWork.SaveChangesAsync();
-
             if (flag is false)
                 throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 
@@ -85,8 +83,8 @@ namespace Application.UseCases.ApplicationJourney.Commands {
 
     public class UpdateApplicationCommandValidator : AbstractValidator<UpdateApplicationCommand> {
         public UpdateApplicationCommandValidator() {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("EmptyId");
+            RuleFor(x => x.ApplicationId)
+                .NotEmpty().WithMessage("EmptyApplicationId");
 
             RuleFor(x => x.RequestedAmount)
                 .NotEmpty().WithMessage("EmptyRequestAmount");
@@ -98,7 +96,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
                 .NotEmpty().WithMessage("TenorConstraint");
 
             RuleFor(x => x.ProductId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyProductId");
 
             RuleFor(x => x.FinancePurposeDefinition)
                 .NotEmpty().WithMessage("EmptyFinancePurposeDefinition")

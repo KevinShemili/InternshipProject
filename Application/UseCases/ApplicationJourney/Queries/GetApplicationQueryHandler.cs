@@ -1,7 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Application.UseCases.ApplicationJourney.Queries {
         public async Task<ApplicationQueryResult> Handle(GetApplicationQuery request, CancellationToken cancellationToken) {
 
             if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("ApplicationDoesntExist").Value);
 
             var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
 

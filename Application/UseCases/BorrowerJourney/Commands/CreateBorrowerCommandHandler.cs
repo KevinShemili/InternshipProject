@@ -1,4 +1,4 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Persistance;
@@ -6,7 +6,6 @@ using Application.Persistance.Common;
 using Application.UseCases.BorrowerJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -58,20 +57,20 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             var userId = _jwtToken.GetUserId(request.AccessToken);
 
             if (await _userRepository.ContainsAsync(userId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("UnathorizedAccess").Value);
+                throw new UnauthorizedException(_localization.GetString("UnathorizedAccess").Value);
 
             var companyTypeId = Guid.Parse(request.CompanyTypeId);
 
             if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("CompanyTypeDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
 
             // fiscal codes must be unique for user
             if (await _borrowerRepository.IsFiscalCodeUniqueAsync(userId, request.FiscalCode) is false)
-                throw new DuplicateException(_localization.GetString("DuplicateFiscalCode").Value);
+                throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
 
             // validate length
             if (IsValid(companyTypeId, request.FiscalCode) is false)
-                throw new InvalidInputException(_localization.GetString("FiscalCodeLengthRestriction").Value);
+                throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
 
             var borrower = _mapper.Map<Borrower>(request);
             var borrowerId = Guid.NewGuid();

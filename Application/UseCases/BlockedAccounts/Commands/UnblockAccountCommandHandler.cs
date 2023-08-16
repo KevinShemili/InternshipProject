@@ -1,7 +1,7 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -29,7 +29,7 @@ namespace Application.UseCases.UnblockAccount.Command {
 
         public async Task<bool> Handle(UnblockAccountCommand request, CancellationToken cancellationToken) {
             if (await _userRepository.ContainsAsync(request.UserId) is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("UsernameDoesntExist").Value);
+                throw new NotFoundException(_localizer.GetString("UsernameDoesntExist").Value);
 
             await _userRepository.ResetTriesAsync(request.UserId);
             await _userRepository.UnblockAccountAsync(request.UserId);

@@ -1,7 +1,7 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.BorrowerJourney.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -30,7 +30,7 @@ namespace Application.UseCases.BorrowerJourney.Queries {
         public async Task<BorrowerQueryResult> Handle(GetBorrowerQuery request, CancellationToken cancellationToken) {
 
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("BorrowerDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
             var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
 
@@ -42,7 +42,7 @@ namespace Application.UseCases.BorrowerJourney.Queries {
     public class GetBorrowerQueryValidator : AbstractValidator<GetBorrowerQuery> {
         public GetBorrowerQueryValidator() {
             RuleFor(x => x.BorrowerId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyBorrowerId");
         }
     }
 }

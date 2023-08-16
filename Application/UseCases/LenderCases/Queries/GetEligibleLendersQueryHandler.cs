@@ -1,8 +1,8 @@
-﻿using Application.Persistance;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Application.UseCases.LenderCases.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -35,7 +35,7 @@ namespace Application.UseCases.LenderCases.Queries {
         public async Task<List<LenderQueryResult>> Handle(GetEligibleLendersQuery request, CancellationToken cancellationToken) {
 
             if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("ApplicationDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("ApplicationDoesntExist").Value);
 
             var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
             var companyType = await _applicationRepository.GetCompanyTypeAsync(request.ApplicationId);
@@ -57,7 +57,7 @@ namespace Application.UseCases.LenderCases.Queries {
             }
 
             if (eligibles.Any() is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("NoEligibleLendersFound").Value);
+                throw new NotFoundException(_localization.GetString("NoEligibleLendersFound").Value);
 
             return _mapper.Map<List<LenderQueryResult>>(eligibles);
         }

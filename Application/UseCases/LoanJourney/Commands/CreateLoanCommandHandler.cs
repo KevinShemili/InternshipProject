@@ -1,10 +1,9 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.LoanJourney.Results;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -47,25 +46,25 @@ namespace Application.UseCases.LoanJourney.Commands {
         public async Task<LoanResult> Handle(CreateLoanCommand request, CancellationToken cancellationToken) {
 
             if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
+                throw new NotFoundException(_localization.GetString("ApplicationDoesntExist").Value);
 
             if (await _lenderRepository.ContainsAsync(request.LenderId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
+                throw new NotFoundException(_localization.GetString("LenderDoesntExist").Value);
 
             var application = await _applicationRepository.GetWithProductAsync(request.ApplicationId);
 
             if (await _applicationRepository.IsApprovedAsLoanAsync(application.Id) is true)
-                throw new InvalidInputException(_localization.GetString("AlreadyApproved").Value);
+                throw new ConflictException(_localization.GetString("AlreadyApproved").Value);
 
             var lender = await _lenderRepository.GetByIdAsync(request.LenderId);
 
             if (await IsEligible(lender, application) is false)
-                throw new InvalidInputException(_localization.GetString("NotEligible").Value);
+                throw new InvalidRequestException(_localization.GetString("NotEligible").Value);
 
             var product = application.Product;
 
             if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, product.Id, application.RequestedTenor) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("").Value);
+                throw new NotFoundException(_localization.GetString("MatrixDoesntExist").Value);
 
             var matrix = await _lenderMatrixRepository.GetByIdAsync(request.LenderId, product.Id, application.RequestedTenor);
 

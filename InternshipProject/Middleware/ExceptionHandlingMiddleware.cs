@@ -1,6 +1,5 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
-using Domain.Exceptions;
 using InternshipProject.Localizations;
 using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
@@ -23,11 +22,11 @@ namespace InternshipProject.Middleware {
             try {
                 await _next(context);
             }
-            catch (NoSuchEntityExistsException ex) {
+            catch (NotFoundException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (ValidationException ex) {
+            catch (FluentException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -35,19 +34,7 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (InvalidPasswordException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (DuplicateException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (EmailServiceException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (TokenExpiredException ex) {
+            catch (ConflictException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -59,23 +46,11 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (BlockedAccountException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (EmailAlreadyVerifiedException ex) {
+            catch (BlockedException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
             catch (HttpRequestException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (InvalidInputException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (WrongExcelFormatException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -100,7 +75,7 @@ namespace InternshipProject.Middleware {
             string? result;
 
             switch (ex) {
-                case NoSuchEntityExistsException noSuchUserExistsException:
+                case NotFoundException noSuchUserExistsException:
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
@@ -111,7 +86,7 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
-                case ValidationException:
+                case FluentException:
                     context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
@@ -144,18 +119,8 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
-                case InvalidPasswordException invalidPasswordException:
-                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/401",
-                        title = "Unauthorized",
-                        status = (int)HttpStatusCode.Unauthorized,
-                        detail = invalidPasswordException.Message
-                    });
-                    return context.Response.WriteAsync(result);
 
-                case DuplicateException duplicateException:
+                case ConflictException duplicateException:
                     context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
@@ -163,28 +128,6 @@ namespace InternshipProject.Middleware {
                         title = "Conflict",
                         status = (int)HttpStatusCode.Conflict,
                         detail = duplicateException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case EmailServiceException emailServiceException:
-                    context.Response.StatusCode = (int)HttpStatusCode.BadGateway;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/502",
-                        title = "Bad Gateway",
-                        status = (int)HttpStatusCode.BadGateway,
-                        detail = emailServiceException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case TokenExpiredException tokenExpiredException:
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/400",
-                        title = "Bad Request",
-                        status = (int)HttpStatusCode.BadRequest,
-                        detail = tokenExpiredException.Message
                     });
                     return context.Response.WriteAsync(result);
 
@@ -199,25 +142,14 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
-                case BlockedAccountException blockedAccountException:
+                case BlockedException exception:
                     context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
                         type = "https://httpstatuses.io/429",
                         title = "Too Many Requests",
                         status = (int)HttpStatusCode.TooManyRequests,
-                        detail = blockedAccountException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case EmailAlreadyVerifiedException emailAlreadyVerifiedException:
-                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/422",
-                        title = "Unprocessable Entity",
-                        status = (int)HttpStatusCode.UnprocessableEntity,
-                        detail = emailAlreadyVerifiedException.Message
+                        detail = exception.Message
                     });
                     return context.Response.WriteAsync(result);
 
@@ -229,28 +161,6 @@ namespace InternshipProject.Middleware {
                         title = "Service Unavailable",
                         status = (int)HttpStatusCode.ServiceUnavailable,
                         detail = httpRequestException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case InvalidInputException invalidInputException:
-                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/422",
-                        title = "Unprocessable Entity",
-                        status = (int)HttpStatusCode.UnprocessableEntity,
-                        detail = invalidInputException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case WrongExcelFormatException wrongExcelFormatException:
-                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/422",
-                        title = "Unprocessable Entity",
-                        status = (int)HttpStatusCode.UnprocessableEntity,
-                        detail = wrongExcelFormatException.Message
                     });
                     return context.Response.WriteAsync(result);
 
@@ -292,7 +202,7 @@ namespace InternshipProject.Middleware {
         private static IReadOnlyDictionary<string, string[]>? GetErrors(Exception exception) {
             IReadOnlyDictionary<string, string[]>? errors = null;
 
-            if (exception is ValidationException validationException)
+            if (exception is FluentException validationException)
                 errors = validationException.ErrorsDictionary;
 
             return errors;

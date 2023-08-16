@@ -1,8 +1,8 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -44,7 +44,7 @@ namespace Application.UseCases.Roles.Commands {
             var flag = request.Ids.All(item => roleIds.Contains(item));
 
             if (flag is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("InvalidRoles").Value);
+                throw new InvalidRequestException(_localization.GetString("InvalidRoles").Value);
 
             await _userRepository.UpdateRolesAsync(request.UserId, GetRoles(request.Ids, roles));
 

@@ -1,4 +1,5 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
@@ -6,7 +7,6 @@ using Application.Persistance.Common;
 using Application.UseCases.Authentication.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -63,10 +63,10 @@ namespace Application.UseCases.Authentication.Commands {
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsEmailAsync(request.Email) is true)
-                throw new DuplicateException(_localization.GetString("DuplicateEmail").Value);
+                throw new ConflictException(_localization.GetString("DuplicateEmail").Value);
 
             if (await _userRepository.ContainsUsernameAsync(request.Username) is true)
-                throw new DuplicateException(_localization.GetString("DuplicateUsername").Value);
+                throw new ConflictException(_localization.GetString("DuplicateUsername").Value);
 
             var tuple = _hasherService.HashPassword(request.Password);
             var hash = tuple.Item1;
@@ -92,8 +92,8 @@ namespace Application.UseCases.Authentication.Commands {
 
             var subject = "Verify Your Email";
             var mailData = new MailData(request.Email, subject, body);
-            var flag = await _mailService.SendAsync(mailData, cancellationToken);
 
+            var flag = await _mailService.SendAsync(mailData, cancellationToken);
             if (flag is false)
                 throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
 

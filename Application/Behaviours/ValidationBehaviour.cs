@@ -2,9 +2,10 @@
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
-using ValidationException = Domain.Exceptions.ValidationException;
+using ValidationException = Application.Exceptions.ClientErrors.FluentException;
 
-namespace Application.Validator {
+namespace Application.Validator
+{
     public class ValidationBehaviour<TRequest, TResponse> :
         IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse> {
 

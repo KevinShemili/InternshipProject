@@ -1,9 +1,9 @@
-﻿using Application.Interfaces.Pagination;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Interfaces.Pagination;
 using Application.Persistance;
 using Application.UseCases.LoanJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -44,7 +44,7 @@ namespace Application.UseCases.LoanJourney.Queries {
         public async Task<PagedList<LoanResult>> Handle(GetBorrowerLoansQuery request, CancellationToken cancellationToken) {
 
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
             if (await _borrowerRepository.HasApplicationsAsync(request.BorrowerId) is false)
                 return new PagedList<LoanResult>();

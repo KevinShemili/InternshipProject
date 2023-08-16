@@ -294,6 +294,12 @@
   <data name="LenderDoesntExist" xml:space="preserve">
     <value>Prestatore con ID: {0} non esiste. Si prega di fornire un prestatore valido.</value>
   </data>
+  <data name="LoanDoesntExist" xml:space="preserve">
+    <value>Il prestito previsto non esiste.</value>
+  </data>
+  <data name="LoanStatusDoesntExist" xml:space="preserve">
+    <value>Lo stato del prestito fornito non esiste.</value>
+  </data>
   <data name="LoginExpired" xml:space="preserve">
     <value>La tua sessione è scaduta. Per favore esegui l'accesso di nuovo.</value>
   </data>
@@ -377,6 +383,9 @@
   </data>
   <data name="UnverifiedEmail" xml:space="preserve">
     <value>Verifica la tua email per procedere con il login.</value>
+  </data>
+  <data name="UserDoesntExist" xml:space="preserve">
+    <value>L'utente fornito non esiste.</value>
   </data>
   <data name="UsernameDoesntExist" xml:space="preserve">
     <value>Il nome utente fornito non esiste.</value>

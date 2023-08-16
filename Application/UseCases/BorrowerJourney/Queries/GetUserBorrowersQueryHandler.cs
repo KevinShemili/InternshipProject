@@ -1,11 +1,13 @@
-﻿using Application.Interfaces.Pagination;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Interfaces.Pagination;
 using Application.Persistance;
 using Application.UseCases.BorrowerJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using FluentValidation;
+using InternshipProject.Localizations;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.BorrowerJourney.Queries {
@@ -25,18 +27,20 @@ namespace Application.UseCases.BorrowerJourney.Queries {
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Borrower> _pagination;
+        private readonly IStringLocalizer<LocalizationResources> _localization;
 
-        public GetUserBorrowersQueryHandler(IMapper mapper, IBorrowerRepository borrowerRepository, IUserRepository userRepository, IPaginationService<Borrower> pagination) {
+        public GetUserBorrowersQueryHandler(IMapper mapper, IBorrowerRepository borrowerRepository, IUserRepository userRepository, IPaginationService<Borrower> pagination, IStringLocalizer<LocalizationResources> localization) {
             _mapper = mapper;
             _borrowerRepository = borrowerRepository;
             _userRepository = userRepository;
             _pagination = pagination;
+            _localization = localization;
         }
 
         public async Task<PagedList<BorrowerQueryResult>> Handle(GetUserBorrowersQuery request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsAsync(request.UserId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("UserDoesntExist").Value);
 
             if (await _userRepository.HasBorrowersAsync(request.UserId) is false)
                 return new PagedList<BorrowerQueryResult>();
@@ -81,7 +85,7 @@ namespace Application.UseCases.BorrowerJourney.Queries {
     public class GetUserBorrowersQueryValidator : AbstractValidator<GetUserBorrowersQuery> {
         public GetUserBorrowersQueryValidator() {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyUserId");
         }
     }
 }

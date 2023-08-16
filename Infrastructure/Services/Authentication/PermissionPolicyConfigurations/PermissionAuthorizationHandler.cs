@@ -1,5 +1,5 @@
-﻿using Application.Persistance;
-using Domain.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Persistance;
 using Infrastructure.Services.Common;
 using InternshipProject.Localizations;
 using Microsoft.AspNetCore.Authorization;
@@ -35,7 +35,7 @@ namespace Infrastructure.Services.Authentication.PermissionPolicyConfigurations 
             var dateTime = DateTimeOffset.FromUnixTimeSeconds(exp);
 
             if (dateTime <= DateTime.Now)
-                throw new ForbiddenException(_localizer.GetString("LoginExpired").Value);
+                throw new UnauthorizedException(_localizer.GetString("LoginExpired").Value);
 
             // 3. Check his permissions
             var permissions = await _userRepository.GetPermissionsAsync(parsedUserId);

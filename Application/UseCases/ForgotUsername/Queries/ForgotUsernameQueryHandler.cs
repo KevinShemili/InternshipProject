@@ -1,7 +1,7 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Email;
 using Application.Persistance;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -33,7 +33,7 @@ namespace Application.UseCases.ForgotUsername.Queries {
         public async Task<bool> Handle(ForgotUsernameQuery request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsEmailAsync(request.Email) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("EmailDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("EmailDoesntExist").Value);
 
             var user = await _userRepository.GetByEmailAsync(request.Email);
 

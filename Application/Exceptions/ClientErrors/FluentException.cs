@@ -1,6 +1,6 @@
-﻿namespace Domain.Exceptions {
-    public class ValidationException : Exception {
-        public ValidationException(IReadOnlyDictionary<string, string[]> errorsDictionary)
+﻿namespace Application.Exceptions.ClientErrors {
+    public class FluentException : Exception {
+        public FluentException(IReadOnlyDictionary<string, string[]> errorsDictionary)
             : base("Validation Failure") {
             ErrorsDictionary = errorsDictionary;
         }

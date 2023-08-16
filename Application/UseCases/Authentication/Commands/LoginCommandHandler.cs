@@ -1,10 +1,9 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.Authentication.Results;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -43,7 +42,7 @@ namespace Application.UseCases.Authentication.Commands {
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsUsernameAsync(request.Username) is false)
-                throw new NoSuchEntityExistsException(_localizer.GetString("InvalidUsername").Value);
+                throw new NotFoundException(_localizer.GetString("InvalidUsername").Value);
 
             var user = await _userRepository.GetByUsernameAsync(request.Username);
 
@@ -51,16 +50,16 @@ namespace Application.UseCases.Authentication.Commands {
                 throw new ForbiddenException(_localizer.GetString("UnverifiedEmail").Value);
 
             if (user.IsBlocked is true)
-                throw new BlockedAccountException(_localizer.GetString("BlockedAccount").Value);
+                throw new BlockedException(_localizer.GetString("BlockedAccount").Value);
 
             var flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
 
             if (flag is false) {
                 if (await _userRepository.IncrementTriesAsync(user.Id) is false) {
                     await _userRepository.BlockAccountAsync(user.Id);
-                    throw new BlockedAccountException(_localizer.GetString("BlockedAccount").Value);
+                    throw new BlockedException(_localizer.GetString("BlockedAccount").Value);
                 }
-                throw new InvalidPasswordException(_localizer.GetString("IncorrectPassword").Value);
+                throw new UnauthorizedException(_localizer.GetString("IncorrectPassword").Value);
             }
 
             var roles = await _userRepository.GetRolesAsync(user.Id);
@@ -77,7 +76,6 @@ namespace Application.UseCases.Authentication.Commands {
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
             var dbFlag = await _unitOfWork.SaveChangesAsync();
-
             if (dbFlag is false)
                 throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 

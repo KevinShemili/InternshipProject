@@ -1,9 +1,9 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Interfaces.Authentication;
 using Application.Interfaces.Email;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -44,7 +44,7 @@ namespace Application.UseCases.ForgotPassword.Commands {
         public async Task<bool> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken) {
 
             if (await _userRepository.ContainsEmailAsync(request.Email) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("EmailDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("EmailDoesntExist").Value);
 
             // generate & set the token in the db. This is the token that is just just for pass reset
             var token = await _recoveryTokenService.GeneratePasswordTokenAsync();

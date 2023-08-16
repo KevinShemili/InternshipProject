@@ -17,7 +17,6 @@ namespace Application.UseCases.LoanJourney.Queries {
         public int Page { get; set; }
     }
 
-
     public class GetAllLoansQueryHandler : IRequestHandler<GetAllLoansQuery, PagedList<LoanResult>> {
 
         private readonly ILoanRepository _loanRepository;

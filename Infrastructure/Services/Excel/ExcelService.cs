@@ -1,8 +1,7 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Interfaces.Excel;
 using ClosedXML.Excel;
 using Domain.Entities;
-using Domain.Exceptions;
 using InternshipProject.Localizations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -126,10 +125,10 @@ namespace Infrastructure.Services.Excel {
             var rows = workSheet.RangeUsed().RowsUsed().Skip(1);
 
             if (rows.Count() < 55)
-                throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
+                throw new InvalidRequestException(_localization.GetString("EmptyExcelCells").Value);
 
             if (workSheet.Columns().Count() < 6)
-                throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
+                throw new InvalidRequestException(_localization.GetString("EmptyExcelCells").Value);
 
             foreach (var row in rows) {
 
@@ -139,7 +138,7 @@ namespace Infrastructure.Services.Excel {
                 var spreadCell = row.Cell(6).Value;
 
                 if (IsCellNullOrEmpty(lenderIdCell) || IsCellNullOrEmpty(productIdCell) || IsCellNullOrEmpty(tenorCell) || IsCellNullOrEmpty(spreadCell))
-                    throw new WrongExcelFormatException(_localization.GetString("EmptyExcelCells").Value);
+                    throw new InvalidRequestException(_localization.GetString("EmptyExcelCells").Value);
 
                 if (Guid.Parse(lenderIdCell.ToString()) == lenderId && Guid.Parse(productIdCell.ToString()) == productId) {
                     decimal spread;
@@ -149,21 +148,21 @@ namespace Infrastructure.Services.Excel {
                         spread = decimal.Parse(spreadCell.ToString());
                     }
                     catch (FormatException ex) {
-                        throw new CastException("");
+                        throw new InvalidRequestException(_localization.GetString("SpreadConstraint").Value);
                     }
 
                     if (spread < 0.03M || spread > 0.08M)
-                        throw new WrongExcelFormatException(_localization.GetString("SpreadConstraint").Value);
+                        throw new InvalidRequestException(_localization.GetString("SpreadConstraint").Value);
 
                     try {
                         tenor = int.Parse(tenorCell.ToString());
                     }
                     catch (FormatException ex) {
-                        throw new CastException("");
+                        throw new InvalidRequestException(_localization.GetString("TenorConstraint").Value);
                     }
 
                     if (tenor < 11 || tenor > 65)
-                        throw new WrongExcelFormatException(_localization.GetString("TenorConstraint").Value);
+                        throw new InvalidRequestException(_localization.GetString("TenorConstraint").Value);
 
                     list.Add(new LenderMatrix {
                         Id = Guid.NewGuid(),
@@ -176,7 +175,7 @@ namespace Infrastructure.Services.Excel {
             }
 
             if (list.Any() is false)
-                throw new NoSuchEntityExistsException(string.Format(_localization.GetString("NoExcelRowExists").Value,
+                throw new NotFoundException(string.Format(_localization.GetString("NoExcelRowExists").Value,
                                                                           lenderId, productId));
 
             return list;

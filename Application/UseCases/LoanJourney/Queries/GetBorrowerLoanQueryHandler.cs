@@ -1,8 +1,7 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Persistance;
 using Application.UseCases.LoanJourney.Results;
 using AutoMapper;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -14,7 +13,6 @@ namespace Application.UseCases.LoanJourney.Queries {
         public Guid BorrowerId { get; set; }
         public Guid LoanId { get; set; }
     }
-
 
     public class GetBorrowerLoanQueryHandler : IRequestHandler<GetBorrowerLoanQuery, LoanResult> {
 
@@ -36,13 +34,13 @@ namespace Application.UseCases.LoanJourney.Queries {
         public async Task<LoanResult> Handle(GetBorrowerLoanQuery request, CancellationToken cancellationToken) {
 
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
             if (await _loanRepository.ContainsAsync(request.LoanId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("LoanDoesntExist").Value);
 
             var loan = await _loanRepository.GetLoanByBorrowerAsync(request.BorrowerId, request.LoanId)
-                       ?? throw new InvalidInputException(_localization.GetString("DoesntBelongTo").Value);
+                       ?? throw new InvalidRequestException(_localization.GetString("DoesntBelongTo").Value);
 
             return _mapper.Map<LoanResult>(loan);
         }

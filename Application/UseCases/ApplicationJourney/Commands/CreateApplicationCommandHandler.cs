@@ -1,11 +1,10 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.ApplicationJourney.Results;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -54,12 +53,12 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             var product = await _productRepository.GetByIdAsync(DefinedProducts.FixedRatePreAmortization.Id);
 
             if (product.FinanceMaxAmount < request.RequestedAmount)
-                throw new InvalidInputException(_localizer.GetString("BiggerRequestAmount").Value);
+                throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
             else if (product.FinanceMinAmount > request.RequestedAmount)
-                throw new InvalidInputException(_localizer.GetString("SmallerRequestAmount").Value);
+                throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
 
             if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new ForbiddenException(_localizer.GetString("BorrowerDoesntExist").Value);
+                throw new NotFoundException(_localizer.GetString("BorrowerDoesntExist").Value);
 
             var application = _mapper.Map<ApplicationEntity>(request);
             application.Id = Guid.NewGuid();
@@ -69,8 +68,8 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             application.Product = product;
 
             await _applicationRepository.CreateAsync(application);
-            var flag = await _unitOfWork.SaveChangesAsync();
 
+            var flag = await _unitOfWork.SaveChangesAsync();
             if (flag is false)
                 throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 
@@ -86,7 +85,7 @@ namespace Application.UseCases.ApplicationJourney.Commands {
     public class CreateApplicationCommandValidator : AbstractValidator<CreateApplicationCommand> {
         public CreateApplicationCommandValidator() {
             RuleFor(x => x.BorrowerId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyBorrowerId");
 
             RuleFor(x => x.RequestedAmount)
                 .NotEmpty().WithMessage("EmptyRequestAmount");

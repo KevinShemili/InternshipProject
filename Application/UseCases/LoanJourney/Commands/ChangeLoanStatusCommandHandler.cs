@@ -1,8 +1,7 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -40,10 +39,10 @@ namespace Application.UseCases.LoanJourney.Commands {
         public async Task<bool> Handle(ChangeLoanStatusCommand request, CancellationToken cancellationToken) {
 
             if (await _loanRepository.ContainsAsync(request.LoanId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("LoanDoesntExist").Value);
 
             if (await _loanStatusRepository.ContainsAsync(request.StatusId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("LoanStatusDoesntExist").Value);
 
             var loan = await _loanRepository.GetByIdWithApplicationAsync(request.LoanId);
             var application = loan.Application;
@@ -79,7 +78,7 @@ namespace Application.UseCases.LoanJourney.Commands {
                     await _loanRepository.UpdateStatusAsync(loan.Id, DefinedLoanStatuses.Repaid.Id);
                     break;
                 default:
-                    throw new InvalidInputException(_localization.GetString("UndefinedStatus"));
+                    throw new InvalidRequestException(_localization.GetString("UndefinedStatus"));
             }
 
             var flag = await _unitOfWork.SaveChangesAsync();

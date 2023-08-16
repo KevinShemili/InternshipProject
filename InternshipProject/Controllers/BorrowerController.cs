@@ -46,7 +46,7 @@ namespace InternshipProject.Controllers {
         [HttpPut("borrowers/{id}")]
         public async Task<IActionResult> UpdateBorrower([FromRoute] Guid id, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<UpdateBorrowerCommand>(borrowerRequest);
-            command.Id = id;
+            command.BorrowerId = id;
 
             _ = await _mediator.Send(command);
             return Ok();

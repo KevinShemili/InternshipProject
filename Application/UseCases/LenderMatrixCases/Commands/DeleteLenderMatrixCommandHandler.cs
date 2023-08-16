@@ -1,7 +1,7 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -31,7 +31,7 @@ namespace Application.UseCases.LenderMatrixCases.Commands {
         public async Task<bool> Handle(DeleteLenderMatrixCommand request, CancellationToken cancellationToken) {
 
             if (await _lenderMatrixRepository.ContainsAsync(request.LenderId, request.ProductId) is false)
-                throw new NoSuchEntityExistsException("");
+                throw new NotFoundException(_localization.GetString("MatrixDoesntExist").Value);
 
             await _lenderMatrixRepository.DeleteAsync(request.ProductId, request.LenderId);
 

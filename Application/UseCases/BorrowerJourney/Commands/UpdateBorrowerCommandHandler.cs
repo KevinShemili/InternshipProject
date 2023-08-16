@@ -1,9 +1,8 @@
-﻿using Application.Exceptions;
+﻿using Application.Exceptions.ClientErrors;
 using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Seeds;
 using FluentValidation;
 using InternshipProject.Localizations;
@@ -14,7 +13,7 @@ using System.Text.Json;
 namespace Application.UseCases.BorrowerJourney.Commands {
 
     public class UpdateBorrowerCommand : IRequest<bool> {
-        public Guid Id { get; set; }
+        public Guid BorrowerId { get; set; }
         public string CompanyName { get; set; } = null!;
         public string CompanyTypeId { get; set; } = null!;
         public string VATNumber { get; set; } = null!;
@@ -43,22 +42,22 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
         public async Task<bool> Handle(UpdateBorrowerCommand request, CancellationToken cancellationToken) {
 
-            if (await _borrowerRepository.ContainsAsync(request.Id) is false)
-                throw new NoSuchEntityExistsException("BorrowerDoesntExist");
+            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
+                throw new NotFoundException("BorrowerDoesntExist");
 
-            var borrower = await _borrowerRepository.GetByIdAsync(request.Id);
+            var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
 
             var companyTypeId = Guid.Parse(request.CompanyTypeId);
 
             if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("CompanyTypeDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
 
             if (await _borrowerRepository.IsFiscalCodeUniqueAsync(borrower.UserId, request.FiscalCode) is false)
-                throw new DuplicateException(_localization.GetString("DuplicateFiscalCode").Value);
+                throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
 
             // validate length
             if (IsValid(companyTypeId, request.FiscalCode) is false)
-                throw new InvalidInputException(_localization.GetString("FiscalCodeLengthRestriction").Value);
+                throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
 
             var updateBorrower = new Borrower {
                 CompanyName = request.CompanyName,
@@ -68,7 +67,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             };
 
             await _companyProfileRepository.UpdateAsync(borrower.CompanyProfile.Id, await GetCompanyProfile(request.CompanyName));
-            await _borrowerRepository.UpdateAsync(request.Id, updateBorrower);
+            await _borrowerRepository.UpdateAsync(request.BorrowerId, updateBorrower);
 
             var flag = await _unitOfWork.SaveChangesAsync();
             if (flag is false)
@@ -108,8 +107,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
 
     public class UpdateBorrowerCommandValidator : AbstractValidator<UpdateBorrowerCommand> {
         public UpdateBorrowerCommandValidator() {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("EmptyId");
+            RuleFor(x => x.BorrowerId)
+                .NotEmpty().WithMessage("EmptyBorrowerId");
 
             RuleFor(x => x.CompanyName)
                     .NotEmpty().WithMessage("EmptyCompanyName");

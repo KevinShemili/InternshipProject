@@ -1,7 +1,7 @@
-﻿using Application.Exceptions.ServerErrors;
+﻿using Application.Exceptions.ClientErrors;
+using Application.Exceptions.ServerErrors;
 using Application.Persistance;
 using Application.Persistance.Common;
-using Domain.Exceptions;
 using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Application.UseCases.Roles.Commands {
 
         public async Task<bool> Handle(DeleteRoleCommand request, CancellationToken cancellationToken) {
             if (await _roleRepository.ContainsAsync(request.RoleId) is false)
-                throw new NoSuchEntityExistsException(_localization.GetString("RoleDoesntExist").Value);
+                throw new NotFoundException(_localization.GetString("RoleDoesntExist").Value);
 
             await _roleRepository.DeleteAsync(request.RoleId);
 
