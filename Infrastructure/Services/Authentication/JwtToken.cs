@@ -15,12 +15,18 @@ namespace Infrastructure.Services.Authentication {
             _jwtSettings = jwtOptions.Value;
         }
 
-        public string GenerateToken(Guid UserId, string username, IEnumerable<string> roles) {
+        public string GenerateToken(Guid userId, string username, IEnumerable<string> roles) {
+
+            if (string.IsNullOrEmpty(userId.ToString()) || userId == Guid.Empty)
+                return null!;
+
+            if (string.IsNullOrEmpty(username))
+                return null!;
 
             // add the token claims
             var claims = new List<Claim> {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, UserId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim("username", username)
             };
 

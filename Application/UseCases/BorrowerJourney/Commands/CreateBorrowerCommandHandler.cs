@@ -4,6 +4,7 @@ using Application.Interfaces.Authentication;
 using Application.Persistance;
 using Application.Persistance.Common;
 using Application.UseCases.BorrowerJourney.Results;
+using Application.UseCases.Common;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Seeds;
@@ -11,6 +12,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Application.UseCases.BorrowerJourney.Commands {
@@ -33,6 +35,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IJwtToken _jwtToken;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoleRepository _roleRepository;
+        private readonly FinHubConnectionSettings _finHubConnectionSettings;
 
         public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization,
                                             IUserRepository userRepository,
@@ -41,7 +44,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                                             IBorrowerRepository borrowerRepository,
                                             IJwtToken jwtToken,
                                             IUnitOfWork unitOfWork,
-                                            IRoleRepository roleRepository) {
+                                            IRoleRepository roleRepository,
+                                            IOptions<FinHubConnectionSettings> finHubConnectionSettings) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -50,6 +54,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             _jwtToken = jwtToken;
             _unitOfWork = unitOfWork;
             _roleRepository = roleRepository;
+            _finHubConnectionSettings = finHubConnectionSettings.Value;
         }
 
         public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
@@ -77,7 +82,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             borrower.Id = borrowerId;
             borrower.UserId = userId;
             borrower.CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId);
-            borrower.CompanyProfile = await GetCompanyProfile(request.CompanyName);
+            borrower.CompanyProfile = await GetCompanyProfile(request.CompanyName, _finHubConnectionSettings.AuthToken);
 
             await _borrowerRepository.CreateAsync(borrower);
 
@@ -96,14 +101,21 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             };
         }
 
-        private static async Task<CompanyProfile> GetCompanyProfile(string companyName) {
+        // should be private, public just for test
+        public static async Task<CompanyProfile> GetCompanyProfile(string companyName, string authToken) {
 
             var client = new HttpClient {
                 BaseAddress = new Uri("https://finnhub.io/api/v1/stock/")
             };
 
-            var response = await client.GetAsync(client.BaseAddress
-                + $"profile2?symbol={companyName}&token=cj3rfthr01qlttl4igc0cj3rfthr01qlttl4igcg");
+            HttpResponseMessage response;
+            try {
+                response = await client.GetAsync(client.BaseAddress
+                    + $"profile2?symbol={companyName}&token={authToken}");
+            }
+            catch (Exception) {
+                throw new ThirdPartyException("Incorrect authentication key.");
+            }
 
             if (response.IsSuccessStatusCode is false)
                 throw new ThirdPartyException(response.ReasonPhrase);
@@ -115,11 +127,12 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             return result is null ? throw new ThirdPartyException("Invalid JSON data.") : result;
         }
 
+        // should be private, public just for test
         private static bool IsValid(Guid id, string fiscalCode) {
             if (id == DefinedCompanyTypes.SoleProprietorship.Id)
-                return fiscalCode.Length == 16;
+                return fiscalCode.Length == DefinedCompanyTypes.SoleProprietorship.FiscalCodeLength;
             else if (id == DefinedCompanyTypes.Other.Id)
-                return fiscalCode.Length == 11;
+                return fiscalCode.Length == DefinedCompanyTypes.Other.FiscalCodeLength;
 
             return true; // For other company types no restrictions
         }

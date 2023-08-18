@@ -59,7 +59,7 @@ namespace Application.UseCases.GenerateRefreshToken.Commands {
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
             var roles = _jwtToken.GetRoles(request.AccessToken);
-            var accessToken = _jwtToken.GenerateToken(userId, user.Username, roles.AsEnumerable());
+            var accessToken = _jwtToken.GenerateToken(userId, user.Username, roles.AsEnumerable()) ?? throw new ServerException();
 
             var flag = await _unitOfWork.SaveChangesAsync();
             if (flag is false)

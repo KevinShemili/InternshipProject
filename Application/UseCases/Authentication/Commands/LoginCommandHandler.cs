@@ -66,7 +66,7 @@ namespace Application.UseCases.Authentication.Commands {
             var roleNames = roles.Select(x => x.Name).AsEnumerable();
 
             // put roles in token
-            var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames);
+            var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames) ?? throw new ServerException();
 
             // generate refresh token for the user
             var refreshToken = await _tokenService.GenerateRefreshTokenAsync();

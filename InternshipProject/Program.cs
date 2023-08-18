@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services
-    .AddApplicationLayer()
+    .AddApplicationLayer(builder.Configuration)
     .AddInfrastructureLayer(builder.Configuration);
 
 builder.Services.AddLocalization();

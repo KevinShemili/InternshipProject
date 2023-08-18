@@ -79,7 +79,6 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private static string GenerateName(int amount) {
             return amount.ToString() + " - " + DateTime.UtcNow.ToString("d");
         }
-
     }
 
     public class CreateApplicationCommandValidator : AbstractValidator<CreateApplicationCommand> {

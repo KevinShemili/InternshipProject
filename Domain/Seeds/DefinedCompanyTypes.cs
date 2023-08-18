@@ -5,12 +5,15 @@
             public static readonly Guid Id = Guid.Parse("7DB974F8-6321-4B35-8EF4-65EDDA9FE1D6");
             public const string Name = "Sole Proprietorship";
             public const string Description = "Description";
+            public const int FiscalCodeLength = 16;
         }
 
         public static class Other {
             public static readonly Guid Id = Guid.Parse("A7EEA608-196C-4A52-A5C7-9694E0EB190B");
             public const string Name = "Other";
             public const string Description = "Description";
+            public const int FiscalCodeLength = 11;
+
         }
 
         public static class PartnershipLimitedByShares {
