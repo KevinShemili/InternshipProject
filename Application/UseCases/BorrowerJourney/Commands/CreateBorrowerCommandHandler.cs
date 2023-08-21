@@ -128,7 +128,7 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         }
 
         // should be private, public just for test
-        private static bool IsValid(Guid id, string fiscalCode) {
+        public static bool IsValid(Guid id, string fiscalCode) {
             if (id == DefinedCompanyTypes.SoleProprietorship.Id)
                 return fiscalCode.Length == DefinedCompanyTypes.SoleProprietorship.FiscalCodeLength;
             else if (id == DefinedCompanyTypes.Other.Id)

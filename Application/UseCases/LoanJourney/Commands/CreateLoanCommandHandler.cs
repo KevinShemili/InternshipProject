@@ -96,9 +96,10 @@ namespace Application.UseCases.LoanJourney.Commands {
             };
         }
 
-        private async Task<bool> IsEligible(Lender lender, ApplicationEntity application) {
+        // should be private, made public for testing
+        public async Task<bool> IsEligible(Lender lender, ApplicationEntity application) {
 
-            if (lender.MinTenor > application.RequestedTenor && lender.MaxTenor < application.RequestedTenor)
+            if (lender.MinTenor > application.RequestedTenor || lender.MaxTenor < application.RequestedTenor)
                 return false;
 
             if (lender.RequestedAmount > application.RequestedAmount)
@@ -115,10 +116,10 @@ namespace Application.UseCases.LoanJourney.Commands {
     public class CreateLoanCommandValidator : AbstractValidator<CreateLoanCommand> {
         public CreateLoanCommandValidator() {
             RuleFor(x => x.ApplicationId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyApplicationId");
 
             RuleFor(x => x.LenderId)
-                .NotEmpty().WithMessage("EmptyId");
+                .NotEmpty().WithMessage("EmptyLenderId");
         }
     }
 }

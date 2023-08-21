@@ -62,17 +62,20 @@ namespace Application.UseCases.LenderCases.Queries {
             return _mapper.Map<List<LenderQueryResult>>(eligibles);
         }
 
-        private static bool IsTenorAccepted(Lender lender, int tenor) {
+        // should be private, made public for testing
+        public static bool IsTenorAccepted(Lender lender, int tenor) {
             if (lender.MinTenor <= tenor && lender.MaxTenor >= tenor)
                 return true;
             return false;
         }
 
-        private static bool IsRequestAmountAccepted(Lender lender, int amount) {
+        // should be private, made public for testing
+        public static bool IsRequestAmountAccepted(Lender lender, int amount) {
             return lender.RequestedAmount < amount;
         }
 
-        private static bool IsCompanyTypeAccepted(Lender lender, string type) {
+        // should be private, made public for testing
+        public static bool IsCompanyTypeAccepted(Lender lender, string type) {
             if (string.IsNullOrEmpty(lender.BorrowerCompanyType) is true)
                 return true;
 
