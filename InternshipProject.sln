@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastru
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E2842F40-F260-4288-9CF6-011C525AD987}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{9FA1E482-F315-4133-B9DA-7EBE6E05371D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTest.csproj", "{9FA1E482-F315-4133-B9DA-7EBE6E05371D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "IntegrationTest\IntegrationTest.csproj", "{F896DAE5-6383-4329-820D-B7506434287D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{9FA1E482-F315-4133-B9DA-7EBE6E05371D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FA1E482-F315-4133-B9DA-7EBE6E05371D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FA1E482-F315-4133-B9DA-7EBE6E05371D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F896DAE5-6383-4329-820D-B7506434287D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F896DAE5-6383-4329-820D-B7506434287D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F896DAE5-6383-4329-820D-B7506434287D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F896DAE5-6383-4329-820D-B7506434287D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -46,7 +46,7 @@ namespace Application.UseCases.ForgotPassword.Commands {
             if (await _userRepository.ContainsEmailAsync(request.Email) is false)
                 throw new NotFoundException(_localization.GetString("EmailDoesntExist").Value);
 
-            // generate & set the token in the db. This is the token that is just just for pass reset
+            // generate & set the token in the db. This is the token that is just for pass reset
             var token = await _recoveryTokenService.GeneratePasswordTokenAsync();
             await _userVerificationAndResetRepository.SetPasswordTokenAsync(request.Email, token, DateTime.Now.AddMinutes(15));
 

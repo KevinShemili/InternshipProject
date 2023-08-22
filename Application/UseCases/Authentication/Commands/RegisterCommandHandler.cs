@@ -110,7 +110,8 @@ namespace Application.UseCases.Authentication.Commands {
 
             var returnResult = new RegisterResult {
                 Id = user.Id,
-                Username = user.Username
+                Username = user.Username,
+                Email = user.Email,
             };
 
             return returnResult;

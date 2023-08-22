@@ -142,3 +142,5 @@ static void ConfigureLogging() {
 #pragma warning restore CS8604 // Possible null reference argument.
 
 }
+
+public partial class Program { }

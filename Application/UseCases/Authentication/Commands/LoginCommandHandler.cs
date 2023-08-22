@@ -71,7 +71,7 @@ namespace Application.UseCases.Authentication.Commands {
             // generate refresh token for the user
             var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
 
-            // logic successful by this point 
+            // login successful by this point 
             await _userRepository.ResetTriesAsync(user.Id);
             await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
 
@@ -81,6 +81,7 @@ namespace Application.UseCases.Authentication.Commands {
 
             return new LoginResult {
                 Id = user.Id,
+                Email = user.Email,
                 Token = token,
                 RefreshToken = refreshToken
             }; ;
