@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.ApplicationJourney.Queries {
@@ -22,25 +23,35 @@ namespace Application.UseCases.ApplicationJourney.Queries {
         private readonly IApplicationRepository _applicationRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<ApplicationEntity> _pagination;
+        private readonly ILogger<GetAllApplicationsQueryHandler> _logger;
 
-        public GetAllApplicationsQueryHandler(IPaginationService<ApplicationEntity> pagination, IMapper mapper, IApplicationRepository applicationRepository) {
+
+        public GetAllApplicationsQueryHandler(IPaginationService<ApplicationEntity> pagination, IMapper mapper, IApplicationRepository applicationRepository, ILogger<GetAllApplicationsQueryHandler> logger) {
             _pagination = pagination;
             _mapper = mapper;
             _applicationRepository = applicationRepository;
+            _logger = logger;
         }
 
         public async Task<PagedList<ApplicationQueryResult>> Handle(GetAllApplicationsQuery request, CancellationToken cancellationToken) {
-            var applications = _applicationRepository.GetIQueryable();
+            try {
+                var applications = _applicationRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, applications.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, applications.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            applications = Filter(applications, request.Filter);
-            applications = Sort(applications, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(applications, request.Page, request.PageSize);
+                applications = Filter(applications, request.Filter);
+                applications = Sort(applications, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(applications, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<ApplicationQueryResult>>(response);
+                return _mapper.Map<PagedList<ApplicationQueryResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Applications Query Handler.", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<ApplicationEntity> Filter(IQueryable<ApplicationEntity> applications, string? filter) {

@@ -39,7 +39,7 @@ namespace IntegrationTest.LoanTests {
 
             // Arrange
             var command = new CreateLoanCommand {
-                ApplicationId = Guid.Parse("6205D644-9F93-4C6A-B406-E39F4BE629BF"),
+                ApplicationId = Guid.Parse("5EFCFE9C-4759-4935-9D59-EFE9160C9C79"),
                 LenderId = Guid.Parse("0F3C377F-89AD-4FD6-AF55-62F783B0EA52")
             };
 
@@ -52,8 +52,8 @@ namespace IntegrationTest.LoanTests {
 
             // Arrange
             var command = new CreateLoanCommand {
-                ApplicationId = Guid.Parse("9F5317CF-689A-42BC-90C5-9BBCA58E1605"),
-                LenderId = Guid.Parse("7F83C404-EFEE-4900-98EE-38D3C95DAF56") // ineligible due to company type
+                ApplicationId = Guid.Parse("6cc70007-2aea-45cc-af05-56968b5abc13"),
+                LenderId = Guid.Parse("8D1AC5ED-0E1E-4DE1-A7FC-A7DF9E095653") // ineligible due to company type
             };
 
             // Act && Assert
@@ -65,7 +65,7 @@ namespace IntegrationTest.LoanTests {
 
             // Arrange
             var command = new CreateLoanCommand {
-                ApplicationId = Guid.Parse("9F5317CF-689A-42BC-90C5-9BBCA58E1605"),
+                ApplicationId = Guid.Parse("6cc70007-2aea-45cc-af05-56968b5abc13"),
                 LenderId = Guid.Parse("0F3C377F-89AD-4FD6-AF55-62F783B0EA52")
             };
 

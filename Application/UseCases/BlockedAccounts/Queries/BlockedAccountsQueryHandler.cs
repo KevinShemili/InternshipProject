@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.BlockedAccounts.Queries {
@@ -23,28 +24,39 @@ namespace Application.UseCases.BlockedAccounts.Queries {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<User> _pagination;
+        private readonly ILogger<BlockedAccountsQueryHandler> _logger;
 
         public BlockedAccountsQueryHandler(IMapper mapper,
                                            IUserRepository userRepository,
-                                           IPaginationService<User> pagination) {
+                                           IPaginationService<User> pagination,
+                                           ILogger<BlockedAccountsQueryHandler> logger) {
             _mapper = mapper;
             _userRepository = userRepository;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<BlockedAccountResult>> Handle(BlockedAccountsQuery request, CancellationToken cancellationToken) {
 
-            var users = _userRepository.GetBlockedAccountsAsync();
+            try {
+                var users = _userRepository.GetBlockedAccountsAsync();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, users.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, users.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            users = Filter(users, request.Filter);
-            users = Sort(users, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(users, request.Page, request.PageSize);
+                users = Filter(users, request.Filter);
+                users = Sort(users, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(users, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<BlockedAccountResult>>(response);
+                return _mapper.Map<PagedList<BlockedAccountResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Blocked Accounts Query Handler", request);
+
+                throw;
+            }
+
         }
 
         private static IQueryable<User> Filter(IQueryable<User> users, string? filter) {

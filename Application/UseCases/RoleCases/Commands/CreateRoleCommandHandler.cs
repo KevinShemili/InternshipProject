@@ -8,6 +8,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Roles.Commands {
 
@@ -21,28 +22,39 @@ namespace Application.UseCases.Roles.Commands {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStringLocalizer<LocalizationResources> _localization;
+        private readonly ILogger<CreateRoleCommandHandler> _logger;
 
         public CreateRoleCommandHandler(IMapper mapper,
                                         IRoleRepository roleRepository,
                                         IUnitOfWork unitOfWork,
-                                        IStringLocalizer<LocalizationResources> localization) {
+                                        IStringLocalizer<LocalizationResources> localization,
+                                        ILogger<CreateRoleCommandHandler> logger) {
             _mapper = mapper;
             _roleRepository = roleRepository;
             _unitOfWork = unitOfWork;
             _localization = localization;
+            _logger = logger;
         }
 
         public async Task<RoleResult> Handle(CreateRoleCommand request, CancellationToken cancellationToken) {
-            var role = _mapper.Map<Role>(request);
-            role.Id = Guid.NewGuid();
 
-            await _roleRepository.CreateAsync(role);
+            try {
+                var role = _mapper.Map<Role>(request);
+                role.Id = Guid.NewGuid();
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                await _roleRepository.CreateAsync(role);
 
-            return _mapper.Map<RoleResult>(role);
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
+                return _mapper.Map<RoleResult>(role);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Create Role Command Handler", request);
+
+                throw;
+            }
         }
     }
 

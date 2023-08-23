@@ -8,6 +8,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.ForgotPassword.Commands {
 
@@ -27,6 +28,7 @@ namespace Application.UseCases.ForgotPassword.Commands {
         private readonly IHasherService _hasherService;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
         public ResetPasswordCommandHandler(IUserRepository userRepository,
                                            IMailService mailService,
@@ -34,7 +36,8 @@ namespace Application.UseCases.ForgotPassword.Commands {
                                            IUserVerificationAndResetRepository userVerificationAndResetRepository,
                                            IHasherService hasherService,
                                            IStringLocalizer<LocalizationResources> localizer,
-                                           IUnitOfWork unitOfWork) {
+                                           IUnitOfWork unitOfWork,
+                                           ILogger<ResetPasswordCommandHandler> logger) {
             _userRepository = userRepository;
             _mailService = mailService;
             _mailBodyService = mailBodyService;
@@ -42,47 +45,55 @@ namespace Application.UseCases.ForgotPassword.Commands {
             _hasherService = hasherService;
             _localization = localizer;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<bool> Handle(ResetPasswordCommand request, CancellationToken cancellationToken) {
 
-            // we know for sure row exists, because it was created when first registered
-            var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
+            try {
+                // we know for sure row exists, because it was created when first registered
+                var entity = await _userVerificationAndResetRepository.GetByEmailAsync(request.Email);
 
-            var passwordToken = entity.PasswordResetToken;
-            var passwordTokenExpiry = entity.PasswordResetTokenExpiry;
+                var passwordToken = entity.PasswordResetToken;
+                var passwordTokenExpiry = entity.PasswordResetTokenExpiry;
 
-            if (passwordToken is null)
-                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
+                if (passwordToken is null)
+                    throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
 
-            if (passwordTokenExpiry is null)
-                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
+                if (passwordTokenExpiry is null)
+                    throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
 
-            if (passwordToken == request.Token
-                && passwordTokenExpiry > DateTime.Now) {
-                var tuple = _hasherService.HashPassword(request.Password);
-                var passwordHash = tuple.Item1;
-                var passwordSalt = tuple.Item2;
+                if (passwordToken == request.Token
+                    && passwordTokenExpiry > DateTime.Now) {
+                    var tuple = _hasherService.HashPassword(request.Password);
+                    var passwordHash = tuple.Item1;
+                    var passwordSalt = tuple.Item2;
 
-                await _userRepository.ChangePasswordAsync(request.Email, passwordHash, passwordSalt);
+                    await _userRepository.ChangePasswordAsync(request.Email, passwordHash, passwordSalt);
 
-                var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBodyAsync();
-                var subject = "Password Reset";
-                var mailData = new MailData(request.Email, subject, body);
-                var flag = await _mailService.SendAsync(mailData, cancellationToken);
-                if (flag is false)
-                    throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
+                    var body = await _mailBodyService.GetSuccessfulPasswordChangeMailBodyAsync();
+                    var subject = "Password Reset";
+                    var mailData = new MailData(request.Email, subject, body);
+                    var flag = await _mailService.SendAsync(mailData, cancellationToken);
+                    if (flag is false)
+                        throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
 
-                var dbFlag = await _unitOfWork.SaveChangesAsync();
-                if (dbFlag is false)
-                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
-                return true;
+                    var dbFlag = await _unitOfWork.SaveChangesAsync();
+                    if (dbFlag is false)
+                        throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                    return true;
+                }
+                else if (passwordToken == request.Token
+                    && passwordTokenExpiry < DateTime.Now)
+                    throw new UnauthorizedException(_localization.GetString("TokenExpired").Value);
+                else
+                    throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
             }
-            else if (passwordToken == request.Token
-                && passwordTokenExpiry < DateTime.Now)
-                throw new UnauthorizedException(_localization.GetString("TokenExpired").Value);
-            else
-                throw new ForbiddenException(_localization.GetString("InvalidToken").Value);
+            catch (Exception ex) {
+                _logger.LogError("Error in Reset Password Command Handler", request);
+
+                throw;
+            }
         }
     }
 

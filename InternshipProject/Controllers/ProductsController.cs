@@ -1,5 +1,7 @@
 ﻿using Application.UseCases.ProductCases.Queries;
+using Domain.Seeds;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +18,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get products")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadProducts.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("products")]
         public async Task<IActionResult> GetProducts([FromQuery] string? filter,
                                                      [FromQuery] string? sortColumn,

@@ -1,5 +1,7 @@
 ﻿using Application.UseCases.CompanyTypeCases.Queries;
+using Domain.Seeds;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +18,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get company types")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadCompanyTypes.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("company-types")]
         public async Task<IActionResult> GetCompanyTypes([FromQuery] string? filter,
                                                          [FromQuery] string? sortColumn,

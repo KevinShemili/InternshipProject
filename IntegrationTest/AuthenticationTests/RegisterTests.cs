@@ -18,7 +18,7 @@ namespace IntegrationTest.AuthenticationTests {
                 FirstName = "Test",
                 LastName = "Test",
                 Username = "finalfinal3",
-                Email = "final@royalka.com",
+                Email = "finalfinal10@ffinal.com",
                 Password = "Testtest123",
                 Phone = "787878788",
                 Prefix = "+55"
@@ -35,7 +35,7 @@ namespace IntegrationTest.AuthenticationTests {
             var command = new RegisterCommand {
                 FirstName = "Test",
                 LastName = "Test",
-                Username = "finalfinal3",
+                Username = "finalfinal10",
                 Email = "final@royalka.com",
                 Password = "Testtest123",
                 Phone = "787878788",

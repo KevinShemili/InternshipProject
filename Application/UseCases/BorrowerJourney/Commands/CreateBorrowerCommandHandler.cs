@@ -12,6 +12,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -36,6 +37,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoleRepository _roleRepository;
         private readonly FinHubConnectionSettings _finHubConnectionSettings;
+        private readonly ILogger<CreateBorrowerCommandHandler> _logger;
+
 
         public CreateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localization,
                                             IUserRepository userRepository,
@@ -45,7 +48,8 @@ namespace Application.UseCases.BorrowerJourney.Commands {
                                             IJwtToken jwtToken,
                                             IUnitOfWork unitOfWork,
                                             IRoleRepository roleRepository,
-                                            IOptions<FinHubConnectionSettings> finHubConnectionSettings) {
+                                            IOptions<FinHubConnectionSettings> finHubConnectionSettings,
+                                            ILogger<CreateBorrowerCommandHandler> logger) {
             _localization = localization;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -55,50 +59,59 @@ namespace Application.UseCases.BorrowerJourney.Commands {
             _unitOfWork = unitOfWork;
             _roleRepository = roleRepository;
             _finHubConnectionSettings = finHubConnectionSettings.Value;
+            _logger = logger;
         }
 
         public async Task<BorrowerCommandResult> Handle(CreateBorrowerCommmand request, CancellationToken cancellationToken) {
 
-            var userId = _jwtToken.GetUserId(request.AccessToken);
+            try {
+                var userId = _jwtToken.GetUserId(request.AccessToken);
 
-            if (await _userRepository.ContainsAsync(userId) is false)
-                throw new UnauthorizedException(_localization.GetString("UnathorizedAccess").Value);
+                if (await _userRepository.ContainsAsync(userId) is false)
+                    throw new UnauthorizedException(_localization.GetString("UnathorizedAccess").Value);
 
-            var companyTypeId = Guid.Parse(request.CompanyTypeId);
+                var companyTypeId = Guid.Parse(request.CompanyTypeId);
 
-            if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
-                throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
+                if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
+                    throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
 
-            // fiscal codes must be unique for user
-            if (await _borrowerRepository.IsFiscalCodeUniqueAsync(userId, request.FiscalCode) is false)
-                throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
+                // fiscal codes must be unique for user
+                if (await _borrowerRepository.IsFiscalCodeUniqueAsync(userId, request.FiscalCode) is false)
+                    throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
 
-            // validate length
-            if (IsValid(companyTypeId, request.FiscalCode) is false)
-                throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
+                // validate length
+                if (IsValid(companyTypeId, request.FiscalCode) is false)
+                    throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
 
-            var borrower = _mapper.Map<Borrower>(request);
-            var borrowerId = Guid.NewGuid();
-            borrower.Id = borrowerId;
-            borrower.UserId = userId;
-            borrower.CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId);
-            borrower.CompanyProfile = await GetCompanyProfile(request.CompanyName, _finHubConnectionSettings.AuthToken);
+                var borrower = _mapper.Map<Borrower>(request);
+                var borrowerId = Guid.NewGuid();
+                borrower.Id = borrowerId;
+                borrower.UserId = userId;
+                borrower.CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId);
+                borrower.CompanyProfile = await GetCompanyProfile(request.CompanyName, _finHubConnectionSettings.AuthToken);
 
-            await _borrowerRepository.CreateAsync(borrower);
+                await _borrowerRepository.CreateAsync(borrower);
 
-            // automatically add role borrower -> Can see his own borrow, add application etc.
-            await _userRepository.AddRoleAsync(userId,
-                                               await _roleRepository.GetByIdAsync(DefinedRoles.Borrower.Id));
+                // automatically add role borrower -> Can see his own borrow, add application etc.
+                await _userRepository.AddRoleAsync(userId,
+                                                   await _roleRepository.GetByIdAsync(DefinedRoles.Borrower.Id));
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
 
-            return new BorrowerCommandResult {
-                Id = borrowerId,
-                CompanyName = borrower.CompanyName,
-                CompanyType = borrower.CompanyType.Type
-            };
+                return new BorrowerCommandResult {
+                    Id = borrowerId,
+                    CompanyName = borrower.CompanyName,
+                    CompanyType = borrower.CompanyType.Type
+                };
+
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Create Borrower Command Handler", request);
+
+                throw;
+            }
         }
 
         // should be private, public just for test

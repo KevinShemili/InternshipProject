@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.ProductCases.Queries {
@@ -22,26 +23,38 @@ namespace Application.UseCases.ProductCases.Queries {
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
         private readonly IPaginationService<Product> _pagination;
+        private readonly ILogger<GetProductsQueryHandler> _logger;
 
-        public GetProductsQueryHandler(IProductRepository productRepository, IMapper mapper, IPaginationService<Product> pagination) {
+        public GetProductsQueryHandler(IProductRepository productRepository,
+                                       IMapper mapper,
+                                       IPaginationService<Product> pagination,
+                                       ILogger<GetProductsQueryHandler> logger) {
             _productRepository = productRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<ProductsResult>> Handle(GetProductsQuery request, CancellationToken cancellationToken) {
 
-            var products = _productRepository.GetIQueryable();
+            try {
+                var products = _productRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, products.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, products.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            products = Filter(products, request.Filter);
-            products = Sort(products, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(products, request.Page, request.PageSize);
+                products = Filter(products, request.Filter);
+                products = Sort(products, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(products, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<ProductsResult>>(response);
+                return _mapper.Map<PagedList<ProductsResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Products Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Product> Filter(IQueryable<Product> products, string? filter) {

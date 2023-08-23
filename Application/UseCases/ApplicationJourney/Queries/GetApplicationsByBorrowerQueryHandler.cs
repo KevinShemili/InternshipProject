@@ -8,6 +8,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.ApplicationJourney.Queries {
@@ -28,34 +29,44 @@ namespace Application.UseCases.ApplicationJourney.Queries {
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IMapper _mapper;
         private readonly IPaginationService<ApplicationEntity> _pagination;
+        private readonly ILogger<GetApplicationsByBorrowerQueryHandler> _logger;
 
-        public GetApplicationsByBorrowerQueryHandler(IApplicationRepository applicationRepository, IBorrowerRepository borrowerRepository, IStringLocalizer<LocalizationResources> localization, IMapper mapper, IPaginationService<ApplicationEntity> pagination) {
+
+        public GetApplicationsByBorrowerQueryHandler(IApplicationRepository applicationRepository, IBorrowerRepository borrowerRepository, IStringLocalizer<LocalizationResources> localization, IMapper mapper, IPaginationService<ApplicationEntity> pagination, ILogger<GetApplicationsByBorrowerQueryHandler> logger) {
             _applicationRepository = applicationRepository;
             _borrowerRepository = borrowerRepository;
             _localization = localization;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<ApplicationQueryResult>> Handle(GetApplicationsByBorrowerQuery request, CancellationToken cancellationToken) {
 
-            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
+            try {
+                if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
+                    throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
-            if (await _borrowerRepository.HasApplicationsAsync(request.BorrowerId) is false)
-                return new PagedList<ApplicationQueryResult>();
+                if (await _borrowerRepository.HasApplicationsAsync(request.BorrowerId) is false)
+                    return new PagedList<ApplicationQueryResult>();
 
-            var applications = _applicationRepository.GetIQueryable(request.BorrowerId);
+                var applications = _applicationRepository.GetIQueryable(request.BorrowerId);
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, applications.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, applications.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            applications = Filter(applications, request.Filter);
-            applications = Sort(applications, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(applications, request.Page, request.PageSize);
+                applications = Filter(applications, request.Filter);
+                applications = Sort(applications, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(applications, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<ApplicationQueryResult>>(response);
+                return _mapper.Map<PagedList<ApplicationQueryResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Applications By Borrower Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<ApplicationEntity> Filter(IQueryable<ApplicationEntity> applications, string? filter) {

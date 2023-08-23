@@ -1,5 +1,7 @@
 ﻿using Application.UseCases.StatusCases.Queries;
+using Domain.Seeds;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +18,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get loan statuses")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadStatuses.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("loan-statuses")]
         public async Task<IActionResult> GetStatuses([FromQuery] string? filter,
                                                      [FromQuery] string? sortColumn,

@@ -2,8 +2,10 @@
 using Application.UseCases.Roles.Queries;
 using Application.UseCases.ViewPermissions.Queries;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.RoleRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,7 +24,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all roles")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles([FromQuery] string? filter,
                                                   [FromQuery] string? sortColumn,
@@ -40,7 +42,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get roles by given user id")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("users/{id}/roles")]
         public async Task<IActionResult> GetUserRoles([FromRoute] Guid id,
                                                       [FromQuery] string? filter,
@@ -60,7 +62,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Create new role")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpPost("roles")]
         public async Task<IActionResult> CreateRole([FromBody] RoleRequest roleRequest) {
             var command = _mapper.Map<CreateRoleCommand>(roleRequest);
@@ -69,7 +71,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Delete role")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpDelete("roles/{id}")]
         public async Task<IActionResult> DeleteRole([FromRoute] Guid id) {
             var command = new DeleteRoleCommand { RoleId = id };

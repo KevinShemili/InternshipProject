@@ -10,6 +10,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.ApplicationJourney.Commands {
 
@@ -29,6 +30,8 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private readonly IProductRepository _productRepository;
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IApplicationStatusRepository _applicationStatusRepository;
+        private readonly ILogger<CreateApplicationCommandHandler> _logger;
+
 
         public CreateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
                                                IApplicationRepository applicationRepository,
@@ -36,7 +39,8 @@ namespace Application.UseCases.ApplicationJourney.Commands {
                                                IMapper mapper,
                                                IProductRepository productRepository,
                                                IBorrowerRepository borrowerRepository,
-                                               IApplicationStatusRepository applicationStatusRepository) {
+                                               IApplicationStatusRepository applicationStatusRepository,
+                                               ILogger<CreateApplicationCommandHandler> logger) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
             _unitOfWork = unitOfWork;
@@ -44,36 +48,44 @@ namespace Application.UseCases.ApplicationJourney.Commands {
             _productRepository = productRepository;
             _borrowerRepository = borrowerRepository;
             _applicationStatusRepository = applicationStatusRepository;
+            _logger = logger;
         }
 
         public async Task<ApplicationCommandResult> Handle(CreateApplicationCommand request,
                                                            CancellationToken cancellationToken) {
 
-            // predefined can be changed later by loan offc.
-            var product = await _productRepository.GetByIdAsync(DefinedProducts.FixedRatePreAmortization.Id);
+            try {
+                // predefined can be changed later by loan offc.
+                var product = await _productRepository.GetByIdAsync(DefinedProducts.FixedRatePreAmortization.Id);
 
-            if (product.FinanceMaxAmount < request.RequestedAmount)
-                throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
-            else if (product.FinanceMinAmount > request.RequestedAmount)
-                throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
+                if (product.FinanceMaxAmount < request.RequestedAmount)
+                    throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
+                else if (product.FinanceMinAmount > request.RequestedAmount)
+                    throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
 
-            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NotFoundException(_localizer.GetString("BorrowerDoesntExist").Value);
+                if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
+                    throw new NotFoundException(_localizer.GetString("BorrowerDoesntExist").Value);
 
-            var application = _mapper.Map<ApplicationEntity>(request);
-            application.Id = Guid.NewGuid();
-            application.BorrowerId = request.BorrowerId;
-            application.Name = GenerateName(request.RequestedAmount);
-            application.ApplicationStatus = await _applicationStatusRepository.GetByIdAsync(DefinedApplicationStatuses.InCharge.Id);
-            application.Product = product;
+                var application = _mapper.Map<ApplicationEntity>(request);
+                application.Id = Guid.NewGuid();
+                application.BorrowerId = request.BorrowerId;
+                application.Name = GenerateName(request.RequestedAmount);
+                application.ApplicationStatus = await _applicationStatusRepository.GetByIdAsync(DefinedApplicationStatuses.InCharge.Id);
+                application.Product = product;
 
-            await _applicationRepository.CreateAsync(application);
+                await _applicationRepository.CreateAsync(application);
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 
-            return _mapper.Map<ApplicationCommandResult>(application);
+                return _mapper.Map<ApplicationCommandResult>(application);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error during application creation.", request);
+
+                throw;
+            }
         }
 
         private static string GenerateName(int amount) {

@@ -7,6 +7,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.LenderCases.Queries {
 
@@ -20,46 +21,56 @@ namespace Application.UseCases.LenderCases.Queries {
         private readonly IApplicationRepository _applicationRepository;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IMapper _mapper;
+        private readonly ILogger<GetEligibleLendersQueryHandler> _logger;
 
 
         public GetEligibleLendersQueryHandler(IApplicationRepository applicationRepository,
                                               ILenderRepository lenderRepository,
                                               IStringLocalizer<LocalizationResources> localization,
-                                              IMapper mapper) {
+                                              IMapper mapper,
+                                              ILogger<GetEligibleLendersQueryHandler> logger) {
             _applicationRepository = applicationRepository;
             _lenderRepository = lenderRepository;
             _localization = localization;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<List<LenderQueryResult>> Handle(GetEligibleLendersQuery request, CancellationToken cancellationToken) {
 
-            if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
-                throw new NotFoundException(_localization.GetString("ApplicationDoesntExist").Value);
+            try {
+                if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
+                    throw new NotFoundException(_localization.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
-            var companyType = await _applicationRepository.GetCompanyTypeAsync(request.ApplicationId);
+                var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
+                var companyType = await _applicationRepository.GetCompanyTypeAsync(request.ApplicationId);
 
-            var lenders = await _lenderRepository.GetAllAsync();
+                var lenders = await _lenderRepository.GetAllAsync();
 
-            var eligibles = new List<Lender>();
-            foreach (var lender in lenders) {
-                if (IsTenorAccepted(lender, application.RequestedTenor) is false)
-                    continue;
+                var eligibles = new List<Lender>();
+                foreach (var lender in lenders) {
+                    if (IsTenorAccepted(lender, application.RequestedTenor) is false)
+                        continue;
 
-                if (IsRequestAmountAccepted(lender, application.RequestedAmount) is false)
-                    continue;
+                    if (IsRequestAmountAccepted(lender, application.RequestedAmount) is false)
+                        continue;
 
-                if (IsCompanyTypeAccepted(lender, companyType) is false)
-                    continue;
+                    if (IsCompanyTypeAccepted(lender, companyType) is false)
+                        continue;
 
-                eligibles.Add(lender);
+                    eligibles.Add(lender);
+                }
+
+                if (eligibles.Any() is false)
+                    throw new NotFoundException(_localization.GetString("NoEligibleLendersFound").Value);
+
+                return _mapper.Map<List<LenderQueryResult>>(eligibles);
             }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Eligible Lenders Query Handler", request);
 
-            if (eligibles.Any() is false)
-                throw new NotFoundException(_localization.GetString("NoEligibleLendersFound").Value);
-
-            return _mapper.Map<List<LenderQueryResult>>(eligibles);
+                throw;
+            }
         }
 
         // should be private, made public for testing

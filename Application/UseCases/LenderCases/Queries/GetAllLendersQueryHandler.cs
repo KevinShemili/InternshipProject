@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.LenderCases.Queries {
@@ -22,26 +23,38 @@ namespace Application.UseCases.LenderCases.Queries {
         private readonly IMapper _mapper;
         private readonly ILenderRepository _lenderRepository;
         private readonly IPaginationService<Lender> _pagination;
+        private readonly ILogger<GetAllLendersQueryHandler> _logger;
 
-        public GetAllLendersQueryHandler(ILenderRepository lenderRepository, IMapper mapper, IPaginationService<Lender> pagination) {
+        public GetAllLendersQueryHandler(ILenderRepository lenderRepository,
+                                         IMapper mapper,
+                                         IPaginationService<Lender> pagination,
+                                         ILogger<GetAllLendersQueryHandler> logger) {
             _lenderRepository = lenderRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<LenderQueryResult>> Handle(GetAllLendersQuery request, CancellationToken cancellationToken) {
 
-            var lenders = _lenderRepository.GetIQueryable();
+            try {
+                var lenders = _lenderRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, lenders.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, lenders.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            lenders = Filter(lenders, request.Filter);
-            lenders = Sort(lenders, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(lenders, request.Page, request.PageSize);
+                lenders = Filter(lenders, request.Filter);
+                lenders = Sort(lenders, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(lenders, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<LenderQueryResult>>(response);
+                return _mapper.Map<PagedList<LenderQueryResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Lenders Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Lender> Filter(IQueryable<Lender> lenders, string? filter) {

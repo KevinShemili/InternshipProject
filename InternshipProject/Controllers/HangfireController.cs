@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces.Jobs;
+using Domain.Seeds;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,6 +20,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Start recurring company update")]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("company-update")]
         public IActionResult RecurringCompanyUpdate() {
 

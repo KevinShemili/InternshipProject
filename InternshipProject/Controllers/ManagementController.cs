@@ -3,8 +3,10 @@ using Application.UseCases.Permissions.Commands;
 using Application.UseCases.Roles.Commands;
 using Application.UseCases.UnblockAccount.Command;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.ManagementRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -23,7 +25,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Assign a role to a user")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpPost("users/{id}/roles")]
         public async Task<IActionResult> AssignRole([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
             var command = _mapper.Map<RoleAssignationCommand>(assignationRequest);
@@ -33,7 +35,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Assing a permission to a role")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpPost("roles/{id}/permissions")]
         public async Task<IActionResult> AssignPermission([FromRoute] Guid id, [FromBody] AssignationRequest assignationRequest) {
             var command = _mapper.Map<PermissionAssignationCommand>(assignationRequest);
@@ -43,7 +45,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all blocked account")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("blocked-accounts")]
         public async Task<IActionResult> GetBlockedAccounts([FromQuery] string? filter,
                                                             [FromQuery] string? sortColumn,
@@ -61,7 +63,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Unblock a blocked account")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpPatch("unblock-account/{id}")]
         public async Task<IActionResult> UnblockAccount([FromRoute] Guid id) {
             await _mediator.Send(new UnblockAccountCommand {

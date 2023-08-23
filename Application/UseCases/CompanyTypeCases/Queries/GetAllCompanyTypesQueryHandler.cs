@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.CompanyTypeCases.Queries {
@@ -22,26 +23,39 @@ namespace Application.UseCases.CompanyTypeCases.Queries {
         private readonly ICompanyTypeRepository _companyTypeRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<CompanyType> _pagination;
+        private readonly ILogger<GetAllCompanyTypesQueryHandler> _logger;
 
-        public GetAllCompanyTypesQueryHandler(ICompanyTypeRepository companyTypeRepository, IMapper mapper, IPaginationService<CompanyType> pagination) {
+
+        public GetAllCompanyTypesQueryHandler(ICompanyTypeRepository companyTypeRepository,
+                                              IMapper mapper,
+                                              IPaginationService<CompanyType> pagination,
+                                              ILogger<GetAllCompanyTypesQueryHandler> logger) {
             _companyTypeRepository = companyTypeRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<CompanyTypeResult>> Handle(GetAllCompanyTypesQuery request, CancellationToken cancellationToken) {
 
-            var companyTypes = _companyTypeRepository.GetIQueryable();
+            try {
+                var companyTypes = _companyTypeRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, companyTypes.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, companyTypes.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            companyTypes = Filter(companyTypes, request.Filter);
-            companyTypes = Sort(companyTypes, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(companyTypes, request.Page, request.PageSize);
+                companyTypes = Filter(companyTypes, request.Filter);
+                companyTypes = Sort(companyTypes, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(companyTypes, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<CompanyTypeResult>>(response);
+                return _mapper.Map<PagedList<CompanyTypeResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Company Types Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<CompanyType> Filter(IQueryable<CompanyType> companyTypes, string? filter) {

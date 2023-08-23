@@ -1,4 +1,5 @@
 ﻿using Application.UseCases.LenderCases.Queries;
+using Domain.Seeds;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get eligible lenders")]
-        [AllowAnonymous]
+        [Authorize(Policy = $"{DefinedPermissions.GenerateEligibles.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("applications/{id}/eligible-lenders")]
         public async Task<IActionResult> GetEligibleLenders([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetEligibleLendersQuery {
@@ -27,7 +28,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all lenders")]
-        [AllowAnonymous]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLenders.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("lenders")]
         public async Task<IActionResult> GetAllLenders([FromQuery] string? filter,
                                                        [FromQuery] string? sortColumn,
@@ -46,7 +47,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get lender by id")]
-        [AllowAnonymous]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLenders.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("lenders/{id}")]
         public async Task<IActionResult> GetLenderById([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetLendersQuery {

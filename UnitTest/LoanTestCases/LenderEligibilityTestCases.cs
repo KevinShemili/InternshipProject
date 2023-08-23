@@ -4,6 +4,7 @@ using Application.UseCases.LoanJourney.Commands;
 using Domain.Entities;
 using InternshipProject.Localizations;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace UnitTest.LoanTestCases {
@@ -16,6 +17,7 @@ namespace UnitTest.LoanTestCases {
         private readonly Mock<ILenderMatrixRepository> _lenderMatrixRepositoryMock;
         private readonly Mock<ILoanRepository> _loanRepositoryMock;
         private readonly Mock<ILoanStatusRepository> _loanStatusRepositoryMock;
+        private readonly Mock<ILogger<CreateLoanCommandHandler>> _loggerMock;
 
         public LenderEligibilityTestCases() {
             _applicationRepositoryMock = new();
@@ -25,6 +27,7 @@ namespace UnitTest.LoanTestCases {
             _lenderMatrixRepositoryMock = new();
             _loanRepositoryMock = new();
             _loanStatusRepositoryMock = new();
+            _loggerMock = new();
         }
 
         [Theory]
@@ -38,7 +41,8 @@ namespace UnitTest.LoanTestCases {
                                                        _applicationRepositoryMock.Object,
                                                        _lenderMatrixRepositoryMock.Object,
                                                        _loanRepositoryMock.Object,
-                                                       _loanStatusRepositoryMock.Object);
+                                                       _loanStatusRepositoryMock.Object,
+                                                       _loggerMock.Object);
 
             var lender = new Lender {
                 MaxTenor = 65,
@@ -68,7 +72,8 @@ namespace UnitTest.LoanTestCases {
                                                        _applicationRepositoryMock.Object,
                                                        _lenderMatrixRepositoryMock.Object,
                                                        _loanRepositoryMock.Object,
-                                                       _loanStatusRepositoryMock.Object);
+                                                       _loanStatusRepositoryMock.Object,
+                                                       _loggerMock.Object);
 
             var lender = new Lender {
                 MaxTenor = 65,
@@ -97,7 +102,8 @@ namespace UnitTest.LoanTestCases {
                                                        _applicationRepositoryMock.Object,
                                                        _lenderMatrixRepositoryMock.Object,
                                                        _loanRepositoryMock.Object,
-                                                       _loanStatusRepositoryMock.Object);
+                                                       _loanStatusRepositoryMock.Object,
+                                                       _loggerMock.Object);
 
             var lender = new Lender {
                 RequestedAmount = 500000
@@ -124,7 +130,8 @@ namespace UnitTest.LoanTestCases {
                                                        _applicationRepositoryMock.Object,
                                                        _lenderMatrixRepositoryMock.Object,
                                                        _loanRepositoryMock.Object,
-                                                       _loanStatusRepositoryMock.Object);
+                                                       _loanStatusRepositoryMock.Object,
+                                                       _loggerMock.Object);
 
             var lender = new Lender {
                 RequestedAmount = 500000

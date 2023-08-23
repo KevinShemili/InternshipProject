@@ -12,6 +12,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Authentication.Commands {
 
@@ -37,6 +38,8 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly IRoleRepository _roleRepository;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<RegisterCommandHandler> _logger;
+
 
         public RegisterCommandHandler(IUserRepository userRepository,
                                       IMapper mapper,
@@ -47,7 +50,8 @@ namespace Application.UseCases.Authentication.Commands {
                                       IUserVerificationAndResetRepository userVerificationAndResetRepository,
                                       IRoleRepository roleRepository,
                                       IStringLocalizer<LocalizationResources> localizer,
-                                      IUnitOfWork unitOfWork) {
+                                      IUnitOfWork unitOfWork,
+                                      ILogger<RegisterCommandHandler> logger) {
             _userRepository = userRepository;
             _mapper = mapper;
             _hasherService = hasherService;
@@ -58,63 +62,71 @@ namespace Application.UseCases.Authentication.Commands {
             _roleRepository = roleRepository;
             _localization = localizer;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
-            if (await _userRepository.ContainsEmailAsync(request.Email) is true)
-                throw new ConflictException(_localization.GetString("DuplicateEmail").Value);
+            try {
+                if (await _userRepository.ContainsEmailAsync(request.Email) is true)
+                    throw new ConflictException(_localization.GetString("DuplicateEmail").Value);
 
-            if (await _userRepository.ContainsUsernameAsync(request.Username) is true)
-                throw new ConflictException(_localization.GetString("DuplicateUsername").Value);
+                if (await _userRepository.ContainsUsernameAsync(request.Username) is true)
+                    throw new ConflictException(_localization.GetString("DuplicateUsername").Value);
 
-            var tuple = _hasherService.HashPassword(request.Password);
-            var hash = tuple.Item1;
-            var salt = tuple.Item2;
+                var tuple = _hasherService.HashPassword(request.Password);
+                var hash = tuple.Item1;
+                var salt = tuple.Item2;
 
-            var user = _mapper.Map<User>(request);
-            user.PasswordHash = hash;
-            user.PasswordSalt = salt;
-            user.IsEmailConfirmed = false;
+                var user = _mapper.Map<User>(request);
+                user.PasswordHash = hash;
+                user.PasswordSalt = salt;
+                user.IsEmailConfirmed = false;
 
-            // automatically add registered role to this user -> Can add borrower
-            user.Roles = new List<Role> {
+                // automatically add registered role to this user -> Can add borrower
+                user.Roles = new List<Role> {
                 await _roleRepository.GetByIdAsync(DefinedRoles.RegisteredUser.Id)
             };
 
-            await _userRepository.CreateAsync(user);
+                await _userRepository.CreateAsync(user);
 
-            // the token to verify the email
-            var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
-            var tokenExpiry = DateTime.Now.AddMinutes(30);
+                // the token to verify the email
+                var token = await _recoveryTokenService.GenerateVerificationTokenAsync();
+                var tokenExpiry = DateTime.Now.AddMinutes(30);
 
-            var body = await _mailBodyService.GetVerificationMailBodyAsync(request.Email, token);
+                var body = await _mailBodyService.GetVerificationMailBodyAsync(request.Email, token);
 
-            var subject = "Verify Your Email";
-            var mailData = new MailData(request.Email, subject, body);
+                var subject = "Verify Your Email";
+                var mailData = new MailData(request.Email, subject, body);
 
-            var flag = await _mailService.SendAsync(mailData, cancellationToken);
-            if (flag is false)
-                throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
+                var flag = await _mailService.SendAsync(mailData, cancellationToken);
+                if (flag is false)
+                    throw new ThirdPartyException(_localization.GetString("SendEmailError").Value);
 
-            // save in db the verification token & expiry
-            await _userVerificationAndResetRepository.CreateAsync(new UserVerificationAndReset {
-                EmailVerificationToken = token,
-                EmailVerificationTokenExpiry = tokenExpiry,
-                UserEmail = request.Email,
-            });
+                // save in db the verification token & expiry
+                await _userVerificationAndResetRepository.CreateAsync(new UserVerificationAndReset {
+                    EmailVerificationToken = token,
+                    EmailVerificationTokenExpiry = tokenExpiry,
+                    UserEmail = request.Email,
+                });
 
-            var dbFlag = await _unitOfWork.SaveChangesAsync();
-            if (dbFlag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                var dbFlag = await _unitOfWork.SaveChangesAsync();
+                if (dbFlag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
 
-            var returnResult = new RegisterResult {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-            };
+                var returnResult = new RegisterResult {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                };
 
-            return returnResult;
+                return returnResult;
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Register sCommand Handler", request);
+
+                throw;
+            }
         }
     }
 

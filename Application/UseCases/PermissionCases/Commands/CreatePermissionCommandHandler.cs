@@ -8,6 +8,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Permissions.Commands {
 
@@ -22,28 +23,40 @@ namespace Application.UseCases.Permissions.Commands {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStringLocalizer<LocalizationResources> _localization;
+        private readonly ILogger<CreatePermissionCommandHandler> _logger;
+
 
         public CreatePermissionCommandHandler(IPermissionRepository permissionRepository,
                                               IMapper mapper,
                                               IUnitOfWork unitOfWork,
-                                              IStringLocalizer<LocalizationResources> localization) {
+                                              IStringLocalizer<LocalizationResources> localization,
+                                              ILogger<CreatePermissionCommandHandler> logger) {
             _permissionRepository = permissionRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _localization = localization;
+            _logger = logger;
         }
 
         public async Task<PermissionsResult> Handle(CreatePermissionCommand request, CancellationToken cancellationToken) {
-            var permission = _mapper.Map<Permission>(request);
-            permission.Id = Guid.NewGuid();
 
-            await _permissionRepository.CreateAsync(permission);
+            try {
+                var permission = _mapper.Map<Permission>(request);
+                permission.Id = Guid.NewGuid();
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                await _permissionRepository.CreateAsync(permission);
 
-            return _mapper.Map<PermissionsResult>(permission);
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
+                return _mapper.Map<PermissionsResult>(permission);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Create Permission Command Handler", request);
+
+                throw;
+            }
         }
     }
 

@@ -1,8 +1,10 @@
 ﻿using Application.UseCases.LoanJourney.Commands;
 using Application.UseCases.LoanJourney.Queries;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.LoanRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -21,6 +23,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Approve application as loan")]
+        [Authorize(Policy = $"{DefinedPermissions.CanAddLoan.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpPost("applications/{id}/loans")]
         public async Task<IActionResult> CreateLoan([FromRoute] Guid id, [FromBody] CreateLoanRequest request) {
             var command = _mapper.Map<CreateLoanCommand>(request);
@@ -31,6 +34,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all loans")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLoans.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("loans")]
         public async Task<IActionResult> GetAllLoans([FromQuery] string? filter,
                                                      [FromQuery] string? sortColumn,
@@ -49,6 +53,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get loan by id")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLoans.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("loans/{id}")]
         public async Task<IActionResult> GetLoanById([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetLoanQuery {
@@ -59,6 +64,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all loans of a borrower")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLoans.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("borrowers/{id}/loans")]
         public async Task<IActionResult> GetBorrowerLoans([FromRoute] Guid id,
                                                           [FromQuery] string? filter,
@@ -79,6 +85,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get a specific loan of a borrower")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadLoans.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("borrowers/{borrowerId}/loans/{loanId}")]
         public async Task<IActionResult> GetBorrowerLoan([FromRoute] Guid borrowerId, [FromRoute] Guid loanId) {
             var result = await _mediator.Send(new GetBorrowerLoanQuery {
@@ -89,6 +96,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Change loan status")]
+        [Authorize(Policy = $"{DefinedPermissions.CanChangeLoanStatus.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpPatch("loans/{id}/change-status")]
         public async Task<IActionResult> ChangeLoanStatus([FromRoute] Guid id, [FromBody] LoanStatusRequest request) {
             var result = await _mediator.Send(new ChangeLoanStatusCommand {

@@ -17,7 +17,7 @@ namespace IntegrationTest.Configurations {
                     services.Remove(desc);
 
                 services.AddDbContext<DatabaseContext>(opts => {
-                    opts.UseSqlServer("Server=localhost,1433;Database=InternshipDatabaseTesting;User Id=sa;Password=Pass@word;Persist Security Info=False;TrustServerCertificate=True");
+                    opts.UseSqlServer("Server=localhost,1433;Database=InternshipDatabaseTesting1;User Id=sa;Password=Pass@word;Persist Security Info=False;TrustServerCertificate=True");
                 });
             });
 

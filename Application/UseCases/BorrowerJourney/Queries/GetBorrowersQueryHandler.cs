@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.BorrowerJourney.Queries {
@@ -23,26 +24,38 @@ namespace Application.UseCases.BorrowerJourney.Queries {
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Borrower> _pagination;
+        private readonly ILogger<GetBorrowersQueryHandler> _logger;
 
-        public GetBorrowersQueryHandler(IPaginationService<Borrower> pagination, IMapper mapper, IBorrowerRepository borrowerRepository) {
+        public GetBorrowersQueryHandler(IPaginationService<Borrower> pagination,
+                                        IMapper mapper,
+                                        IBorrowerRepository borrowerRepository,
+                                        ILogger<GetBorrowersQueryHandler> logger) {
             _pagination = pagination;
             _mapper = mapper;
             _borrowerRepository = borrowerRepository;
+            _logger = logger;
         }
 
         public async Task<PagedList<BorrowerQueryResult>> Handle(GetBorrowersQuery request, CancellationToken cancellationToken) {
 
-            var borrowers = _borrowerRepository.GetIQueryable();
+            try {
+                var borrowers = _borrowerRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, borrowers.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, borrowers.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            borrowers = Filter(borrowers, request.Filter);
-            borrowers = Sort(borrowers, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(borrowers, request.Page, request.PageSize);
+                borrowers = Filter(borrowers, request.Filter);
+                borrowers = Sort(borrowers, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(borrowers, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<BorrowerQueryResult>>(response);
+                return _mapper.Map<PagedList<BorrowerQueryResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Borrowers Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Borrower> Filter(IQueryable<Borrower> borrowers, string? filter) {

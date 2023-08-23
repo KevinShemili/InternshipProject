@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.Permissions.Queries {
@@ -23,25 +24,38 @@ namespace Application.UseCases.Permissions.Queries {
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Permission> _pagination;
+        private readonly ILogger<RolePermissionsQueryHandler> _logger;
 
-        public RolePermissionsQueryHandler(IRoleRepository roleRepository, IMapper mapper, IPaginationService<Permission> pagination) {
+        public RolePermissionsQueryHandler(IRoleRepository roleRepository,
+                                           IMapper mapper,
+                                           IPaginationService<Permission> pagination,
+                                           ILogger<RolePermissionsQueryHandler> logger) {
             _roleRepository = roleRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<PermissionsResult>> Handle(RolePermissionsQuery request, CancellationToken cancellationToken) {
-            var permissions = _roleRepository.GetPermissions(request.Id);
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, permissions.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+            try {
+                var permissions = _roleRepository.GetPermissions(request.Id);
 
-            permissions = Filter(permissions, request.Filter);
-            permissions = Sort(permissions, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(permissions, request.Page, request.PageSize);
+                var tuple = _pagination.Validate(request.Page, request.PageSize, permissions.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            return _mapper.Map<PagedList<PermissionsResult>>(response);
+                permissions = Filter(permissions, request.Filter);
+                permissions = Sort(permissions, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(permissions, request.Page, request.PageSize);
+
+                return _mapper.Map<PagedList<PermissionsResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Role Permissions Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Permission> Filter(IQueryable<Permission> permissions, string? filter) {

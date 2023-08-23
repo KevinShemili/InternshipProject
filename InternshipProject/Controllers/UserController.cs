@@ -1,5 +1,7 @@
 ﻿using Application.UseCases.UserCases.Queries;
+using Domain.Seeds;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +18,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all the registered users")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadUsers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers([FromQuery] string? filter,
                                                   [FromQuery] string? sortColumn,
@@ -34,7 +36,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get user by id")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanReadApplications}, {PermissionSeeds.CanReadOwnApplications}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadUsers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUsers(Guid id) {
             var result = await _mediator.Send(new GetUserQuery {

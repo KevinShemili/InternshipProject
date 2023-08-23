@@ -6,6 +6,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.BorrowerJourney.Queries {
 
@@ -18,24 +19,34 @@ namespace Application.UseCases.BorrowerJourney.Queries {
         private readonly IBorrowerRepository _borrowerRepository;
         private readonly IMapper _mapper;
         private readonly IStringLocalizer<LocalizationResources> _localization;
+        private readonly ILogger<GetBorrowerQueryHandler> _logger;
 
         public GetBorrowerQueryHandler(IBorrowerRepository borrowerRepository,
                                        IMapper mapper,
-                                       IStringLocalizer<LocalizationResources> localizer) {
+                                       IStringLocalizer<LocalizationResources> localizer,
+                                       ILogger<GetBorrowerQueryHandler> logger) {
             _borrowerRepository = borrowerRepository;
             _mapper = mapper;
             _localization = localizer;
+            _logger = logger;
         }
 
         public async Task<BorrowerQueryResult> Handle(GetBorrowerQuery request, CancellationToken cancellationToken) {
 
-            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
+            try {
+                if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
+                    throw new NotFoundException(_localization.GetString("BorrowerDoesntExist").Value);
 
-            var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
+                var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
 
-            var result = _mapper.Map<BorrowerQueryResult>(borrower);
-            return result;
+                var result = _mapper.Map<BorrowerQueryResult>(borrower);
+                return result;
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Borrower Query Handler", request);
+
+                throw;
+            }
         }
     }
 

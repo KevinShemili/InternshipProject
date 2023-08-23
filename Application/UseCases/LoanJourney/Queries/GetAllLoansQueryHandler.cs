@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.LoanJourney.Queries {
@@ -22,26 +23,38 @@ namespace Application.UseCases.LoanJourney.Queries {
         private readonly ILoanRepository _loanRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Loan> _pagination;
+        private readonly ILogger<GetAllLoansQueryHandler> _logger;
 
-        public GetAllLoansQueryHandler(ILoanRepository loanRepository, IMapper mapper, IPaginationService<Loan> pagination) {
+        public GetAllLoansQueryHandler(ILoanRepository loanRepository,
+                                       IMapper mapper,
+                                       IPaginationService<Loan> pagination,
+                                       ILogger<GetAllLoansQueryHandler> logger) {
             _loanRepository = loanRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<LoanResult>> Handle(GetAllLoansQuery request, CancellationToken cancellationToken) {
 
-            var loans = _loanRepository.GetIQueryable();
+            try {
+                var loans = _loanRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, loans.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, loans.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            loans = Filter(loans, request.Filter);
-            loans = Sort(loans, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(loans, request.Page, request.PageSize);
+                loans = Filter(loans, request.Filter);
+                loans = Sort(loans, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(loans, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<LoanResult>>(response);
+                return _mapper.Map<PagedList<LoanResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Loans Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Loan> Filter(IQueryable<Loan> loans, string? filter) {

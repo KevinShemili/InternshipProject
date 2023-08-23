@@ -9,6 +9,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -30,56 +31,67 @@ namespace Application.UseCases.BorrowerJourney.Commands {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICompanyProfileRepository _companyProfileRepository;
         private readonly FinHubConnectionSettings _finHubConnectionSettings;
+        private readonly ILogger<UpdateBorrowerCommandHandler> _logger;
 
         public UpdateBorrowerCommandHandler(IStringLocalizer<LocalizationResources> localizer,
                                             ICompanyTypeRepository companyTypeRepository,
                                             IBorrowerRepository borrowerRepository,
                                             IUnitOfWork unitOfWork,
                                             ICompanyProfileRepository companyProfileRepository,
-                                            IOptions<FinHubConnectionSettings> finHubConnectionSettings) {
+                                            IOptions<FinHubConnectionSettings> finHubConnectionSettings,
+                                            ILogger<UpdateBorrowerCommandHandler> logger) {
             _localization = localizer;
             _companyTypeRepository = companyTypeRepository;
             _borrowerRepository = borrowerRepository;
             _unitOfWork = unitOfWork;
             _companyProfileRepository = companyProfileRepository;
             _finHubConnectionSettings = finHubConnectionSettings.Value;
+            _logger = logger;
         }
 
         public async Task<bool> Handle(UpdateBorrowerCommand request, CancellationToken cancellationToken) {
 
-            if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
-                throw new NotFoundException("BorrowerDoesntExist");
+            try {
 
-            var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
+                if (await _borrowerRepository.ContainsAsync(request.BorrowerId) is false)
+                    throw new NotFoundException("BorrowerDoesntExist");
 
-            var companyTypeId = Guid.Parse(request.CompanyTypeId);
+                var borrower = await _borrowerRepository.GetByIdAsync(request.BorrowerId);
 
-            if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
-                throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
+                var companyTypeId = Guid.Parse(request.CompanyTypeId);
 
-            if (await _borrowerRepository.IsFiscalCodeUniqueAsync(borrower.UserId, request.FiscalCode) is false)
-                throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
+                if (await _companyTypeRepository.ContainsAsync(companyTypeId) is false)
+                    throw new NotFoundException(_localization.GetString("CompanyTypeDoesntExist").Value);
 
-            // validate length
-            if (IsValid(companyTypeId, request.FiscalCode) is false)
-                throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
+                if (await _borrowerRepository.IsFiscalCodeUniqueAsync(borrower.UserId, request.FiscalCode) is false)
+                    throw new ConflictException(_localization.GetString("DuplicateFiscalCode").Value);
 
-            var updateBorrower = new Borrower {
-                CompanyName = request.CompanyName,
-                VATNumber = request.VATNumber,
-                FiscalCode = request.FiscalCode,
-                CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId),
-            };
+                // validate length
+                if (IsValid(companyTypeId, request.FiscalCode) is false)
+                    throw new InvalidRequestException(_localization.GetString("FiscalCodeLengthRestriction").Value);
 
-            await _companyProfileRepository.UpdateAsync(borrower.CompanyProfile.Id, await GetCompanyProfile(request.CompanyName,
-                                                                                                            _finHubConnectionSettings.AuthToken));
-            await _borrowerRepository.UpdateAsync(request.BorrowerId, updateBorrower);
+                var updateBorrower = new Borrower {
+                    CompanyName = request.CompanyName,
+                    VATNumber = request.VATNumber,
+                    FiscalCode = request.FiscalCode,
+                    CompanyType = await _companyTypeRepository.GetByIdAsync(companyTypeId),
+                };
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                await _companyProfileRepository.UpdateAsync(borrower.CompanyProfile.Id, await GetCompanyProfile(request.CompanyName,
+                                                                                                                _finHubConnectionSettings.AuthToken));
+                await _borrowerRepository.UpdateAsync(request.BorrowerId, updateBorrower);
 
-            return true;
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
+                return true;
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Update Borrower Command Handler", request);
+
+                throw;
+            }
         }
 
         private static async Task<CompanyProfile> GetCompanyProfile(string companyName, string authToken) {

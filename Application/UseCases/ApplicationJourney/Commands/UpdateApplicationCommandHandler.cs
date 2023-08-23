@@ -10,6 +10,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.ApplicationJourney.Commands {
 
@@ -28,50 +29,62 @@ namespace Application.UseCases.ApplicationJourney.Commands {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
+        private readonly ILogger<UpdateApplicationCommandHandler> _logger;
+
 
         public UpdateApplicationCommandHandler(IStringLocalizer<LocalizationResources> localizer,
                                                IApplicationRepository applicationRepository,
                                                IProductRepository productRepository,
                                                IMapper mapper,
-                                               IUnitOfWork unitOfWork) {
+                                               IUnitOfWork unitOfWork,
+                                               ILogger<UpdateApplicationCommandHandler> logger) {
             _localizer = localizer;
             _applicationRepository = applicationRepository;
             _productRepository = productRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<ApplicationCommandResult> Handle(UpdateApplicationCommand request, CancellationToken cancellationToken) {
 
-            if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
-                throw new NotFoundException(_localizer.GetString("ApplicationDoesntExist").Value);
+            try {
+                if (await _applicationRepository.ContainsAsync(request.ApplicationId) is false)
+                    throw new NotFoundException(_localizer.GetString("ApplicationDoesntExist").Value);
 
-            var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
+                var application = await _applicationRepository.GetByIdAsync(request.ApplicationId);
 
-            var productId = Guid.Parse(request.ProductId);
+                var productId = Guid.Parse(request.ProductId);
 
-            if (await _productRepository.ContainsAsync(productId) is false)
-                throw new NotFoundException(_localizer.GetString("ProductTypeDoesntExist").Value);
+                if (await _productRepository.ContainsAsync(productId) is false)
+                    throw new NotFoundException(_localizer.GetString("ProductTypeDoesntExist").Value);
 
-            var product = await _productRepository.GetByIdAsync(productId);
+                var product = await _productRepository.GetByIdAsync(productId);
 
-            if (product.FinanceMaxAmount < request.RequestedAmount)
-                throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
-            else if (product.FinanceMinAmount > request.RequestedAmount)
-                throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
+                if (product.FinanceMaxAmount < request.RequestedAmount)
+                    throw new InvalidRequestException(_localizer.GetString("BiggerRequestAmount").Value);
+                else if (product.FinanceMinAmount > request.RequestedAmount)
+                    throw new InvalidRequestException(_localizer.GetString("SmallerRequestAmount").Value);
 
-            var newApplication = _mapper.Map<ApplicationEntity>(request);
-            newApplication.Id = application.Id;
-            newApplication.Product = product;
-            newApplication.Name = GenerateName(application.Name, request.RequestedAmount);
+                var newApplication = _mapper.Map<ApplicationEntity>(request);
+                newApplication.Id = application.Id;
+                newApplication.Product = product;
+                newApplication.Name = GenerateName(application.Name, request.RequestedAmount);
 
-            await _applicationRepository.UpdateAsync(newApplication);
+                await _applicationRepository.UpdateAsync(newApplication);
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
 
-            return _mapper.Map<ApplicationCommandResult>(application);
+                return _mapper.Map<ApplicationCommandResult>(application);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error during application update.", request);
+
+                throw;
+            }
+
         }
 
         private static string GenerateName(string name, int amount) {

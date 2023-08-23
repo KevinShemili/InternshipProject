@@ -59,6 +59,12 @@ namespace IntegrationTest.AuthenticationTests {
 
             // Act && Assert
             await Assert.ThrowsAsync<UnauthorizedException>(async () => await _mediator.Send(command));
+
+            // Revert Changes
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Username == command.Username);
+            user.LoginTries = 0;
+            user.IsBlocked = false;
+            await _dbContext.SaveChangesAsync();
         }
 
         [Fact]

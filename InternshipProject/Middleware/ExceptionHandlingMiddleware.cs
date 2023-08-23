@@ -22,15 +22,7 @@ namespace InternshipProject.Middleware {
             try {
                 await _next(context);
             }
-            catch (NotFoundException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (FluentException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (UnauthorizedException ex) {
+            catch (BlockedException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -38,15 +30,35 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
+            catch (FluentException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
             catch (ForbiddenException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (AutoMapper.AutoMapperMappingException ex) {
+            catch (InvalidRequestException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (BlockedException ex) {
+            catch (NotFoundException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (UnauthorizedException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (DatabaseException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (ServerException ex) {
+                _logger.LogError(ex.Message);
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (ThirdPartyException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -54,11 +66,7 @@ namespace InternshipProject.Middleware {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
-            catch (FormatException ex) {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex);
-            }
-            catch (DatabaseException ex) {
+            catch (AutoMapper.AutoMapperMappingException ex) {
                 _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -75,14 +83,69 @@ namespace InternshipProject.Middleware {
             string? result;
 
             switch (ex) {
-                case NotFoundException noSuchUserExistsException:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                case BlockedException blocked:
+                    context.Response.StatusCode = BlockedException.status;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/429",
+                        title = "Too Many Requests",
+                        status = BlockedException.status,
+                        detail = blocked.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case ConflictException conflict:
+                    context.Response.StatusCode = ConflictException.status;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/409",
+                        title = "Conflict",
+                        status = ConflictException.status,
+                        detail = conflict.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case ForbiddenException fobidden:
+                    context.Response.StatusCode = ForbiddenException.status;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/403",
+                        title = "Forbidden",
+                        status = ForbiddenException.status,
+                        detail = fobidden.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case InvalidRequestException invalidRequest:
+                    context.Response.StatusCode = InvalidRequestException.status;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/400",
+                        title = "Invalid Request",
+                        status = ForbiddenException.status,
+                        detail = invalidRequest.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case NotFoundException notFound:
+                    context.Response.StatusCode = NotFoundException.status;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
                         type = "https://httpstatuses.io/404",
                         title = "Not Found",
-                        status = (int)HttpStatusCode.NotFound,
-                        detail = noSuchUserExistsException.Message
+                        status = NotFoundException.status,
+                        detail = notFound.Message
+                    });
+                    return context.Response.WriteAsync(result);
+
+                case UnauthorizedException unauthorized:
+                    context.Response.StatusCode = UnauthorizedException.status;
+                    context.Response.ContentType = "application/problem+json";
+                    result = JsonConvert.SerializeObject(new {
+                        type = "https://httpstatuses.io/401",
+                        title = "Unauthorized",
+                        status = UnauthorizedException.status,
+                        detail = unauthorized.Message
                     });
                     return context.Response.WriteAsync(result);
 
@@ -97,37 +160,36 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
-                case UnauthorizedException unauthorizedException:
-                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                case DatabaseException database:
+                    context.Response.StatusCode = DatabaseException.status;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/401",
-                        title = "Unauthorized",
-                        status = (int)HttpStatusCode.Unauthorized,
-                        detail = unauthorizedException.Message
+                        type = "https://httpstatuses.io/503",
+                        title = "Database Exception",
+                        status = DatabaseException.status,
+                        detail = database.Message
                     });
                     return context.Response.WriteAsync(result);
 
-                case ForbiddenException forbidenException:
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                case ServerException server:
+                    context.Response.StatusCode = ServerException.status;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/403",
-                        title = "Forbidden",
-                        status = (int)HttpStatusCode.Forbidden,
-                        detail = forbidenException.Message
+                        type = "https://httpstatuses.io/500",
+                        title = "Server Exception",
+                        status = ServerException.status,
+                        detail = server.Message
                     });
                     return context.Response.WriteAsync(result);
 
-
-                case ConflictException duplicateException:
-                    context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                case ThirdPartyException thirdParty:
+                    context.Response.StatusCode = ThirdPartyException.status;
                     context.Response.ContentType = "application/problem+json";
                     result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/409",
-                        title = "Conflict",
-                        status = (int)HttpStatusCode.Conflict,
-                        detail = duplicateException.Message
+                        type = "https://httpstatuses.io/502",
+                        title = "Third Party Exception",
+                        status = ThirdPartyException.status,
+                        detail = thirdParty.Message
                     });
                     return context.Response.WriteAsync(result);
 
@@ -142,17 +204,6 @@ namespace InternshipProject.Middleware {
                     });
                     return context.Response.WriteAsync(result);
 
-                case BlockedException exception:
-                    context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/429",
-                        title = "Too Many Requests",
-                        status = (int)HttpStatusCode.TooManyRequests,
-                        detail = exception.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
                 case HttpRequestException httpRequestException:
                     context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                     context.Response.ContentType = "application/problem+json";
@@ -161,28 +212,6 @@ namespace InternshipProject.Middleware {
                         title = "Service Unavailable",
                         status = (int)HttpStatusCode.ServiceUnavailable,
                         detail = httpRequestException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case FormatException formatException:
-                    context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/422",
-                        title = "Unprocessable Entity",
-                        status = (int)HttpStatusCode.UnprocessableEntity,
-                        detail = formatException.Message
-                    });
-                    return context.Response.WriteAsync(result);
-
-                case DatabaseException databaseException:
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.ContentType = "application/problem+json";
-                    result = JsonConvert.SerializeObject(new {
-                        type = "https://httpstatuses.io/500",
-                        title = "Database Exception",
-                        status = (int)HttpStatusCode.InternalServerError,
-                        detail = databaseException.Message
                     });
                     return context.Response.WriteAsync(result);
 

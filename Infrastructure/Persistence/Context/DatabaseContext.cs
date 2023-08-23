@@ -63,6 +63,15 @@ namespace Infrastructure.Persistence.Context {
             };
 
             // Permissions
+            var isSuperAdmin = new Permission {
+                Id = DefinedPermissions.IsSuperAdmin.Id,
+                Name = DefinedPermissions.IsSuperAdmin.Name
+            };
+            var isRegistered = new Permission {
+                Id = DefinedPermissions.IsRegistered.Id,
+                Name = DefinedPermissions.IsRegistered.Name
+            };
+
             var canReadBorrowers = new Permission {
                 Id = DefinedPermissions.CanReadBorrowers.Id,
                 Name = DefinedPermissions.CanReadBorrowers.Name
@@ -71,22 +80,13 @@ namespace Infrastructure.Persistence.Context {
                 Id = DefinedPermissions.CanReadOwnBorrowers.Id,
                 Name = DefinedPermissions.CanReadOwnBorrowers.Name
             };
-            var canUpdateBorrower = new Permission {
-                Id = DefinedPermissions.CanUpdateBorrower.Id,
-                Name = DefinedPermissions.CanUpdateBorrower.Name
-            };
             var canAddBorrower = new Permission {
                 Id = DefinedPermissions.CanAddBorrower.Id,
                 Name = DefinedPermissions.CanAddBorrower.Name
             };
-
-            var isSuperAdmin = new Permission {
-                Id = DefinedPermissions.IsSuperAdmin.Id,
-                Name = DefinedPermissions.IsSuperAdmin.Name
-            };
-            var isRegistered = new Permission {
-                Id = DefinedPermissions.IsRegistered.Id,
-                Name = DefinedPermissions.IsRegistered.Name
+            var canUpdateBorrower = new Permission {
+                Id = DefinedPermissions.CanUpdateBorrower.Id,
+                Name = DefinedPermissions.CanUpdateBorrower.Name
             };
 
             var canReadApplications = new Permission {
@@ -114,15 +114,59 @@ namespace Infrastructure.Persistence.Context {
                 Id = DefinedPermissions.CanCreateMatrix.Id,
                 Name = DefinedPermissions.CanCreateMatrix.Name
             };
+            var canUpdateMatrix = new Permission {
+                Id = DefinedPermissions.CanUpdateMatrix.Id,
+                Name = DefinedPermissions.CanUpdateMatrix.Name
+            };
+            var canDeleteMatrix = new Permission {
+                Id = DefinedPermissions.CanDeleteMatrix.Id,
+                Name = DefinedPermissions.CanDeleteMatrix.Name
+            };
 
             var canAddLoan = new Permission {
                 Id = DefinedPermissions.CanAddLoan.Id,
                 Name = DefinedPermissions.CanAddLoan.Name
             };
-
             var canUpdateLoan = new Permission {
                 Id = DefinedPermissions.CanUpdateLoan.Id,
                 Name = DefinedPermissions.CanUpdateLoan.Name
+            };
+            var canReadLoans = new Permission {
+                Id = DefinedPermissions.CanReadLoans.Id,
+                Name = DefinedPermissions.CanReadLoans.Name
+            };
+            var canChangeLoanStatuses = new Permission {
+                Id = DefinedPermissions.CanChangeLoanStatus.Id,
+                Name = DefinedPermissions.CanChangeLoanStatus.Name
+            };
+            var canReadStatuses = new Permission {
+                Id = DefinedPermissions.CanReadStatuses.Id,
+                Name = DefinedPermissions.CanReadStatuses.Name
+            };
+
+            var canReadLenders = new Permission {
+                Id = DefinedPermissions.CanReadLenders.Id,
+                Name = DefinedPermissions.CanReadLenders.Name
+            };
+
+            var canReadCompanyTypes = new Permission {
+                Id = DefinedPermissions.CanReadCompanyTypes.Id,
+                Name = DefinedPermissions.CanReadCompanyTypes.Name
+            };
+
+            var canReadProducts = new Permission {
+                Id = DefinedPermissions.CanReadProducts.Id,
+                Name = DefinedPermissions.CanReadProducts.Name
+            };
+
+            var generateEligibles = new Permission {
+                Id = DefinedPermissions.GenerateEligibles.Id,
+                Name = DefinedPermissions.GenerateEligibles.Name
+            };
+
+            var canReadUsers = new Permission {
+                Id = DefinedPermissions.CanReadUsers.Id,
+                Name = DefinedPermissions.CanReadUsers.Name
             };
 
             // Roles
@@ -173,6 +217,19 @@ namespace Infrastructure.Persistence.Context {
                 Prefix = DefinedUsers.SA.Prefix,
                 PasswordHash = DefinedUsers.SA.PasswordHash,
                 PasswordSalt = DefinedUsers.SA.PasswordSalt,
+            };
+
+            var loanOfficerUser = new User {
+                Id = DefinedUsers.Loan_Officer.Id,
+                FirstName = DefinedUsers.Loan_Officer.FirstName,
+                LastName = DefinedUsers.Loan_Officer.LastName,
+                Username = DefinedUsers.Loan_Officer.Username,
+                Email = DefinedUsers.Loan_Officer.Email,
+                IsEmailConfirmed = DefinedUsers.Loan_Officer.IsEmailConfirmed,
+                PhoneNumber = DefinedUsers.Loan_Officer.PhoneNumber,
+                Prefix = DefinedUsers.Loan_Officer.Prefix,
+                PasswordHash = DefinedUsers.Loan_Officer.PasswordHash,
+                PasswordSalt = DefinedUsers.Loan_Officer.PasswordSalt,
             };
 
             // Lenders
@@ -275,16 +332,39 @@ namespace Infrastructure.Persistence.Context {
             );
 
             modelBuilder.Entity<Permission>().HasData(
-                isSuperAdmin,
-                canReadBorrowers,
                 isRegistered,
+                isSuperAdmin,
+
+                canReadBorrowers,
+                canReadOwnBorrowers,
                 canAddBorrower,
                 canUpdateBorrower,
+
                 canReadApplications,
-                canUpdateApplication,
-                canAddApplication,
                 canReadOwnApplications,
-                canReadOwnBorrowers
+                canAddApplication,
+                canUpdateApplication,
+
+                canGenerateMatrix,
+                canCreateMatrix,
+                canUpdateMatrix,
+                canDeleteMatrix,
+
+                canAddLoan,
+                canUpdateLoan,
+                canReadLoans,
+                canChangeLoanStatuses,
+                canReadStatuses,
+
+                canReadLenders,
+
+                canReadCompanyTypes,
+
+                canReadProducts,
+
+                generateEligibles,
+
+                canReadUsers
             );
 
             modelBuilder.Entity<Role>().HasData(
@@ -292,12 +372,11 @@ namespace Infrastructure.Persistence.Context {
                 loanOfficer,
                 registeredUser,
                 borrower
-
             );
 
             modelBuilder.Entity<User>().HasData(
-                sa
-
+                sa,
+                loanOfficerUser
              );
 
             modelBuilder.Entity<Product>().HasData(
@@ -336,6 +415,10 @@ namespace Infrastructure.Persistence.Context {
                     new User_Role {
                         UserId = sa.Id,
                         RoleId = superAdmin.Id
+                    },
+                    new User_Role {
+                        UserId = loanOfficerUser.Id,
+                        RoleId = loanOfficer.Id
                     }
                 );
 
@@ -365,6 +448,14 @@ namespace Infrastructure.Persistence.Context {
                     PermissionId = canReadOwnApplications.Id,
                 },
                 new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canReadProducts.Id,
+                },
+                new Role_Permission {
+                    RoleId = borrower.Id,
+                    PermissionId = canReadCompanyTypes.Id,
+                },
+                new Role_Permission {
                     RoleId = registeredUser.Id,
                     PermissionId = isRegistered.Id,
                 },
@@ -374,7 +465,7 @@ namespace Infrastructure.Persistence.Context {
                 },
                 new Role_Permission {
                     RoleId = loanOfficer.Id,
-                    PermissionId = canUpdateApplication.Id,
+                    PermissionId = canReadBorrowers.Id,
                 },
                 new Role_Permission {
                     RoleId = loanOfficer.Id,
@@ -382,7 +473,67 @@ namespace Infrastructure.Persistence.Context {
                 },
                 new Role_Permission {
                     RoleId = loanOfficer.Id,
-                    PermissionId = canReadBorrowers.Id,
+                    PermissionId = canUpdateApplication.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canGenerateMatrix.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canCreateMatrix.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canUpdateMatrix.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canDeleteMatrix.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canAddLoan.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canUpdateLoan.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadLoans.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canChangeLoanStatuses.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadStatuses.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadLenders.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadCompanyTypes.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadProducts.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = generateEligibles.Id,
+                },
+                new Role_Permission {
+                    RoleId = loanOfficer.Id,
+                    PermissionId = canReadUsers.Id,
+                },
+                new Role_Permission {
+                    RoleId = registeredUser.Id,
+                    PermissionId = canReadCompanyTypes.Id,
                 }
             );
             #endregion

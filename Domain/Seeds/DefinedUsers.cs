@@ -12,5 +12,18 @@
             public const string PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=";
             public const string PasswordSalt = "jWRLoRafDBcFS72uPEqyqg==";
         }
+
+        public static class Loan_Officer {
+            public static readonly Guid Id = Guid.Parse("75AEEBBA-0D7D-4F8B-A95D-4D9551167C56");
+            public const string FirstName = "KevinLoan";
+            public const string LastName = "ShemiliLoan";
+            public const string Username = "kevinOfficer1";
+            public const string Email = "kevin.shemili@officer.com";
+            public const bool IsEmailConfirmed = true;
+            public const string PhoneNumber = "683363203";
+            public const string Prefix = "+355";
+            public const string PasswordHash = "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=";
+            public const string PasswordSalt = "jWRLoRafDBcFS72uPEqyqg==";
+        }
     }
 }

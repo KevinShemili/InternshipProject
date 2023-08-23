@@ -6,6 +6,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Roles.Commands {
 
@@ -18,25 +19,37 @@ namespace Application.UseCases.Roles.Commands {
         private readonly IRoleRepository _roleRepository;
         private readonly IStringLocalizer<LocalizationResources> _localization;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<DeleteRoleCommandHandler> _logger;
 
         public DeleteRoleCommandHandler(IRoleRepository roleRepository,
-            IStringLocalizer<LocalizationResources> localizer, IUnitOfWork unitOfWork) {
+                                        IStringLocalizer<LocalizationResources> localizer,
+                                        IUnitOfWork unitOfWork,
+                                        ILogger<DeleteRoleCommandHandler> logger) {
             _roleRepository = roleRepository;
             _localization = localizer;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<bool> Handle(DeleteRoleCommand request, CancellationToken cancellationToken) {
-            if (await _roleRepository.ContainsAsync(request.RoleId) is false)
-                throw new NotFoundException(_localization.GetString("RoleDoesntExist").Value);
 
-            await _roleRepository.DeleteAsync(request.RoleId);
+            try {
+                if (await _roleRepository.ContainsAsync(request.RoleId) is false)
+                    throw new NotFoundException(_localization.GetString("RoleDoesntExist").Value);
 
-            var flag = await _unitOfWork.SaveChangesAsync();
-            if (flag is false)
-                throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+                await _roleRepository.DeleteAsync(request.RoleId);
 
-            return true;
+                var flag = await _unitOfWork.SaveChangesAsync();
+                if (flag is false)
+                    throw new DatabaseException(_localization.GetString("DatabaseException").Value);
+
+                return true;
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Delete Role Command Handler", request);
+
+                throw;
+            }
         }
     }
 

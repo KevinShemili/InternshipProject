@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.UserCases.Queries {
@@ -22,26 +23,38 @@ namespace Application.UseCases.UserCases.Queries {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<User> _pagination;
+        private readonly ILogger<GetAllUsersQueryHandler> _logger;
 
-        public GetAllUsersQueryHandler(IMapper mapper, IUserRepository userRepository, IPaginationService<User> pagination) {
+        public GetAllUsersQueryHandler(IMapper mapper,
+                                       IUserRepository userRepository,
+                                       IPaginationService<User> pagination,
+                                       ILogger<GetAllUsersQueryHandler> logger) {
             _mapper = mapper;
             _userRepository = userRepository;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<UserResult>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken) {
 
-            var users = _userRepository.GetIQueryable();
+            try {
+                var users = _userRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, users.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, users.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            users = Filter(users, request.Filter);
-            users = Sort(users, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(users, request.Page, request.PageSize);
+                users = Filter(users, request.Filter);
+                users = Sort(users, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(users, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<UserResult>>(response);
+                return _mapper.Map<PagedList<UserResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Users Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<User> Filter(IQueryable<User> users, string? filter) {

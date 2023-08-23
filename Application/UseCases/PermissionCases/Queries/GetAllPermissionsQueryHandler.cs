@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.ViewPermissions.Queries {
@@ -21,28 +22,38 @@ namespace Application.UseCases.ViewPermissions.Queries {
         private readonly IPermissionRepository _permissionRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Permission> _pagination;
+        private readonly ILogger<GetAllPermissionsQueryHandler> _logger;
 
         public GetAllPermissionsQueryHandler(IPermissionRepository permissionRepository,
                                              IMapper mapper,
-                                             IPaginationService<Permission> pagination) {
+                                             IPaginationService<Permission> pagination,
+                                             ILogger<GetAllPermissionsQueryHandler> logger) {
             _permissionRepository = permissionRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<PermissionsResult>> Handle(GetAllPermissionsQuery request, CancellationToken cancellationToken) {
 
-            var permissions = _permissionRepository.GetIQueryable();
+            try {
+                var permissions = _permissionRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, permissions.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+                var tuple = _pagination.Validate(request.Page, request.PageSize, permissions.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            permissions = Filter(permissions, request.Filter);
-            permissions = Sort(permissions, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(permissions, request.Page, request.PageSize);
+                permissions = Filter(permissions, request.Filter);
+                permissions = Sort(permissions, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(permissions, request.Page, request.PageSize);
 
-            return _mapper.Map<PagedList<PermissionsResult>>(response);
+                return _mapper.Map<PagedList<PermissionsResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get All Permissions Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Permission> Filter(IQueryable<Permission> permissions, string? filter) {

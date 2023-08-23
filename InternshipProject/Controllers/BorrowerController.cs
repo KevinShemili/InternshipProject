@@ -1,8 +1,10 @@
 ﻿using Application.UseCases.BorrowerJourney.Commands;
 using Application.UseCases.BorrowerJourney.Queries;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.BorrowerJourneyRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -21,7 +23,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Create new borrower")]
-        //[Authorize(Policy = PermissionSeeds.CanAddBorrower)]
+        [Authorize(Policy = $"{DefinedPermissions.CanAddBorrower.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpPost("borrowers")]
         public async Task<IActionResult> CreateBorrower([FromHeader] string AccessToken, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<CreateBorrowerCommmand>(borrowerRequest);
@@ -32,7 +34,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get borrower by id")]
-        //[Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers}, {DefinedPermissions.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("borrowers/{id}")]
         public async Task<IActionResult> GetBorrower([FromRoute] Guid id) {
             var result = await _mediator.Send(new GetBorrowerQuery {
@@ -42,7 +44,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Update borrower")]
-        //[Authorize(Policy = $"{DefinedPermissions.CanUpdateBorrower}, {DefinedPermissions.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanUpdateBorrower.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpPut("borrowers/{id}")]
         public async Task<IActionResult> UpdateBorrower([FromRoute] Guid id, [FromBody] BorrowerRequest borrowerRequest) {
             var command = _mapper.Map<UpdateBorrowerCommand>(borrowerRequest);
@@ -53,7 +55,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get borrowers of a user")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("users/{id}/borrowers")]
         public async Task<IActionResult> GetBorrowersByUser([FromRoute] Guid id,
                                                             [FromQuery] string? filter,
@@ -75,7 +77,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all borrowers")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("borrowers")]
         public async Task<IActionResult> GetAllBorrowers([FromQuery] string? filter,
                                                          [FromQuery] string? sortColumn,
@@ -95,7 +97,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get the company profile of a borrower")]
-        //[Authorize(Policy = $"{PermissionSeeds.CanDeleteBorrower}, {PermissionSeeds.IsSuperAdmin}")]
+        [Authorize(Policy = $"{DefinedPermissions.CanReadBorrowers.Name}, {DefinedPermissions.IsSuperAdmin.Name}")]
         [HttpGet("borrowers/{id}/company-profile")]
         public async Task<IActionResult> GetCompanyProfile([FromRoute] Guid id) {
 

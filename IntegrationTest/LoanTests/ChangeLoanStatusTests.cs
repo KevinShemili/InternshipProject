@@ -46,7 +46,7 @@ namespace IntegrationTest.LoanTests {
         [InlineData(DefinedLoanStatuses.Repaid.Name)]
         public async void HandleLoanStatusChange_HappyPath_ChangesApplicationStatusAccordingly(string status) {
 
-            var loanId = Guid.Parse("1A78A2DC-269A-4054-B404-5285453B078E");
+            var loanId = Guid.Parse("CB11BDDE-CF3B-4794-80D3-E274E14644E7");
             var loan = await _dbContext.Loans.Include(x => x.Application).FirstOrDefaultAsync(x => x.Id == loanId);
             var application = loan.Application;
 

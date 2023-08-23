@@ -8,6 +8,7 @@ using FluentValidation;
 using InternshipProject.Localizations;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Authentication.Commands {
 
@@ -24,67 +25,77 @@ namespace Application.UseCases.Authentication.Commands {
         private readonly ITokenService _tokenService;
         private readonly IStringLocalizer<LocalizationResources> _localizer;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<LoginCommandHandler> _logger;
+
 
         public LoginCommandHandler(IUserRepository userRepository,
                                    IJwtToken jwtToken,
                                    IHasherService hasherService,
                                    ITokenService tokenService,
                                    IStringLocalizer<LocalizationResources> localizer,
-                                   IUnitOfWork unitOfWork) {
+                                   IUnitOfWork unitOfWork,
+                                   ILogger<LoginCommandHandler> logger) {
             _userRepository = userRepository;
             _jwtToken = jwtToken;
             _hasherService = hasherService;
             _tokenService = tokenService;
             _localizer = localizer;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken) {
+            try {
+                if (await _userRepository.ContainsUsernameAsync(request.Username) is false)
+                    throw new NotFoundException(_localizer.GetString("InvalidUsername").Value);
 
-            if (await _userRepository.ContainsUsernameAsync(request.Username) is false)
-                throw new NotFoundException(_localizer.GetString("InvalidUsername").Value);
+                var user = await _userRepository.GetByUsernameAsync(request.Username);
 
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
+                if (user.IsEmailConfirmed is false)
+                    throw new ForbiddenException(_localizer.GetString("UnverifiedEmail").Value);
 
-            if (user.IsEmailConfirmed is false)
-                throw new ForbiddenException(_localizer.GetString("UnverifiedEmail").Value);
-
-            if (user.IsBlocked is true)
-                throw new BlockedException(_localizer.GetString("BlockedAccount").Value);
-
-            var flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
-
-            if (flag is false) {
-                if (await _userRepository.IncrementTriesAsync(user.Id) is false) {
-                    await _userRepository.BlockAccountAsync(user.Id);
+                if (user.IsBlocked is true)
                     throw new BlockedException(_localizer.GetString("BlockedAccount").Value);
+
+                var flag = _hasherService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
+
+                if (flag is false) {
+                    if (await _userRepository.IncrementTriesAsync(user.Id) is false) {
+                        await _userRepository.BlockAccountAsync(user.Id);
+                        throw new BlockedException(_localizer.GetString("BlockedAccount").Value);
+                    }
+                    throw new UnauthorizedException(_localizer.GetString("IncorrectPassword").Value);
                 }
-                throw new UnauthorizedException(_localizer.GetString("IncorrectPassword").Value);
+
+                var roles = await _userRepository.GetRolesAsync(user.Id);
+                var roleNames = roles.Select(x => x.Name).AsEnumerable();
+
+                // put roles in token
+                var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames) ?? throw new ServerException();
+
+                // generate refresh token for the user
+                var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
+
+                // login successful by this point 
+                await _userRepository.ResetTriesAsync(user.Id);
+                await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
+
+                var dbFlag = await _unitOfWork.SaveChangesAsync();
+                if (dbFlag is false)
+                    throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
+
+                return new LoginResult {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Token = token,
+                    RefreshToken = refreshToken
+                };
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Login Command Handler. ", request);
+                throw;
             }
 
-            var roles = await _userRepository.GetRolesAsync(user.Id);
-            var roleNames = roles.Select(x => x.Name).AsEnumerable();
-
-            // put roles in token
-            var token = _jwtToken.GenerateToken(user.Id, user.Username, roleNames) ?? throw new ServerException();
-
-            // generate refresh token for the user
-            var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
-
-            // login successful by this point 
-            await _userRepository.ResetTriesAsync(user.Id);
-            await _userRepository.SetRefreshTokenAsync(user.Id, refreshToken, DateTime.Now.AddDays(7));
-
-            var dbFlag = await _unitOfWork.SaveChangesAsync();
-            if (dbFlag is false)
-                throw new DatabaseException(_localizer.GetString("DatabaseException").Value);
-
-            return new LoginResult {
-                Id = user.Id,
-                Email = user.Email,
-                Token = token,
-                RefreshToken = refreshToken
-            }; ;
         }
     }
 

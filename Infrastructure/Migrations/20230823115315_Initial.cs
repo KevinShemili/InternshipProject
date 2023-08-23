@@ -8,11 +8,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ApplicationStatuses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationStatuses", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "CompanyTypes",
                 columns: table => new
@@ -28,18 +40,47 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LenderMatrices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Tenor = table.Column<int>(type: "int", nullable: false),
+                    Spread = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LenderMatrices", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Lenders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RequestedAmount = table.Column<int>(type: "int", nullable: false),
-                    Tenor = table.Column<int>(type: "int", nullable: false),
+                    MinTenor = table.Column<int>(type: "int", nullable: false),
+                    MaxTenor = table.Column<int>(type: "int", nullable: false),
                     BorrowerCompanyType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Lenders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LoanStatuses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoanStatuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -219,13 +260,19 @@ namespace Infrastructure.Migrations
                     RequestedAmount = table.Column<int>(type: "int", nullable: false),
                     RequestedTenor = table.Column<int>(type: "int", nullable: false),
                     FinancePurposeDefinition = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     BorrowerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicationStatusId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Applications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Applications_ApplicationStatuses_ApplicationStatusId",
+                        column: x => x.ApplicationStatusId,
+                        principalTable: "ApplicationStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Applications_Borrowers_BorrowerId",
                         column: x => x.BorrowerId,
@@ -279,9 +326,10 @@ namespace Infrastructure.Migrations
                     ReferenceRate = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     InterestRate = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     Tenor = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LoanStatusId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -298,25 +346,26 @@ namespace Infrastructure.Migrations
                         principalTable: "Lenders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductMatrices",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductMatrices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductMatrices_Applications_ApplicationId",
-                        column: x => x.ApplicationId,
-                        principalTable: "Applications",
+                        name: "FK_Loans_LoanStatuses_LoanStatusId",
+                        column: x => x.LoanStatusId,
+                        principalTable: "LoanStatuses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "ApplicationStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("23eadac2-3bbb-421b-9a5b-aff07eb74c41"), "Loan Guaranteed" },
+                    { new Guid("25275da5-388e-46db-a169-99e1c58d0a7b"), "Loan Disbursed" },
+                    { new Guid("287c9a29-9d88-48cb-9aa7-95b33b6fb197"), "Loan Defaulted" },
+                    { new Guid("2c656d64-8bcd-4c96-bb96-cd04c231199d"), "Loan Repaid" },
+                    { new Guid("2fbde7f8-a9f1-4857-ac10-f818db1dc8b0"), "Loan Rejected" },
+                    { new Guid("58749e4c-3bd5-4bf4-b86f-e9b0303a015e"), "Loan Canceled" },
+                    { new Guid("b1f0c15d-7c24-4277-991c-5a30a40abacc"), "In Charge" }
                 });
 
             migrationBuilder.InsertData(
@@ -324,12 +373,36 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Description", "Type" },
                 values: new object[,]
                 {
-                    { new Guid("21fe46f1-c27e-4724-b6ca-3542420b8545"), null, "General Partnership" },
-                    { new Guid("2d9b10e9-67f0-4c7d-8fd8-d6467437e478"), null, "Sole Proprietorship" },
-                    { new Guid("30ae2255-dc30-41c6-8cc2-910c69b8b9e6"), null, "Other" },
-                    { new Guid("41a47e50-2399-4fb8-9d3d-22f7feb1bd9e"), null, "Limited Partnership" },
-                    { new Guid("8f985cc7-128f-4be7-9988-904b40b8317f"), null, "Partnership Limited by Shares" },
-                    { new Guid("a581a59c-8836-42dc-85e4-27d878eaa29f"), null, "Cooperative Society" }
+                    { new Guid("67d5fd0e-f3a4-4aa7-bef8-8a587bcb475e"), "Description", "Partnership Limited by Shares" },
+                    { new Guid("7db974f8-6321-4b35-8ef4-65edda9fe1d6"), "Description", "Sole Proprietorship" },
+                    { new Guid("a7eea608-196c-4a52-a5c7-9694e0eb190b"), "Description", "Other" },
+                    { new Guid("afbb07dd-70ad-471d-8448-67539b17b872"), "Description", "General Partnership" },
+                    { new Guid("b2b5ce14-79b1-402e-92f5-2536bce91dda"), "Description", "Limited Partnership" },
+                    { new Guid("be9a7220-0773-4d4d-8ef7-b5fbf480e952"), "Description", "Cooperative Society" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Lenders",
+                columns: new[] { "Id", "BorrowerCompanyType", "MaxTenor", "MinTenor", "Name", "RequestedAmount" },
+                values: new object[,]
+                {
+                    { new Guid("0f3c377f-89ad-4fd6-af55-62f783b0ea52"), "Sole Proprietorship", 60, 30, "LOGITECH", 100000 },
+                    { new Guid("7f83c404-efee-4900-98ee-38d3c95daf56"), "Partnership Limited by Shares", 60, 40, "AZIF", 400000 },
+                    { new Guid("8d1ac5ed-0e1e-4de1-a7fc-a7df9e095653"), "Cooperative Society", 65, 30, "PMI BTECH", 100000 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "LoanStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("2dc1c106-6c3d-4af4-98e3-3af497a097f1"), "Erased" },
+                    { new Guid("45e0d7e5-0c30-4ee0-b0c6-23379a9bd138"), "Created" },
+                    { new Guid("5318a2e8-6a76-49e6-8b2f-97a8e09e5c8c"), "Repaid" },
+                    { new Guid("60724bc1-b7ce-4c2a-9663-a0b5b1bd252c"), "Guaranteed" },
+                    { new Guid("95269826-ee81-4f28-9783-9bc0d9996300"), "Rejected" },
+                    { new Guid("e8db4469-c42e-4cdc-9848-8ae2b7ecccce"), "Defaulted" },
+                    { new Guid("f28af2b0-4535-49e7-bb11-00054166a910"), "Disbursed" }
                 });
 
             migrationBuilder.InsertData(
@@ -337,18 +410,30 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0382e628-c695-4dbd-8aeb-2547708724fc"), null, "CanUpdateApplication" },
-                    { new Guid("0656b88e-a20f-44f1-87e1-26eeecf11f0d"), null, "CanDeleteBorrower" },
-                    { new Guid("09ba0246-8a00-4feb-b64a-a1a207ee6bbd"), null, "IsSuperAdmin" },
-                    { new Guid("0e079ddf-db6f-45bb-81c2-37c916cde117"), null, "IsRegistered" },
-                    { new Guid("2447a86e-c937-4faf-bd42-f9b8fdcc14f6"), null, "CanReadOwnApplications" },
-                    { new Guid("519fbfeb-85ba-4d2d-8233-ba4c94a5c6f7"), null, "CanAddBorrower" },
-                    { new Guid("a9a16378-0bdc-429e-809f-6360ef88bb4d"), null, "CanReadOwnBorrowers" },
-                    { new Guid("dbb1b093-4f74-43ff-902f-9afe8f752952"), null, "CanDeleteApplication" },
-                    { new Guid("dd6d543c-bf19-4e9c-b928-af274cce0f74"), null, "CanReadBorrowers" },
-                    { new Guid("df4edda6-1227-48fd-ac8d-eea9e96f370b"), null, "CanReadApplications" },
-                    { new Guid("e2f39824-c765-4971-869f-77fbb230b276"), null, "CanAddApplication" },
-                    { new Guid("f47606a8-47e3-48fe-8e5f-ba904b4d1e3d"), null, "CanUpdateBorrower" }
+                    { new Guid("00e181e4-0549-4ebc-8730-77c901bfe676"), null, "CanUpdateLoan" },
+                    { new Guid("11b88057-19b4-4fcc-aada-3bdb20877faf"), null, "CanReadCompanyTypes" },
+                    { new Guid("2c9dad73-3625-4ecb-9522-c0f59a003e17"), null, "CanReadOwnBorrowers" },
+                    { new Guid("2fe0991b-7a0b-4700-8f2c-036782b973bc"), null, "CanCreateMatrix" },
+                    { new Guid("37704915-ff65-432f-8767-f5320c0ddea5"), null, "CanReadLoans" },
+                    { new Guid("37e38648-4f5d-48ad-9fab-e8dfe5c6e42c"), null, "CanDeleteMatrix" },
+                    { new Guid("3843c5cf-6ad5-4920-8bdd-838de39315e2"), null, "CanReadLenders" },
+                    { new Guid("3b12b41c-cdd3-45c8-8466-31750b8d3e3c"), null, "CanUpdateApplication" },
+                    { new Guid("4d74ce4f-b8d9-4c87-8f48-365c00dc612c"), null, "CanReadApplications" },
+                    { new Guid("4f29d160-b6c3-4bff-9bae-d1e6be1dac8b"), null, "CanAddLoan" },
+                    { new Guid("52b5a66f-70f9-42e7-aa25-e48171d634a5"), null, "CanReadProducts" },
+                    { new Guid("5b3afd8d-f998-455f-b251-0b38b752c663"), null, "CanChangeLoanStatus" },
+                    { new Guid("63f2afd8-c671-4dec-93af-de756e2e6e8a"), null, "CanUpdateMatrix" },
+                    { new Guid("6fc1cbaf-b307-4efa-8ca9-2cced12a6028"), null, "IsRegistered" },
+                    { new Guid("6fe53fc9-8fde-45f2-b3eb-f988e7abd00d"), null, "CanAddApplication" },
+                    { new Guid("7ed78266-c462-4c30-8860-dcd405880646"), null, "GenerateEligibles" },
+                    { new Guid("91c8ba0c-269b-4462-802c-cb6f3729fc9f"), null, "CanReadStatuses" },
+                    { new Guid("943fde30-8f60-4401-a63d-c4218c930882"), null, "CanReadUsers" },
+                    { new Guid("96c36a8c-be53-442d-a2f6-b2bcd71b3524"), null, "CanUpdateBorrower" },
+                    { new Guid("a333628c-0918-47dd-9c84-30342e0e95e3"), null, "CanReadOwnApplications" },
+                    { new Guid("cd978177-aa39-45f5-b6a6-783b9795196c"), null, "CanGenerateMatrix" },
+                    { new Guid("d3e011d6-53d4-46c7-8866-840593334476"), null, "CanAddBorrower" },
+                    { new Guid("f2a1fba5-a23e-4686-9c0f-3e636b1ac3e4"), null, "CanReadBorrowers" },
+                    { new Guid("ff9f62de-ab2a-4ba2-a15d-11a1f214ac66"), null, "IsSuperAdmin" }
                 });
 
             migrationBuilder.InsertData(
@@ -356,8 +441,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Description", "FinanceMaxAmount", "FinanceMinAmount", "Name", "ReferenceRate" },
                 values: new object[,]
                 {
-                    { new Guid("1b13ef33-6fae-4e35-bce6-343be6cc8bd2"), "Installment with variable rate pre-amortization", 2000000.00m, 10000.00m, "Installment with variable rate pre-amortization", 0.03m },
-                    { new Guid("ab105905-f008-40fe-bc5a-ca13711a3c2a"), "Installments with pre-amortization at a fixed rate", 2000000.00m, 10000.00m, "Installments with pre-amortization at a fixed rate", 0.0025m }
+                    { new Guid("5ff6a3be-482e-4826-b027-b7aea05de030"), "Description", 2000000.00m, 10000.00m, "Installments with pre-amortization at a fixed rate", 0.0025m },
+                    { new Guid("b2c0e6ae-2a83-4fd3-acce-dd1c647b1b1c"), "Description", 2000000.00m, 10000.00m, "Installment with variable rate pre-amortization", 0.0025m }
                 });
 
             migrationBuilder.InsertData(
@@ -365,41 +450,68 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("21ac4ea3-5e49-43da-9b36-2454954513bb"), "LoanOfficer" },
-                    { new Guid("947f29d9-1d93-4f14-aaf2-d7a8b6c712e8"), "SuperAdmin" },
-                    { new Guid("b6803092-61f0-4aa7-9a77-c0e54154f451"), "RegisteredUser" },
-                    { new Guid("c7493473-195e-485f-9e11-22be3c4599de"), "Borrower" }
+                    { new Guid("1afac8e2-d840-40aa-a97f-c3f2bc5931b0"), "SuperAdmin" },
+                    { new Guid("846d0436-ffce-49a2-a8ff-bf22aedf0a83"), "RegisteredUser" },
+                    { new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0"), "Borrower" },
+                    { new Guid("d6013a21-70d7-4c08-9de9-482f339147a8"), "LoanOfficer" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "Email", "FirstName", "IsBlocked", "IsEmailConfirmed", "LastName", "LoginTries", "PasswordHash", "PasswordSalt", "PhoneNumber", "Prefix", "Username" },
-                values: new object[] { new Guid("79bd95cd-4401-4fd8-92ec-1e1988fb440c"), "kevin.shemili@cardoai.com", "Kevin", false, true, "Shemili", 0, "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=", "jWRLoRafDBcFS72uPEqyqg==", "683363203", "+355", "kevinshemili1" });
+                values: new object[,]
+                {
+                    { new Guid("1b2031ff-df77-4ce4-a2f0-00e60546f243"), "kevin.shemili@cardoai.com", "Kevin", false, true, "Shemili", 0, "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=", "jWRLoRafDBcFS72uPEqyqg==", "683363203", "+355", "kevinshemili1" },
+                    { new Guid("75aeebba-0d7d-4f8b-a95d-4d9551167c56"), "kevin.shemili@officer.com", "KevinLoan", false, true, "ShemiliLoan", 0, "nsslp9QXF6wOvaGzfIHsoI+23nH+e8+l1SD8bv0IFrI=", "jWRLoRafDBcFS72uPEqyqg==", "683363203", "+355", "kevinOfficer1" }
+                });
 
             migrationBuilder.InsertData(
                 table: "RolePermissions",
                 columns: new[] { "PermissionId", "RoleId" },
                 values: new object[,]
                 {
-                    { new Guid("0382e628-c695-4dbd-8aeb-2547708724fc"), new Guid("21ac4ea3-5e49-43da-9b36-2454954513bb") },
-                    { new Guid("dd6d543c-bf19-4e9c-b928-af274cce0f74"), new Guid("21ac4ea3-5e49-43da-9b36-2454954513bb") },
-                    { new Guid("df4edda6-1227-48fd-ac8d-eea9e96f370b"), new Guid("21ac4ea3-5e49-43da-9b36-2454954513bb") },
-                    { new Guid("09ba0246-8a00-4feb-b64a-a1a207ee6bbd"), new Guid("947f29d9-1d93-4f14-aaf2-d7a8b6c712e8") },
-                    { new Guid("0e079ddf-db6f-45bb-81c2-37c916cde117"), new Guid("b6803092-61f0-4aa7-9a77-c0e54154f451") },
-                    { new Guid("519fbfeb-85ba-4d2d-8233-ba4c94a5c6f7"), new Guid("b6803092-61f0-4aa7-9a77-c0e54154f451") },
-                    { new Guid("0656b88e-a20f-44f1-87e1-26eeecf11f0d"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("2447a86e-c937-4faf-bd42-f9b8fdcc14f6"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("519fbfeb-85ba-4d2d-8233-ba4c94a5c6f7"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("a9a16378-0bdc-429e-809f-6360ef88bb4d"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("dbb1b093-4f74-43ff-902f-9afe8f752952"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("e2f39824-c765-4971-869f-77fbb230b276"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") },
-                    { new Guid("f47606a8-47e3-48fe-8e5f-ba904b4d1e3d"), new Guid("c7493473-195e-485f-9e11-22be3c4599de") }
+                    { new Guid("ff9f62de-ab2a-4ba2-a15d-11a1f214ac66"), new Guid("1afac8e2-d840-40aa-a97f-c3f2bc5931b0") },
+                    { new Guid("6fc1cbaf-b307-4efa-8ca9-2cced12a6028"), new Guid("846d0436-ffce-49a2-a8ff-bf22aedf0a83") },
+                    { new Guid("d3e011d6-53d4-46c7-8866-840593334476"), new Guid("846d0436-ffce-49a2-a8ff-bf22aedf0a83") },
+                    { new Guid("11b88057-19b4-4fcc-aada-3bdb20877faf"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("2c9dad73-3625-4ecb-9522-c0f59a003e17"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("52b5a66f-70f9-42e7-aa25-e48171d634a5"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("6fe53fc9-8fde-45f2-b3eb-f988e7abd00d"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("96c36a8c-be53-442d-a2f6-b2bcd71b3524"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("a333628c-0918-47dd-9c84-30342e0e95e3"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("d3e011d6-53d4-46c7-8866-840593334476"), new Guid("b05d025a-62ee-4d6c-aef4-9433cc52dcd0") },
+                    { new Guid("00e181e4-0549-4ebc-8730-77c901bfe676"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("11b88057-19b4-4fcc-aada-3bdb20877faf"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("2fe0991b-7a0b-4700-8f2c-036782b973bc"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("37704915-ff65-432f-8767-f5320c0ddea5"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("37e38648-4f5d-48ad-9fab-e8dfe5c6e42c"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("3843c5cf-6ad5-4920-8bdd-838de39315e2"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("3b12b41c-cdd3-45c8-8466-31750b8d3e3c"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("4d74ce4f-b8d9-4c87-8f48-365c00dc612c"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("4f29d160-b6c3-4bff-9bae-d1e6be1dac8b"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("52b5a66f-70f9-42e7-aa25-e48171d634a5"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("5b3afd8d-f998-455f-b251-0b38b752c663"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("63f2afd8-c671-4dec-93af-de756e2e6e8a"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("7ed78266-c462-4c30-8860-dcd405880646"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("91c8ba0c-269b-4462-802c-cb6f3729fc9f"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("943fde30-8f60-4401-a63d-c4218c930882"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("cd978177-aa39-45f5-b6a6-783b9795196c"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") },
+                    { new Guid("f2a1fba5-a23e-4686-9c0f-3e636b1ac3e4"), new Guid("d6013a21-70d7-4c08-9de9-482f339147a8") }
                 });
 
             migrationBuilder.InsertData(
                 table: "UserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("947f29d9-1d93-4f14-aaf2-d7a8b6c712e8"), new Guid("79bd95cd-4401-4fd8-92ec-1e1988fb440c") });
+                values: new object[,]
+                {
+                    { new Guid("1afac8e2-d840-40aa-a97f-c3f2bc5931b0"), new Guid("1b2031ff-df77-4ce4-a2f0-00e60546f243") },
+                    { new Guid("d6013a21-70d7-4c08-9de9-482f339147a8"), new Guid("75aeebba-0d7d-4f8b-a95d-4d9551167c56") }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_ApplicationStatusId",
+                table: "Applications",
+                column: "ApplicationStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Applications_BorrowerId",
@@ -439,10 +551,9 @@ namespace Infrastructure.Migrations
                 column: "LenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductMatrices_ApplicationId",
-                table: "ProductMatrices",
-                column: "ApplicationId",
-                unique: true);
+                name: "IX_Loans_LoanStatusId",
+                table: "Loans",
+                column: "LoanStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
@@ -468,10 +579,10 @@ namespace Infrastructure.Migrations
                 name: "CompanyProfiles");
 
             migrationBuilder.DropTable(
-                name: "Loans");
+                name: "LenderMatrices");
 
             migrationBuilder.DropTable(
-                name: "ProductMatrices");
+                name: "Loans");
 
             migrationBuilder.DropTable(
                 name: "RolePermissions");
@@ -483,16 +594,22 @@ namespace Infrastructure.Migrations
                 name: "UserVerificationAndReset");
 
             migrationBuilder.DropTable(
+                name: "Applications");
+
+            migrationBuilder.DropTable(
                 name: "Lenders");
 
             migrationBuilder.DropTable(
-                name: "Applications");
+                name: "LoanStatuses");
 
             migrationBuilder.DropTable(
                 name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationStatuses");
 
             migrationBuilder.DropTable(
                 name: "Borrowers");

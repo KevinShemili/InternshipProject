@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Application.UseCases.ViewPermissions.Queries {
@@ -22,25 +23,38 @@ namespace Application.UseCases.ViewPermissions.Queries {
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationService<Role> _pagination;
+        private readonly ILogger<GetRoleQueryHandler> _logger;
 
-        public GetRoleQueryHandler(IRoleRepository roleRepository, IMapper mapper, IPaginationService<Role> pagination) {
+        public GetRoleQueryHandler(IRoleRepository roleRepository,
+                                   IMapper mapper,
+                                   IPaginationService<Role> pagination,
+                                   ILogger<GetRoleQueryHandler> logger) {
             _roleRepository = roleRepository;
             _mapper = mapper;
             _pagination = pagination;
+            _logger = logger;
         }
 
         public async Task<PagedList<RoleResult>> Handle(GetRoleQuery request, CancellationToken cancellationToken) {
-            var roles = _roleRepository.GetIQueryable();
 
-            var tuple = _pagination.Validate(request.Page, request.PageSize, roles.Count());
-            request.Page = tuple.Item1;
-            request.PageSize = tuple.Item2;
+            try {
+                var roles = _roleRepository.GetIQueryable();
 
-            roles = Filter(roles, request.Filter);
-            roles = Sort(roles, request.SortOrder, request.SortColumn);
-            var response = await _pagination.PaginateAsync(roles, request.Page, request.PageSize);
+                var tuple = _pagination.Validate(request.Page, request.PageSize, roles.Count());
+                request.Page = tuple.Item1;
+                request.PageSize = tuple.Item2;
 
-            return _mapper.Map<PagedList<RoleResult>>(response);
+                roles = Filter(roles, request.Filter);
+                roles = Sort(roles, request.SortOrder, request.SortColumn);
+                var response = await _pagination.PaginateAsync(roles, request.Page, request.PageSize);
+
+                return _mapper.Map<PagedList<RoleResult>>(response);
+            }
+            catch (Exception ex) {
+                _logger.LogError("Error in Get Role Query Handler", request);
+
+                throw;
+            }
         }
 
         private static IQueryable<Role> Filter(IQueryable<Role> roles, string? filter) {

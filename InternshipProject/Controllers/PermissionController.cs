@@ -2,8 +2,10 @@
 using Application.UseCases.Permissions.Queries;
 using Application.UseCases.ViewPermissions.Queries;
 using AutoMapper;
+using Domain.Seeds;
 using InternshipProject.Objects.Requests.PermissionRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,7 +24,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get all permissions")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("permissions")]
         public async Task<IActionResult> GetPermissions([FromQuery] string? filter,
                                                         [FromQuery] string? sortColumn,
@@ -40,7 +42,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Get permissions by given role id")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpGet("roles/{id}/permissions")]
         public async Task<IActionResult> GetRolePermissions([FromRoute] Guid id,
                                                             [FromQuery] string? filter,
@@ -60,7 +62,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Create new permission")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpPost("permissions")]
         public async Task<IActionResult> CreatePermission([FromBody] PermissionRequest permissionRequest) {
             var command = _mapper.Map<CreatePermissionCommand>(permissionRequest);
@@ -69,7 +71,7 @@ namespace InternshipProject.Controllers {
         }
 
         [SwaggerOperation(Summary = "Delete permission")]
-        //[Authorize(Policy = DefinedPermissions.IsSuperAdmin)]
+        [Authorize(Policy = DefinedPermissions.IsSuperAdmin.Name)]
         [HttpDelete("permissions/{id}")]
         public async Task<IActionResult> DeletePermission([FromRoute] Guid id) {
             var command = new DeletePermissionCommand { PermissionId = id };
